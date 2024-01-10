@@ -49,7 +49,7 @@ fun ResultScreen(modifier: Modifier = Modifier, result: InferenceResult, back: (
         )
         ResultCategory(
             label = "Utilização média de CPU: ",
-            result = result.cpuAverage.toString() + "%"
+            result = "%.2f".format(result.cpuAverage) + "%"
         )
         ResultCategory(
             label = "Utilização média de GPU: ",

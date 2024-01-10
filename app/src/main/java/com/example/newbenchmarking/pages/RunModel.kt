@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.components.LargeButton
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
@@ -20,6 +21,7 @@ import com.example.newbenchmarking.machineLearning.runImageClassification
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.TensorImage
 
@@ -27,10 +29,13 @@ import org.tensorflow.lite.support.image.TensorImage
 fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults: (InferenceResult) -> Unit) {
 
     val context = LocalContext.current
-    val loadingLable by remember { mutableStateOf("Carregando...") }
+    val loadingLable = "Carregando..."
 
     val imagesIdList = getImagesIdList(params.numImages)
     val tensorImages = imagesIdList.map { TensorImage.fromBitmap(getImage(id = it)) }
+
+    val cpuUsage by remember { mutableStateOf(CpuUsage()) }
+    var displayCpuUsage by remember {mutableStateOf("0%")}
 
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
@@ -42,8 +47,22 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             inferenceTimeAverage = result.second,
             ramConsumedAverage = 0F,
             gpuAverage = 0F,
-            cpuAverage = 0F
+            cpuAverage = cpuUsage.getAverageCPUConsumption()
         ))
+    }
+
+    LaunchedEffect(Unit) {
+        while(true){
+            delay(100)
+            cpuUsage.calculateCPUUsage()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while(true){
+            delay(500)
+            displayCpuUsage = "%.2f".format(cpuUsage.getCPUUsage()) + "%"
+        }
     }
 
     Column (
@@ -55,6 +74,9 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             text = loadingLable,
             modifier = modifier
         )
+        Text(
+            text = "CPU: $displayCpuUsage",
+            modifier = modifier
+        )
     }
-
 }
