@@ -23,8 +23,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.machineLearning.runImageClassification
 import com.example.newbenchmarking.pages.InferenceConfig
+import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
 import com.example.newbenchmarking.ui.theme.NewBenchmarkingTheme
 import com.example.newbenchmarking.utils.getImage
@@ -72,7 +74,37 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                 RunModel(Modifier, InferenceParams(
                     useNNAPI = it.getBoolean("useNNAPI"),
                     numImages = it.getInt("numImages"))
-                ) { navController.navigate("inferenceConfig") }
+                ) {
+                    (
+                        cpuAverage,
+                        gpuAverage,
+                        ramConsumedAverage,
+                        inferenceTimeAverage,
+                        loadTime) ->
+                            navController.navigate("result/$loadTime/$inferenceTimeAverage/$cpuAverage/$gpuAverage/$ramConsumedAverage")
+                }
+            }
+        }
+        composable(
+            "result/{load}/{time}/{cpu}/{gpu}/{ram}",
+            arguments = listOf(
+                navArgument("load") {type = NavType.LongType},
+                navArgument("time") {type = NavType.LongType},
+                navArgument("cpu") {type = NavType.FloatType},
+                navArgument("gpu") {type = NavType.FloatType},
+                navArgument("ram") {type = NavType.FloatType},
+            )
+        ){ backStackEntry ->
+            backStackEntry.arguments?.let {
+                ResultScreen(result =
+                    InferenceResult(
+                        loadTime = it.getLong("load"),
+                        inferenceTimeAverage = it.getLong("time"),
+                        ramConsumedAverage = it.getFloat("ram"),
+                        cpuAverage = it.getFloat("cpu"),
+                        gpuAverage = it.getFloat("gpu")
+                    )
+                ) {navController.navigate("inferenceConfig")}
             }
         }
     }

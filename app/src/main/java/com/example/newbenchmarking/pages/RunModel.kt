@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.LargeButton
 import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.machineLearning.runImageClassification
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
@@ -23,10 +24,10 @@ import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.TensorImage
 
 @Composable
-fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goBack: () -> Unit) {
+fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults: (InferenceResult) -> Unit) {
 
     val context = LocalContext.current
-    var loadingLable by remember { mutableStateOf("Carregando...") }
+    val loadingLable by remember { mutableStateOf("Carregando...") }
 
     val imagesIdList = getImagesIdList(params.numImages)
     val tensorImages = imagesIdList.map { TensorImage.fromBitmap(getImage(id = it)) }
@@ -36,7 +37,13 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goBack: () 
         withContext(Dispatchers.IO){
             result = runImageClassification(context, "efficientNetFP32.tflite", tensorImages, params.useNNAPI)
         }
-        loadingLable = "Inicialização: ${result.first}, Média: ${result.second}"
+        goToResults(InferenceResult(
+            loadTime = result.first,
+            inferenceTimeAverage = result.second,
+            ramConsumedAverage = 0F,
+            gpuAverage = 0F,
+            cpuAverage = 0F
+        ))
     }
 
     Column (
@@ -48,7 +55,6 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goBack: () 
             text = loadingLable,
             modifier = modifier
         )
-        LargeButton(label = "Voltar", onClick = goBack)
     }
 
 }
