@@ -40,7 +40,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
-            result = runImageClassification(context, "efficientNetFP32.tflite", tensorImages, params.useNNAPI)
+            result = runImageClassification(context, params.modelFile!!, tensorImages, params.useNNAPI)
         }
         goToResults(InferenceResult(
             loadTime = result.first,

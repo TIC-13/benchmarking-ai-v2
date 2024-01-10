@@ -58,13 +58,14 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig{ (useNNAPI, numImages) ->
-                navController.navigate("runModel/$useNNAPI/$numImages")
+            InferenceConfig{ (modelPath, useNNAPI, numImages) ->
+                navController.navigate("runModel/$modelPath/$useNNAPI/$numImages")
             }
         }
         composable(
-            "runModel/{useNNAPI}/{numImages}",
+            "runModel/{modelFile}/{useNNAPI}/{numImages}",
             arguments = listOf(
+                navArgument("modelFile") {type = NavType.StringType},
                 navArgument("useNNAPI") {type = NavType.BoolType},
                 navArgument("numImages") {type = NavType.IntType }
             ),
@@ -72,6 +73,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         ) { backStackEntry ->
             backStackEntry.arguments?.let {
                 RunModel(Modifier, InferenceParams(
+                    modelFile = it.getString("modelFile"),
                     useNNAPI = it.getBoolean("useNNAPI"),
                     numImages = it.getInt("numImages"))
                 ) {

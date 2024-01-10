@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.newbenchmarking.components.DropdownSelector
 import com.example.newbenchmarking.components.LargeButton
 import com.example.newbenchmarking.components.SliderSelector
 import com.example.newbenchmarking.components.SwitchSelector
@@ -21,6 +22,9 @@ fun InferenceConfig(modifier: Modifier = Modifier, startInference: (params: Infe
 
     var useNNAPI by remember { mutableStateOf(false) }
     var numImages by remember { mutableStateOf(50) }
+    var modelPath by remember { mutableStateOf("efficientNetFP32.tflite") }
+
+    val modelOptions: List<String> = listOf("efficientNetFP32.tflite", "efficientNetINT8.tflite")
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -41,9 +45,17 @@ fun InferenceConfig(modifier: Modifier = Modifier, startInference: (params: Infe
             rangeUp = 400F,
             labelColor = Color.Black
         )
+        DropdownSelector(
+            "Modelo selecionado: $modelPath",
+            items = modelOptions,
+            onItemSelected = { newIndex ->
+                modelPath = modelOptions[newIndex]
+            }
+        )
         LargeButton(label = "Iniciar", onClick = {
             startInference(
                 InferenceParams(
+                    modelPath,
                     useNNAPI,
                     numImages
                 )
