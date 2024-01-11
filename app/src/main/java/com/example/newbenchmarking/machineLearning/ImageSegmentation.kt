@@ -1,31 +1,31 @@
 package com.example.newbenchmarking.machineLearning
 
 import android.content.Context
-import android.util.Log
 import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.core.BaseOptions
-import org.tensorflow.lite.task.vision.classifier.ImageClassifier
+import org.tensorflow.lite.task.vision.segmenter.ImageSegmenter
+import org.tensorflow.lite.task.vision.segmenter.OutputType
 import kotlin.system.measureTimeMillis
 
-fun imageClassification(context: Context, params: InferenceParams, images: List<TensorImage>, baseOptionsBuilder: BaseOptions.Builder): Pair<Long, Long>  {
+fun imageSegmentation(context: Context, params: InferenceParams, images: List<TensorImage>, baseOptionsBuilder: BaseOptions.Builder): Pair<Long, Long>  {
     var totalInferenceTime = 0L
-    var imageClassifier: ImageClassifier
+    var imageSegmenter: ImageSegmenter
 
-    val options = ImageClassifier.ImageClassifierOptions.builder()
+    val options = ImageSegmenter.ImageSegmenterOptions.builder()
         .setBaseOptions(baseOptionsBuilder.build())
-        .setMaxResults(1000)
+        .setOutputType(OutputType.CONFIDENCE_MASK)
         .build()
 
     val loadTime = measureTimeMillis {
-        imageClassifier = ImageClassifier.createFromFileAndOptions(
+        imageSegmenter = ImageSegmenter.createFromFileAndOptions(
             context, params.model.filename, options
         )
     }
 
     for(tensorImage in images){
         totalInferenceTime += measureTimeMillis {
-            imageClassifier.classify(tensorImage)
+            imageSegmenter.segment(tensorImage)
         }
     }
 

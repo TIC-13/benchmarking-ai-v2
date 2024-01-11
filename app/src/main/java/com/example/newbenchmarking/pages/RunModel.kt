@@ -17,7 +17,7 @@ import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
-import com.example.newbenchmarking.machineLearning.runImageClassification
+import com.example.newbenchmarking.machineLearning.runTfliteModel
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
-            result = runImageClassification(context, params, tensorImages)
+            result = runTfliteModel(context, params, tensorImages)
         }
 
         imagesIdList = emptyList()

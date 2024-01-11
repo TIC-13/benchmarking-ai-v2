@@ -18,5 +18,10 @@ val models: List<Model> = listOf(
         "Efficientnet INT8",
         "efficientNetINT8.tflite",
         ModelType.CLASSIFICATION
+    ),
+    Model(
+        "DeepLab v3",
+        "deeplabv3.tflite",
+        ModelType.SEGMENTATION
     )
 )
