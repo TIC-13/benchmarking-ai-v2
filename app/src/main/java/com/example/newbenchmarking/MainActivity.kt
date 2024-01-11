@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
+import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.pages.InferenceConfig
 import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
@@ -44,14 +45,14 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig{ (modelPath, useNNAPI, numImages) ->
-                navController.navigate("runModel/$modelPath/$useNNAPI/$numImages")
+            InferenceConfig{ (model, useNNAPI, numImages) ->
+                navController.navigate("runModel/${model.label}/$useNNAPI/$numImages")
             }
         }
         composable(
-            "runModel/{modelFile}/{useNNAPI}/{numImages}",
+            "runModel/{modelLabel}/{useNNAPI}/{numImages}",
             arguments = listOf(
-                navArgument("modelFile") {type = NavType.StringType},
+                navArgument("modelLabel") {type = NavType.StringType},
                 navArgument("useNNAPI") {type = NavType.BoolType},
                 navArgument("numImages") {type = NavType.IntType }
             ),
@@ -59,7 +60,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         ) { backStackEntry ->
             backStackEntry.arguments?.let {
                 RunModel(Modifier, InferenceParams(
-                    modelFile = it.getString("modelFile"),
+                    model = models.find { x -> x.label == it.getString("modelLabel") }!!,
                     useNNAPI = it.getBoolean("useNNAPI"),
                     numImages = it.getInt("numImages"))
                 ) {

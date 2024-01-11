@@ -1,7 +1,7 @@
 package com.example.newbenchmarking.interfaces
 
 data class InferenceParams(
-    var modelFile: String?,
+    var model: Model,
     var useNNAPI: Boolean,
     var numImages: Int
 )

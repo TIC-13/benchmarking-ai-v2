@@ -43,7 +43,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
-            result = runImageClassification(context, params.modelFile!!, tensorImages, params.useNNAPI)
+            result = runImageClassification(context, params, tensorImages)
         }
 
         imagesIdList = emptyList()

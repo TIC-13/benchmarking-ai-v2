@@ -16,15 +16,14 @@ import com.example.newbenchmarking.components.LargeButton
 import com.example.newbenchmarking.components.SliderSelector
 import com.example.newbenchmarking.components.SwitchSelector
 import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.interfaces.models
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, startInference: (params: InferenceParams) -> Unit) {
 
     var useNNAPI by remember { mutableStateOf(false) }
     var numImages by remember { mutableStateOf(50) }
-    var modelPath by remember { mutableStateOf("efficientNetFP32.tflite") }
-
-    val modelOptions: List<String> = listOf("efficientNetFP32.tflite", "efficientNetINT8.tflite")
+    var model by remember { mutableStateOf(models[0]) }
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -46,16 +45,16 @@ fun InferenceConfig(modifier: Modifier = Modifier, startInference: (params: Infe
             labelColor = Color.Black
         )
         DropdownSelector(
-            "Modelo selecionado: $modelPath",
-            items = modelOptions,
+            "Modelo selecionado: ${model.label}",
+            items = models.map {x -> x.label},
             onItemSelected = { newIndex ->
-                modelPath = modelOptions[newIndex]
+                model = models[newIndex]
             }
         )
         LargeButton(label = "Iniciar", onClick = {
             startInference(
                 InferenceParams(
-                    modelPath,
+                    model,
                     useNNAPI,
                     numImages
                 )
