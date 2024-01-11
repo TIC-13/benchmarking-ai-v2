@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.benchmark.CpuUsage
+import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
@@ -40,6 +41,9 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
     val ramUsage by remember { mutableStateOf(RamUsage()) }
     var displayRamUsage by remember { mutableStateOf("0MB") }
 
+    val gpuUsage by remember { mutableStateOf(GpuUsage())}
+    var displayGpuUsage by remember { mutableStateOf("0%") }
+
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
@@ -53,7 +57,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             loadTime = result.first,
             inferenceTimeAverage = result.second,
             ramConsumedAverage = ramUsage.getAverage(),
-            gpuAverage = 0F,
+            gpuAverage = gpuUsage.getAverage(),
             cpuAverage = cpuUsage.getAverageCPUConsumption()
         ))
     }
@@ -63,6 +67,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             delay(100)
             cpuUsage.calculateCPUUsage()
             ramUsage.calculateUsage()
+            gpuUsage.calculateUsage()
         }
     }
 
@@ -71,6 +76,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             delay(500)
             displayCpuUsage = "%.2f".format(cpuUsage.getCPUUsage()) + "%"
             displayRamUsage = ramUsage.get().toString() + "MB"
+            displayGpuUsage = gpuUsage.get().toString() + "%"
         }
     }
 
@@ -109,6 +115,10 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
         }
         Text(
             text = "CPU: $displayCpuUsage",
+            modifier = modifier
+        )
+        Text(
+            text = "GPU: $displayGpuUsage",
             modifier = modifier
         )
         Text(

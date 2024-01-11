@@ -84,7 +84,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                 navArgument("load") {type = NavType.LongType},
                 navArgument("time") {type = NavType.LongType},
                 navArgument("cpu") {type = NavType.FloatType},
-                navArgument("gpu") {type = NavType.FloatType},
+                navArgument("gpu") {type = NavType.IntType},
                 navArgument("ram") {type = NavType.FloatType},
             )
         ){ backStackEntry ->
@@ -95,7 +95,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                         inferenceTimeAverage = it.getLong("time"),
                         ramConsumedAverage = it.getFloat("ram"),
                         cpuAverage = it.getFloat("cpu"),
-                        gpuAverage = it.getFloat("gpu")
+                        gpuAverage = it.getInt("gpu")
                     )
                 ) {navController.navigate("inferenceConfig")}
             }
