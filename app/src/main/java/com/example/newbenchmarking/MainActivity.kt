@@ -45,25 +45,29 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig{ (model, useNNAPI, numImages) ->
-                navController.navigate("runModel/${model.label}/$useNNAPI/$numImages")
+            InferenceConfig{ (model, useNNAPI, useGPU, numThreads, numImages) ->
+                navController.navigate("runModel/${model.label}/$useNNAPI/$useGPU/$numThreads/$numImages")
             }
         }
         composable(
-            "runModel/{modelLabel}/{useNNAPI}/{numImages}",
+            "runModel/{model}/{nnapi}/{gpu}/{threads}/{numImages}",
             arguments = listOf(
-                navArgument("modelLabel") {type = NavType.StringType},
-                navArgument("useNNAPI") {type = NavType.BoolType},
+                navArgument("model") {type = NavType.StringType},
+                navArgument("nnapi") {type = NavType.BoolType},
+                navArgument("gpu") {type = NavType.BoolType},
+                navArgument("threads") {type = NavType.IntType },
                 navArgument("numImages") {type = NavType.IntType }
             ),
 
         ) { backStackEntry ->
             backStackEntry.arguments?.let {
                 RunModel(Modifier, InferenceParams(
-                    model = models.find { x -> x.label == it.getString("modelLabel") }!!,
-                    useNNAPI = it.getBoolean("useNNAPI"),
-                    numImages = it.getInt("numImages"))
-                ) {
+                    model = models.find { x -> x.label == it.getString("model") }!!,
+                    useNNAPI = it.getBoolean("nnapi"),
+                    useGPU = it.getBoolean("gpu"),
+                    numThreads = it.getInt("threads"),
+                    numImages = it.getInt("numImages")
+                )) {
                     (
                         cpuAverage,
                         gpuAverage,

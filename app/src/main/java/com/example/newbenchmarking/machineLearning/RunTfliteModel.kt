@@ -7,8 +7,9 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.core.BaseOptions
 
 fun runTfliteModel(context: Context, params: InferenceParams, images: List<TensorImage>): Pair<Long, Long> {
-    var builder = BaseOptions.builder()
+    var builder = BaseOptions.builder().setNumThreads(params.numThreads)
     if(params.useNNAPI) builder = builder.useNnapi()
+    if(params.useGPU) builder = builder.useGpu()
 
     return if(params.model.modelType == ModelType.SEGMENTATION){
         imageSegmentation(context, params, images, builder)

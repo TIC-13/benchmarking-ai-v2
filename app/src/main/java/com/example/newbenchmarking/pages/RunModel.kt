@@ -84,6 +84,30 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
             modifier = modifier
         )
         Text(
+            text = params.model.label,
+            modifier = modifier
+        )
+        Text(
+            text = params.numImages.toString() + " imagens",
+            modifier = modifier
+        )
+        Text(
+            text = params.numThreads.toString() + " threads",
+            modifier = modifier
+        )
+        if(params.useNNAPI) {
+            Text(
+                text = "NNAPI ativa",
+                modifier = modifier
+            )
+        }
+        if(params.useGPU) {
+            Text(
+                text = "Delegado de GPU ativo",
+                modifier = modifier
+            )
+        }
+        Text(
             text = "CPU: $displayCpuUsage",
             modifier = modifier
         )
