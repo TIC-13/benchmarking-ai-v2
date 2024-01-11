@@ -45,7 +45,7 @@ fun ResultScreen(modifier: Modifier = Modifier, result: InferenceResult, back: (
         )
         ResultCategory(
             label = "Utilização média de RAM: ",
-            result = result.ramConsumedAverage.toString() + "%"
+            result = result.ramConsumedAverage.toInt().toString() + "MB"
         )
         ResultCategory(
             label = "Utilização média de CPU: ",

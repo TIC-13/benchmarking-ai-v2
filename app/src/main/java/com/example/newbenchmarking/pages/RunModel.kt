@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.benchmark.CpuUsage
-import com.example.newbenchmarking.components.LargeButton
+import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.machineLearning.runImageClassification
@@ -31,21 +31,28 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
     val context = LocalContext.current
     val loadingLable = "Carregando..."
 
-    val imagesIdList = getImagesIdList(params.numImages)
-    val tensorImages = imagesIdList.map { TensorImage.fromBitmap(getImage(id = it)) }
+    var imagesIdList = getImagesIdList(params.numImages)
+    var tensorImages = imagesIdList.map { TensorImage.fromBitmap(getImage(id = it)) }
 
     val cpuUsage by remember { mutableStateOf(CpuUsage()) }
     var displayCpuUsage by remember {mutableStateOf("0%")}
+
+    val ramUsage by remember { mutableStateOf(RamUsage()) }
+    var displayRamUsage by remember { mutableStateOf("0MB") }
 
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
             result = runImageClassification(context, params.modelFile!!, tensorImages, params.useNNAPI)
         }
+
+        imagesIdList = emptyList()
+        tensorImages = emptyList()
+
         goToResults(InferenceResult(
             loadTime = result.first,
             inferenceTimeAverage = result.second,
-            ramConsumedAverage = 0F,
+            ramConsumedAverage = ramUsage.getAverage(),
             gpuAverage = 0F,
             cpuAverage = cpuUsage.getAverageCPUConsumption()
         ))
@@ -55,6 +62,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
         while(true){
             delay(100)
             cpuUsage.calculateCPUUsage()
+            ramUsage.calculateUsage()
         }
     }
 
@@ -62,6 +70,7 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
         while(true){
             delay(500)
             displayCpuUsage = "%.2f".format(cpuUsage.getCPUUsage()) + "%"
+            displayRamUsage = ramUsage.get().toString() + "MB"
         }
     }
 
@@ -76,6 +85,10 @@ fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults
         )
         Text(
             text = "CPU: $displayCpuUsage",
+            modifier = modifier
+        )
+        Text(
+            text = "RAM: $displayRamUsage",
             modifier = modifier
         )
     }
