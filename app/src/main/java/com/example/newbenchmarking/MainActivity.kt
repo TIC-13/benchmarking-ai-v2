@@ -21,6 +21,7 @@ import com.example.newbenchmarking.pages.InferenceConfig
 import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
 import com.example.newbenchmarking.ui.theme.NewBenchmarkingTheme
+import com.example.newbenchmarking.viewModel.InferenceViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,33 +42,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()){
+
+    val inferenceViewModel = InferenceViewModel()
+
+
     NavHost(navController = navController, startDestination = "inferenceConfig") {
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig{ (model, useNNAPI, useGPU, numThreads, numImages) ->
-                navController.navigate("runModel/${model.label}/$useNNAPI/$useGPU/$numThreads/$numImages")
-            }
+            InferenceConfig(viewModel = inferenceViewModel) { navController.navigate("runModel")}
         }
         composable(
-            "runModel/{model}/{nnapi}/{gpu}/{threads}/{numImages}",
-            arguments = listOf(
-                navArgument("model") {type = NavType.StringType},
-                navArgument("nnapi") {type = NavType.BoolType},
-                navArgument("gpu") {type = NavType.BoolType},
-                navArgument("threads") {type = NavType.IntType },
-                navArgument("numImages") {type = NavType.IntType }
-            ),
-
+            "runModel",
         ) { backStackEntry ->
-            backStackEntry.arguments?.let {
-                RunModel(Modifier, InferenceParams(
-                    model = models.find { x -> x.label == it.getString("model") }!!,
-                    useNNAPI = it.getBoolean("nnapi"),
-                    useGPU = it.getBoolean("gpu"),
-                    numThreads = it.getInt("threads"),
-                    numImages = it.getInt("numImages")
-                )) {
+                RunModel(viewModel = inferenceViewModel) {
                     (
                         cpuAverage,
                         gpuAverage,
@@ -76,7 +64,6 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                         loadTime) ->
                             navController.navigate("result/$loadTime/$inferenceTimeAverage/$cpuAverage/$gpuAverage/$ramConsumedAverage")
                 }
-            }
         }
         composable(
             "result/{load}/{time}/{cpu}/{gpu}/{ram}",

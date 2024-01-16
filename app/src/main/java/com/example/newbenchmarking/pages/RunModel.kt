@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,16 +19,28 @@ import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
+import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.machineLearning.runTfliteModel
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
+import com.example.newbenchmarking.viewModel.InferenceViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.TensorImage
 
 @Composable
-fun RunModel(modifier: Modifier = Modifier, params: InferenceParams, goToResults: (InferenceResult) -> Unit) {
+fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, goToResults: (InferenceResult) -> Unit) {
+
+    val params by viewModel.inferenceParams.observeAsState(
+        initial = InferenceParams(
+            model = models[0],
+            numImages = 50,
+            numThreads = 1,
+            useGPU = false,
+            useNNAPI = false
+        )
+    )
 
     val context = LocalContext.current
     val loadingLable = "Carregando..."
