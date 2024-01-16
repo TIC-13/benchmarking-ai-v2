@@ -26,12 +26,12 @@ fun ResultScreen(modifier: Modifier = Modifier, result: InferenceResult, back: (
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "EfficientNet v2",
+            text = "",
             fontSize = 24.sp,
             color = Color.Black
         )
         Text(
-            text = "Classificação de imagem",
+            text = "",
             fontSize = 14.sp,
             color = Color.Black
         )

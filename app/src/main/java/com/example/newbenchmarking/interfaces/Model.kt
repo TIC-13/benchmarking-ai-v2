@@ -59,5 +59,13 @@ val models: List<Model> = listOf(
         outputShape = intArrayOf(1, 200, 200, 3),
         inputDataType = DataType.FLOAT32,
         outputDataType = DataType.FLOAT32
+    ),
+    Model(
+        "Image deblurring - IMDN",
+        "imdn_rtc_time.tflite",
+        inputShape = intArrayOf(1, 720, 480, 3),
+        outputShape = intArrayOf(1, 1440, 960, 3),
+        inputDataType = DataType.FLOAT32,
+        outputDataType = DataType.FLOAT32
     )
 )
