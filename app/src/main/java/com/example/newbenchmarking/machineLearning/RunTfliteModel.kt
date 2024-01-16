@@ -11,7 +11,6 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import org.tensorflow.lite.task.core.BaseOptions
 import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
@@ -20,7 +19,7 @@ import kotlin.system.measureTimeMillis
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Pair<Long, Long> {
 
     val model = loadModelFile(context.assets, modelName = params.model.filename)
-    val gpuDelegate = GpuDelegate(GpuDelegate.Options().setQuantizedModelsAllowed(true))
+    val gpuDelegate = GpuDelegate()
 
     val options = Interpreter.Options().apply {
         if(params.useGPU){
