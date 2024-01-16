@@ -20,7 +20,7 @@ import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
-import com.example.newbenchmarking.machineLearning.runTfliteModel
+import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
 import com.example.newbenchmarking.viewModel.InferenceViewModel
@@ -46,7 +46,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, goToR
     val loadingLable = "Carregando..."
 
     var imagesIdList = getImagesIdList(params.numImages)
-    var tensorImages = imagesIdList.map { TensorImage.fromBitmap(getImage(id = it)) }
+    var bitmapImages = imagesIdList.map { getImage(id = it) }
 
     val cpuUsage by remember { mutableStateOf(CpuUsage()) }
     var displayCpuUsage by remember {mutableStateOf("0%")}
@@ -60,11 +60,11 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, goToR
     LaunchedEffect(Unit){
         var result: Pair<Long, Long>
         withContext(Dispatchers.IO){
-            result = runTfliteModel(context, params, tensorImages)
+            result = runTfLiteModel(context, params, bitmapImages)
         }
 
         imagesIdList = emptyList()
-        tensorImages = emptyList()
+        bitmapImages = emptyList()
 
         goToResults(InferenceResult(
             loadTime = result.first,
