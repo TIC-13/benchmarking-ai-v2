@@ -51,5 +51,13 @@ val models: List<Model> = listOf(
         outputShape = intArrayOf(1, 416, 416, 3),
         inputDataType = DataType.FLOAT32,
         outputDataType = DataType.FLOAT32
+    ),
+    Model(
+        "Image Super resolution - ESRGAN",
+        "esrgan.tflite",
+        inputShape = intArrayOf(1, 50, 50, 3),
+        outputShape = intArrayOf(1, 200, 200, 3),
+        inputDataType = DataType.FLOAT32,
+        outputDataType = DataType.FLOAT32
     )
 )
