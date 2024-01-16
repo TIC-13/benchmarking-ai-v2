@@ -6,7 +6,7 @@ data class Model(
     val modelType: ModelType
 )
 
-enum class ModelType{ CLASSIFICATION, SEGMENTATION }
+enum class ModelType{ CLASSIFICATION, SEGMENTATION, DETECTION }
 
 val models: List<Model> = listOf(
     Model(
@@ -23,5 +23,10 @@ val models: List<Model> = listOf(
         "DeepLab v3",
         "deeplabv3.tflite",
         ModelType.SEGMENTATION
+    ),
+    Model(
+        "SSD MobileNet v1 (Detecção de objeto)",
+        "ssd_mobilenet_v2.tflite",
+        ModelType.DETECTION
     )
 )

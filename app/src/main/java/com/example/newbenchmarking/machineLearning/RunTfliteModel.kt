@@ -13,7 +13,9 @@ fun runTfliteModel(context: Context, params: InferenceParams, images: List<Tenso
 
     return if(params.model.modelType == ModelType.SEGMENTATION){
         imageSegmentation(context, params, images, builder)
-    }else{
+    }else if (params.model.modelType == ModelType.CLASSIFICATION){
         imageClassification(context, params, images, builder)
+    }else{
+        objectDetection(context, params, images, builder)
     }
 }
