@@ -43,5 +43,13 @@ val models: List<Model> = listOf(
         outputShape = intArrayOf(1, 300, 300, 3),
         inputDataType = DataType.UINT8,
         outputDataType = DataType.FLOAT32
+    ),
+    Model(
+        "Yolo v4 - FP32",
+        "yolov4-416-fp32.tflite",
+        inputShape = intArrayOf(1, 416, 416, 3),
+        outputShape = intArrayOf(1, 416, 416, 3),
+        inputDataType = DataType.FLOAT32,
+        outputDataType = DataType.FLOAT32
     )
 )
