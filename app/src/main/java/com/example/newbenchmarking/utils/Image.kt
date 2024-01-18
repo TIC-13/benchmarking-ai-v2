@@ -31,3 +31,9 @@ fun getImagesIdList(numImages: Int): List<Int> {
 
     return imagesIdList
 }
+
+@Composable
+fun getBitmapImages(numImages: Int): List<Bitmap> {
+    val imagesIdList = getImagesIdList(numImages)
+    return imagesIdList.map { getImage(id = it) }
+}

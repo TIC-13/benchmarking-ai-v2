@@ -26,43 +26,52 @@ import com.example.newbenchmarking.viewModel.ResultViewModel
 @Composable
 fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
 
-    val result by resultViewModel.inferenceResult.observeAsState(
-        initial = InferenceResult(
+    val resultList by resultViewModel.inferenceResultList.observeAsState(
+        initial = arrayListOf(InferenceResult(
             cpuAverage = 0F,
             gpuAverage =  0,
             ramConsumedAverage =  0F,
             inferenceTimeAverage = 0L,
             loadTime = 0L,
-        )
+        ))
     )
+
+    fun onBack(){
+        resultViewModel.updateInferenceResultList(arrayListOf())
+        back()
+    }
 
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        ResultCategory(
-            label = "Inicialização: ",
-            result = result.loadTime.toString() + "ms"
-        )
-        ResultCategory(
-            label = "Tempo médio por imagem: ",
-            result = result.inferenceTimeAverage.toString() + "ms"
-        )
-        ResultCategory(
-            label = "Utilização média de RAM: ",
-            result = result.ramConsumedAverage.toInt().toString() + "MB"
-        )
-        ResultCategory(
-            label = "Utilização média de CPU: ",
-            result = "%.2f".format(result.cpuAverage) + "%"
-        )
-        ResultCategory(
-            label = "Utilização média de GPU: ",
-            result = result.gpuAverage.toString() + "%"
-        )
+
+        for(result in resultList){
+            ResultCategory(
+                label = "Inicialização: ",
+                result = result.loadTime.toString() + "ms"
+            )
+            ResultCategory(
+                label = "Tempo médio por imagem: ",
+                result = result.inferenceTimeAverage.toString() + "ms"
+            )
+            ResultCategory(
+                label = "Utilização média de RAM: ",
+                result = result.ramConsumedAverage.toInt().toString() + "MB"
+            )
+            ResultCategory(
+                label = "Utilização média de CPU: ",
+                result = "%.2f".format(result.cpuAverage) + "%"
+            )
+            ResultCategory(
+                label = "Utilização média de GPU: ",
+                result = result.gpuAverage.toString() + "%"
+            )
+        }
+
         Button(
-            onClick = { back() },
+            onClick = { onBack() },
             modifier = Modifier
                 .padding(0.dp, 50.dp)
         ) {

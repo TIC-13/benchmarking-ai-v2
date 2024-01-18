@@ -7,17 +7,10 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
 class ResultViewModel : ViewModel() {
-    private val _inferenceResult = MutableLiveData(
-        InferenceResult(
-            cpuAverage = 0F,
-            gpuAverage =  0,
-            ramConsumedAverage =  0F,
-            inferenceTimeAverage = 0L,
-            loadTime = 0L,
-    ))
-    val inferenceResult: LiveData<InferenceResult> = _inferenceResult
+    private val _inferenceResultList = MutableLiveData(arrayListOf<InferenceResult>())
+    val inferenceResultList: LiveData<ArrayList<InferenceResult>> = _inferenceResultList
 
-    fun updateInferenceResult(newParams: InferenceResult) {
-        _inferenceResult.value = newParams
+    fun updateInferenceResultList(newList: ArrayList<InferenceResult>) {
+        _inferenceResultList.value = newList
     }
 }

@@ -7,16 +7,18 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.models
 class InferenceViewModel : ViewModel() {
     // Initial values for InferenceParams
-    private val _inferenceParams = MutableLiveData(InferenceParams(
-        model = models[0],
-        numImages = 50,
-        numThreads = 1,
-        useGPU = false,
-        useNNAPI = false
+    private val _inferenceParamsList = MutableLiveData(arrayListOf(
+        InferenceParams(
+            model = models[0],
+            numImages = 50,
+            numThreads = 1,
+            useGPU = false,
+            useNNAPI = false
+        )
     ))
-    val inferenceParams: LiveData<InferenceParams> = _inferenceParams
+    val inferenceParamsList: LiveData<ArrayList<InferenceParams>> = _inferenceParamsList
 
-    fun updateInferenceParams(newParams: InferenceParams) {
-        _inferenceParams.value = newParams
+    fun updateInferenceParamsList(newList: ArrayList<InferenceParams>) {
+        _inferenceParamsList.value = newList
     }
 }

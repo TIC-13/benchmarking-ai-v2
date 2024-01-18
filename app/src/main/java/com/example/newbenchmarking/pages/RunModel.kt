@@ -21,6 +21,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
+import com.example.newbenchmarking.utils.getBitmapImages
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
 import com.example.newbenchmarking.viewModel.InferenceViewModel
@@ -33,49 +34,65 @@ import org.tensorflow.lite.support.image.TensorImage
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
-    val params by viewModel.inferenceParams.observeAsState(
-        initial = InferenceParams(
+    val inferencesList by viewModel.inferenceParamsList.observeAsState(
+        initial = arrayListOf(InferenceParams(
             model = models[0],
             numImages = 50,
             numThreads = 1,
             useGPU = false,
             useNNAPI = false
-        )
+        ))
     )
+
+    val resultsList by resultViewModel.inferenceResultList.observeAsState()
 
     val context = LocalContext.current
     val loadingLable = "Carregando..."
 
-    var imagesIdList = getImagesIdList(params.numImages)
-    var bitmapImages = imagesIdList.map { getImage(id = it) }
+    var images = getBitmapImages(400)
 
-    val cpuUsage by remember { mutableStateOf(CpuUsage()) }
+    var cpuUsage by remember { mutableStateOf(CpuUsage()) }
     var displayCpuUsage by remember {mutableStateOf("0%")}
 
-    val ramUsage by remember { mutableStateOf(RamUsage()) }
+    var ramUsage by remember { mutableStateOf(RamUsage()) }
     var displayRamUsage by remember { mutableStateOf("0MB") }
 
-    val gpuUsage by remember { mutableStateOf(GpuUsage())}
+    var gpuUsage by remember { mutableStateOf(GpuUsage())}
     var displayGpuUsage by remember { mutableStateOf("0%") }
 
+    var currParams by remember { mutableStateOf(inferencesList[0]) }
+
     LaunchedEffect(Unit){
-        var result: Pair<Long, Long>
-        withContext(Dispatchers.IO){
-            result = runTfLiteModel(context, params, bitmapImages)
-        }
+        for(inferenceParams in inferencesList){
 
-        imagesIdList = emptyList()
-        bitmapImages = emptyList()
+            currParams = inferenceParams
+            var result: Pair<Long, Long>
 
-        resultViewModel.updateInferenceResult(
-            InferenceResult(
+            val currImages = images.subList(0, inferenceParams.numImages)
+
+            withContext(Dispatchers.IO){
+                result = runTfLiteModel(context, inferenceParams, currImages)
+            }
+
+            val currResult = InferenceResult(
                 loadTime = result.first,
                 inferenceTimeAverage = result.second,
                 ramConsumedAverage = ramUsage.getAverage(),
                 gpuAverage = gpuUsage.getAverage(),
                 cpuAverage = cpuUsage.getAverageCPUConsumption()
             )
-        )
+
+            resultViewModel.updateInferenceResultList(
+                ArrayList(
+                    resultsList?.plus(arrayListOf(currResult))
+                        ?: arrayListOf(currResult)
+                )
+            )
+
+            gpuUsage = GpuUsage()
+            cpuUsage = CpuUsage()
+            ramUsage = RamUsage()
+        }
 
         goToResults()
     }
@@ -108,24 +125,24 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             modifier = modifier
         )
         Text(
-            text = params.model.label,
+            text = currParams.model.label,
             modifier = modifier
         )
         Text(
-            text = params.numImages.toString() + " imagens",
+            text = currParams.numImages.toString() + " imagens",
             modifier = modifier
         )
         Text(
-            text = params.numThreads.toString() + " threads",
+            text = currParams.numThreads.toString() + " threads",
             modifier = modifier
         )
-        if(params.useNNAPI) {
+        if(currParams.useNNAPI) {
             Text(
                 text = "NNAPI ativa",
                 modifier = modifier
             )
         }
-        if(params.useGPU) {
+        if(currParams.useGPU) {
             Text(
                 text = "Delegado de GPU ativo",
                 modifier = modifier

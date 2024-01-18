@@ -19,19 +19,24 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.livedata.observeAsState
+import com.example.newbenchmarking.utils.getBitmapImages
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
 
-    val inferenceParams by viewModel.inferenceParams.observeAsState(
-        initial = InferenceParams(
-            model = models[0],
-            numImages = 50,
-            numThreads = 1,
-            useGPU = false,
-            useNNAPI = false
+    val inferenceParams by viewModel.inferenceParamsList.observeAsState(
+        initial = arrayListOf(
+            InferenceParams(
+                model = models[0],
+                numImages = 50,
+                numThreads = 1,
+                useGPU = false,
+                useNNAPI = false
+            )
         )
     )
+
+    var numImages by remember { mutableStateOf(50) }
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -40,37 +45,37 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
     ){
         SwitchSelector(
             label = "NNAPI ativa",
-            isChecked = inferenceParams.useNNAPI,
-            onCheckedChange = { viewModel.updateInferenceParams(inferenceParams.copy(useNNAPI = it)) },
+            isChecked = inferenceParams[0].useNNAPI,
+            onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(useNNAPI = it))) },
             labelColor = Color.Black
         )
         SwitchSelector(
             label = "GPU ativa",
-            isChecked = inferenceParams.useGPU,
-            onCheckedChange = { viewModel.updateInferenceParams(inferenceParams.copy(useGPU = it))},
+            isChecked = inferenceParams[0].useGPU,
+            onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(useGPU = it)))},
             labelColor = Color.Black
         )
         SliderSelector(
-            label = "Número de imagens: ${inferenceParams.numImages}",
-            value = inferenceParams.numImages,
-            onValueChange = { viewModel.updateInferenceParams(inferenceParams.copy(numImages = it.toInt())) },
+            label = "Número de imagens: ${numImages}",
+            value = numImages,
+            onValueChange = { numImages = it.toInt() },
             rangeBottom = 15F,
             rangeUp = 400F,
             labelColor = Color.Black
         )
         SliderSelector(
-            label = "Número de threads: ${inferenceParams.numThreads}",
-            value = inferenceParams.numThreads,
-            onValueChange = { viewModel.updateInferenceParams(inferenceParams.copy(numThreads = it.toInt())) },
+            label = "Número de threads: ${inferenceParams[0].numThreads}",
+            value = inferenceParams[0].numThreads,
+            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(numThreads = it.toInt()))) },
             rangeBottom = 1F,
             rangeUp = 10F,
             labelColor = Color.Black
         )
         DropdownSelector(
-            "Modelo selecionado: ${inferenceParams.model.label}",
+            "Modelo selecionado: ${inferenceParams[0].model.label}",
             items = models.map {x -> x.label},
             onItemSelected = { newIndex ->
-                viewModel.updateInferenceParams(inferenceParams.copy(model = models[newIndex]))
+                viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(model = models[newIndex])))
             }
         )
         LargeButton(label = "Iniciar", onClick = {
