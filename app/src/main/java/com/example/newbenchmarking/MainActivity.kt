@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
+import com.example.newbenchmarking.pages.HomeScreen
 import com.example.newbenchmarking.pages.InferenceConfig
 import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
@@ -47,7 +48,16 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
     val inferenceViewModel = InferenceViewModel()
     val resultViewModel = ResultViewModel()
 
-    NavHost(navController = navController, startDestination = "inferenceConfig") {
+    NavHost(navController = navController, startDestination = "home") {
+        composable(
+            "home"
+        ){
+            HomeScreen(
+                inferenceViewModel = inferenceViewModel,
+                goToRun = { navController.navigate("runModel")},
+                goToCustom = {navController.navigate("inferenceConfig")}
+            )
+        }
         composable(
             "inferenceConfig"
         ){
@@ -67,7 +77,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         ){ backStackEntry ->
             backStackEntry.arguments?.let {
                 ResultScreen(resultViewModel = resultViewModel){
-                    navController.navigate("inferenceConfig")
+                    navController.navigate("home")
                 }
             }
         }
