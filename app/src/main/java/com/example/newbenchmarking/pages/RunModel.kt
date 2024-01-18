@@ -21,15 +21,12 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
-import com.example.newbenchmarking.utils.getBitmapImages
-import com.example.newbenchmarking.utils.getImage
-import com.example.newbenchmarking.utils.getImagesIdList
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
+import getBitmapImages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.tensorflow.lite.support.image.TensorImage
 
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
@@ -49,8 +46,6 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     val context = LocalContext.current
     val loadingLable = "Carregando..."
 
-    var images = getBitmapImages(400)
-
     var cpuUsage by remember { mutableStateOf(CpuUsage()) }
     var displayCpuUsage by remember {mutableStateOf("0%")}
 
@@ -68,7 +63,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             currParams = inferenceParams
             var result: Pair<Long, Long>
 
-            val currImages = images.subList(0, inferenceParams.numImages)
+            val currImages = getBitmapImages(context, inferenceParams.numImages)
 
             withContext(Dispatchers.IO){
                 result = runTfLiteModel(context, inferenceParams, currImages)
