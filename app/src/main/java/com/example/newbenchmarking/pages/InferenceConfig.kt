@@ -36,8 +36,6 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         )
     )
 
-    var numImages by remember { mutableStateOf(50) }
-
     Column (
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,9 +54,9 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             labelColor = Color.Black
         )
         SliderSelector(
-            label = "Número de imagens: ${numImages}",
-            value = numImages,
-            onValueChange = { numImages = it.toInt() },
+            label = "Número de imagens: ${inferenceParams[0].numImages}",
+            value = inferenceParams[0].numImages,
+            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(numImages = it.toInt()))) },
             rangeBottom = 15F,
             rangeUp = 400F,
             labelColor = Color.Black

@@ -33,6 +33,13 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
             ramConsumedAverage =  0F,
             inferenceTimeAverage = 0L,
             loadTime = 0L,
+            params = InferenceParams(
+                model = models[0],
+                numImages = 50,
+                numThreads = 1,
+                useGPU = false,
+                useNNAPI = false
+            )
         ))
     )
 
@@ -44,30 +51,46 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(50.dp),
     ) {
 
         for(result in resultList){
-            ResultCategory(
-                label = "Inicialização: ",
-                result = result.loadTime.toString() + "ms"
-            )
-            ResultCategory(
-                label = "Tempo médio por imagem: ",
-                result = result.inferenceTimeAverage.toString() + "ms"
-            )
-            ResultCategory(
-                label = "Utilização média de RAM: ",
-                result = result.ramConsumedAverage.toInt().toString() + "MB"
-            )
-            ResultCategory(
-                label = "Utilização média de CPU: ",
-                result = "%.2f".format(result.cpuAverage) + "%"
-            )
-            ResultCategory(
-                label = "Utilização média de GPU: ",
-                result = result.gpuAverage.toString() + "%"
-            )
+            Column {
+                Text(text = result.params.model.label)
+                if(result.params.useNNAPI){
+                    Text(text = "Com NNAPI")
+                }
+                if(result.params.useGPU){
+                    Text(text = "Com GPU")
+                }
+                Text(text = result.params.numImages.toString() + " imagens em "
+                        + result.params.numThreads.toString() +
+                        if(result.params.numThreads == 1)
+                            " thread"
+                        else
+                            " threads"
+                )
+                ResultCategory(
+                    label = "Inicialização: ",
+                    result = result.loadTime.toString() + "ms"
+                )
+                ResultCategory(
+                    label = "Tempo médio por imagem: ",
+                    result = result.inferenceTimeAverage.toString() + "ms"
+                )
+                ResultCategory(
+                    label = "Utilização média de RAM: ",
+                    result = result.ramConsumedAverage.toInt().toString() + "MB"
+                )
+                ResultCategory(
+                    label = "Utilização média de CPU: ",
+                    result = "%.2f".format(result.cpuAverage) + "%"
+                )
+                ResultCategory(
+                    label = "Utilização média de GPU: ",
+                    result = result.gpuAverage.toString() + "%"
+                )
+            }
         }
 
         Button(

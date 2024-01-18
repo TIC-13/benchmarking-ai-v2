@@ -79,7 +79,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 inferenceTimeAverage = result.second,
                 ramConsumedAverage = ramUsage.getAverage(),
                 gpuAverage = gpuUsage.getAverage(),
-                cpuAverage = cpuUsage.getAverageCPUConsumption()
+                cpuAverage = cpuUsage.getAverageCPUConsumption(),
+                params = inferenceParams,
             )
 
             resultViewModel.updateInferenceResultList(
