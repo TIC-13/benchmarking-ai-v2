@@ -56,8 +56,11 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
             interpreter.run(input.buffer, output.buffer)
 
         }
+        bitmap.recycle()
     }
 
+    interpreter.close()
+    gpuDelegate.close()
     val mediumInferenceTime = (totalInferenceTime/images.size)
     return Pair(loadTime, mediumInferenceTime)
 }
