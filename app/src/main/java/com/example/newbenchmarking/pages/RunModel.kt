@@ -24,13 +24,14 @@ import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.utils.getImage
 import com.example.newbenchmarking.utils.getImagesIdList
 import com.example.newbenchmarking.viewModel.InferenceViewModel
+import com.example.newbenchmarking.viewModel.ResultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.support.image.TensorImage
 
 @Composable
-fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, goToResults: (InferenceResult) -> Unit) {
+fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
     val params by viewModel.inferenceParams.observeAsState(
         initial = InferenceParams(
@@ -66,13 +67,17 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, goToR
         imagesIdList = emptyList()
         bitmapImages = emptyList()
 
-        goToResults(InferenceResult(
-            loadTime = result.first,
-            inferenceTimeAverage = result.second,
-            ramConsumedAverage = ramUsage.getAverage(),
-            gpuAverage = gpuUsage.getAverage(),
-            cpuAverage = cpuUsage.getAverageCPUConsumption()
-        ))
+        resultViewModel.updateInferenceResult(
+            InferenceResult(
+                loadTime = result.first,
+                inferenceTimeAverage = result.second,
+                ramConsumedAverage = ramUsage.getAverage(),
+                gpuAverage = gpuUsage.getAverage(),
+                cpuAverage = cpuUsage.getAverageCPUConsumption()
+            )
+        )
+
+        goToResults()
     }
 
     LaunchedEffect(Unit) {

@@ -22,6 +22,7 @@ import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
 import com.example.newbenchmarking.ui.theme.NewBenchmarkingTheme
 import com.example.newbenchmarking.viewModel.InferenceViewModel
+import com.example.newbenchmarking.viewModel.ResultViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,47 +45,30 @@ class MainActivity : ComponentActivity() {
 fun App(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()){
 
     val inferenceViewModel = InferenceViewModel()
-
+    val resultViewModel = ResultViewModel()
 
     NavHost(navController = navController, startDestination = "inferenceConfig") {
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig(viewModel = inferenceViewModel) { navController.navigate("runModel")}
+            InferenceConfig(viewModel = inferenceViewModel) {
+                navController.navigate("runModel")
+            }
         }
         composable(
             "runModel",
-        ) { backStackEntry ->
-                RunModel(viewModel = inferenceViewModel) {
-                    (
-                        cpuAverage,
-                        gpuAverage,
-                        ramConsumedAverage,
-                        inferenceTimeAverage,
-                        loadTime) ->
-                            navController.navigate("result/$loadTime/$inferenceTimeAverage/$cpuAverage/$gpuAverage/$ramConsumedAverage")
+        ) {
+                RunModel(viewModel = inferenceViewModel, resultViewModel = resultViewModel) {
+                    navController.navigate("result")
                 }
         }
         composable(
-            "result/{load}/{time}/{cpu}/{gpu}/{ram}",
-            arguments = listOf(
-                navArgument("load") {type = NavType.LongType},
-                navArgument("time") {type = NavType.LongType},
-                navArgument("cpu") {type = NavType.FloatType},
-                navArgument("gpu") {type = NavType.IntType},
-                navArgument("ram") {type = NavType.FloatType},
-            )
+            "result",
         ){ backStackEntry ->
             backStackEntry.arguments?.let {
-                ResultScreen(result =
-                    InferenceResult(
-                        loadTime = it.getLong("load"),
-                        inferenceTimeAverage = it.getLong("time"),
-                        ramConsumedAverage = it.getFloat("ram"),
-                        cpuAverage = it.getFloat("cpu"),
-                        gpuAverage = it.getInt("gpu")
-                    )
-                ) {navController.navigate("inferenceConfig")}
+                ResultScreen(resultViewModel = resultViewModel){
+                    navController.navigate("inferenceConfig")
+                }
             }
         }
     }

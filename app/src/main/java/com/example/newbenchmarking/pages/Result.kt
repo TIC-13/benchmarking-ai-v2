@@ -8,6 +8,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,25 +18,29 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
+import com.example.newbenchmarking.interfaces.models
+import com.example.newbenchmarking.viewModel.ResultViewModel
 
 @Composable
-fun ResultScreen(modifier: Modifier = Modifier, result: InferenceResult, back: () -> Unit) {
+fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
+
+    val result by resultViewModel.inferenceResult.observeAsState(
+        initial = InferenceResult(
+            cpuAverage = 0F,
+            gpuAverage =  0,
+            ramConsumedAverage =  0F,
+            inferenceTimeAverage = 0L,
+            loadTime = 0L,
+        )
+    )
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = "",
-            fontSize = 24.sp,
-            color = Color.Black
-        )
-        Text(
-            text = "",
-            fontSize = 14.sp,
-            color = Color.Black
-        )
         ResultCategory(
             label = "Inicialização: ",
             result = result.loadTime.toString() + "ms"
