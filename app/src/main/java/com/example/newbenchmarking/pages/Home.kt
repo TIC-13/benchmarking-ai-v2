@@ -26,25 +26,18 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
         LargeButton(label = "Iniciar testes", onClick = {
             inferenceViewModel.updateInferenceParamsList(arrayListOf(
                 InferenceParams(
-                    model = models[4],
+                    model = models[3],
                     useNNAPI = false,
-                    useGPU = true,
+                    useGPU = false,
                     numThreads = 1,
-                    numImages = 15
+                    numImages = 400
                 ),
                 InferenceParams(
-                    model = models[5],
+                    model = models[3],
                     useNNAPI = false,
                     useGPU = true,
                     numThreads = 1,
-                    numImages = 15
-                ),
-                InferenceParams(
-                    model = models[6],
-                    useNNAPI = false,
-                    useGPU = true,
-                    numThreads = 1,
-                    numImages = 15
+                    numImages = 400
                 ),
             ))
             goToRun()

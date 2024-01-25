@@ -39,22 +39,20 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
 
     for(bitmap in images){
 
+        val imageProcessorBuilder = ImageProcessor.Builder()
+
+        imageProcessorBuilder
+            .add(ResizeOp(params.model.inputShape[2], params.model.inputShape[1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+
+        imageProcessorBuilder.add(CastOp(params.model.inputDataType))
+        val tensorImage = TensorImage(params.model.inputDataType)
+        tensorImage.load(bitmap)
+
+        val input = imageProcessorBuilder.build().process(tensorImage)
+        val output = TensorBuffer.createFixedSize(params.model.outputShape, params.model.outputDataType)
+
         totalInferenceTime += measureTimeMillis {
-
-            val imageProcessorBuilder = ImageProcessor.Builder()
-
-            imageProcessorBuilder
-                .add(ResizeOp(params.model.inputShape[2], params.model.inputShape[1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-
-            imageProcessorBuilder.add(CastOp(params.model.inputDataType))
-            val tensorImage = TensorImage(params.model.inputDataType)
-            tensorImage.load(bitmap)
-
-            val input = imageProcessorBuilder.build().process(tensorImage)
-            val output = TensorBuffer.createFixedSize(params.model.outputShape, params.model.outputDataType)
-
             interpreter.run(input.buffer, output.buffer)
-
         }
         bitmap.recycle()
     }
