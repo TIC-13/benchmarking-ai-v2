@@ -85,3 +85,13 @@ val models: List<Model> = listOf(
         outputDataType = DataType.FLOAT32
     )
 )
+
+val DefaultModels = arrayListOf(
+    InferenceParams(
+        model = models[3],
+        useNNAPI = false,
+        useGPU = false,
+        numThreads = 1,
+        numImages = 400
+    ),
+)
