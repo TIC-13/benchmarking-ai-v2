@@ -21,6 +21,7 @@ import com.example.newbenchmarking.pages.HomeScreen
 import com.example.newbenchmarking.pages.InferenceConfig
 import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
+import com.example.newbenchmarking.theme.AppTheme
 import com.example.newbenchmarking.ui.theme.NewBenchmarkingTheme
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
@@ -29,8 +30,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NewBenchmarkingTheme {
-                // A surface container using the 'background' color from the theme
+            AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
