@@ -1,0 +1,165 @@
+package com.example.newbenchmarking.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.theme.LocalAppColors
+import com.example.newbenchmarking.theme.LocalAppTypography
+
+
+@Composable
+fun InferenceView(
+    modifier: Modifier = Modifier,
+    params: InferenceParams,
+    cpuUsage: String,
+    gpuUsage: String,
+    ramUsage: String,
+    initTime: String? = null,
+    infTime: String? = null
+) {
+
+    val rows = arrayOf(
+        TableRow("Inicialização", initTime),
+        TableRow("Tempo de inferência", infTime),
+        TableRow("Uso de CPU", cpuUsage),
+        TableRow("Uso de GPU", gpuUsage),
+        TableRow("Uso de RAM", ramUsage)
+    )
+
+    Box(
+        modifier = modifier
+            .background(LocalAppColors.current.primary)
+    ) {
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(0.dp, 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.padding(0.dp, 5.dp),
+                        text = params.model.label,
+                        style = LocalAppTypography.current.tableTitle
+                    )
+                    Row(
+                        modifier = Modifier.height(40.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text(
+                            text = params.model.description,
+                            style = LocalAppTypography.current.tableSubtitle
+                        )
+                        if(params.useNNAPI)
+                            Chip(
+                                modifier = Modifier
+                                    .padding(10.dp, 10.dp),
+                                text = "NNAPI"
+                            )
+                        if(params.useGPU)
+                            Chip(
+                                modifier = Modifier
+                                    .fillMaxHeight(0.5F)
+                                    .padding(5.dp, 0.dp),
+                                text = "GPU"
+                            )
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(LocalAppColors.current.secondary)
+                    .padding(0.dp, 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 0.dp, 20.dp),
+                    text = "${params.numImages} Imagens - ${params.numThreads} thread" +
+                            if(params.numThreads == 1) "" else "s",
+                    style = LocalAppTypography.current.tableIndex
+                )
+                for(row in rows){
+                    TextRow(row)
+                }
+            }
+        }
+    }
+}
+
+data class TableRow(
+    val index: String,
+    val value: String?
+)
+@Composable
+fun TextRow(row: TableRow) {
+    if(row.value !== null)
+        Row (
+            modifier = Modifier
+                .fillMaxWidth(0.7F)
+                .padding(0.dp, 0.dp, 0.dp, 10.dp)
+        ){
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.7F)
+            ){
+                Text(
+                    text = row.index,
+                    style = LocalAppTypography.current.tableIndex
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
+                Text(
+                    text = row.value,
+                    style = LocalAppTypography.current.tableContent
+                )
+            }
+        }
+}
+
+
+@Composable
+fun Chip(modifier: Modifier = Modifier, text: String){
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(50.dp))
+            .background(LocalAppColors.current.secondary),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ){
+        Text(
+            text = text,
+            style = LocalAppTypography.current.chip
+        )
+    }
+
+}

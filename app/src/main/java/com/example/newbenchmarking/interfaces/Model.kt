@@ -102,27 +102,27 @@ val DefaultModels = arrayListOf(
         useNNAPI = false,
         useGPU = false,
         numThreads = 1,
-        numImages = 20
+        numImages = 50
     ),
     InferenceParams(
         model = models[0],
         useNNAPI = false,
         useGPU = true,
         numThreads = 1,
-        numImages = 20
+        numImages = 50
     ),
     InferenceParams(
         model = models[1],
         useNNAPI = false,
         useGPU = false,
         numThreads = 1,
-        numImages = 20
+        numImages = 50
     ),
     InferenceParams(
         model = models[1],
         useNNAPI = false,
         useGPU = true,
         numThreads = 1,
-        numImages = 20
+        numImages = 50
     ),
 )

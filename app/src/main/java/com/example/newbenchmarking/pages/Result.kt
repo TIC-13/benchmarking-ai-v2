@@ -29,6 +29,7 @@ import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import androidx.compose.foundation.lazy.items
+import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.theme.LocalAppColors
@@ -66,8 +67,11 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
 
         ScoreView()
 
+        Button(onClick = { onBack() }) {
+            Text(text = "Continuar", color = Color.White)
+        }
+
         LazyColumn (
-            modifier = modifier.fillMaxHeight(0.8F),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ){
             items(resultList) { result ->
@@ -82,16 +86,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     initTime = result.loadTime.toString() + "ms",
                     infTime = result.inferenceTimeAverage.toString() + "ms"
                 )
-            }
-        }
-
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = { onBack() }) {
-                Text(text = "Continuar", color = Color.White)
             }
         }
     }

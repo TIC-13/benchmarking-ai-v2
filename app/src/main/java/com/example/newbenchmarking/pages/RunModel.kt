@@ -31,6 +31,7 @@ import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
@@ -127,27 +128,23 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 
     BackgroundWithContent (
-        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ){
         Column(
-            modifier = Modifier
-                .fillMaxHeight(0.66F),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             LinearProgressIndicator(
                 modifier = Modifier
-                    .fillMaxWidth(0.7f),
+                    .fillMaxWidth(0.7f)
+                    .padding(0.dp, 200.dp),
                 color = LocalAppColors.current.primary,
                 trackColor = LocalAppColors.current.secondary
             )
         }
         InferenceView(
             modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
             params = currParams,
             cpuUsage = displayCpuUsage,
@@ -157,138 +154,3 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
-@Composable
-fun InferenceView(
-    modifier: Modifier = Modifier,
-    params: InferenceParams,
-    cpuUsage: String,
-    gpuUsage: String,
-    ramUsage: String,
-    initTime: String? = null,
-    infTime: String? = null
-) {
-
-    val rows = arrayOf(
-        TableRow("Inicialização", initTime),
-        TableRow("Tempo de inferência", infTime),
-        TableRow("Uso de CPU", cpuUsage),
-        TableRow("Uso de GPU", gpuUsage),
-        TableRow("Uso de RAM", ramUsage)
-    )
-
-    Box(
-        modifier = modifier
-            .background(LocalAppColors.current.primary)
-    ) {
-        Column(
-            modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally
-
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(0.dp, 20.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = params.model.label,
-                        style = LocalAppTypography.current.tableTitle
-                    )
-                    Text(
-                        text = params.model.description,
-                        style = LocalAppTypography.current.tableSubtitle
-                    )
-                    Column(
-                        modifier = Modifier,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ){
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            if(params.useNNAPI)
-                                Chip(text = "NNAPI")
-                            if(params.useGPU)
-                                Chip(text = "GPU")
-                        }
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(LocalAppColors.current.secondary)
-                    .padding(0.dp, 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(0.dp, 0.dp, 0.dp, 20.dp),
-                    text = "${params.numImages} Imagens - ${params.numThreads} thread" +
-                            if(params.numThreads == 1) "" else "s",
-                    style = LocalAppTypography.current.tableIndex
-                )
-                for(row in rows){
-                    TextRow(row)
-                }
-            }
-        }
-    }
-}
-
-data class TableRow(
-    val index: String,
-    val value: String?
-)
-@Composable
-fun TextRow(row: TableRow) {
-    if(row.value !== null)
-        Row (
-            modifier = Modifier
-                .fillMaxWidth(0.7F)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-        ){
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.7F)
-            ){
-                Text(
-                    text = row.index,
-                    style = LocalAppTypography.current.tableIndex
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Text(
-                    text = row.value,
-                    style = LocalAppTypography.current.tableContent
-                )
-            }
-        }
-}
-
-
-@Composable
-fun Chip(text: String){
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50.dp))
-            .background(LocalAppColors.current.secondary)
-            .padding(25.dp, 5.dp),
-    ){
-        Text(
-            text = text,
-            style = LocalAppTypography.current.chip
-        )
-    }
-
-}
