@@ -16,8 +16,7 @@ import com.example.newbenchmarking.R
 
 @Composable
 fun BackgroundWithContent(
-    modifier: Modifier = Modifier
-        .padding(30.dp, 0.dp),
+    modifier: Modifier = Modifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.SpaceAround,
     content: @Composable () -> Unit

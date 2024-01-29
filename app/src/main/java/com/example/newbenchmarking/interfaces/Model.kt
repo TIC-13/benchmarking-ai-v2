@@ -4,6 +4,7 @@ import org.tensorflow.lite.DataType
 
 data class Model(
     val label: String,
+    val description: String,
     val filename: String,
     val inputShape: IntArray,
     val outputShape: IntArray,
@@ -14,6 +15,7 @@ data class Model(
 val models: List<Model> = listOf(
     Model(
         "Efficientnet FP32",
+        "Classificação de imagem",
         "efficientNetFP32.tflite",
         inputShape = intArrayOf(1, 224, 224, 3),
         outputShape = intArrayOf(1, 1000),
@@ -22,6 +24,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Efficientnet INT8",
+        "Classificação de imagem",
         "efficientNetINT8.tflite",
         inputShape = intArrayOf(1, 224, 224, 3),
         outputShape = intArrayOf(1, 1000),
@@ -30,6 +33,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "DeepLab v3",
+        "Segmentação de imagem",
         "deeplabv3.tflite",
         inputShape = intArrayOf(1, 257, 257, 3),
         outputShape = intArrayOf(1, 257, 257, 21),
@@ -38,6 +42,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "SSD MobileNet v1 (Detecção de objeto)",
+        "Detecção de objeto",
         "ssd_mobilenet_v2.tflite",
         inputShape = intArrayOf(1, 300, 300, 3),
         outputShape = intArrayOf(1, 300, 300, 3),
@@ -46,6 +51,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Yolo v4 - FP32",
+        "Detecção de objeto",
         "--yolov4-tiny-416-fp32.tflite",
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
@@ -54,6 +60,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Yolo v4 - FP16",
+        "Detecção de objeto",
         "--yolov4-tiny-416-fp16.tflite",
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
@@ -62,6 +69,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Yolo v4 - INT8",
+        "Detecção de objeto",
         "--yolov4-tiny-416-int8.tflite",
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
@@ -70,6 +78,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Image Super resolution - ESRGAN",
+        "Aumenta resolução de imagens",
         "esrgan.tflite",
         inputShape = intArrayOf(1, 50, 50, 3),
         outputShape = intArrayOf(1, 200, 200, 3),
@@ -78,6 +87,7 @@ val models: List<Model> = listOf(
     ),
     Model(
         "Image deblurring - IMDN",
+        "Remove blurr de imagens",
         "imdn_rtc_time.tflite",
         inputShape = intArrayOf(1, 720, 480, 3),
         outputShape = intArrayOf(1, 1440, 960, 3),
@@ -88,10 +98,17 @@ val models: List<Model> = listOf(
 
 val DefaultModels = arrayListOf(
     InferenceParams(
-        model = models[3],
+        model = models[0],
         useNNAPI = false,
         useGPU = false,
         numThreads = 1,
-        numImages = 400
+        numImages = 40
+    ),
+    InferenceParams(
+        model = models[1],
+        useNNAPI = true,
+        useGPU = false,
+        numThreads = 1,
+        numImages = 40
     ),
 )
