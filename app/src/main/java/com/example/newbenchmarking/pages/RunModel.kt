@@ -147,7 +147,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         InferenceView(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
             params = currParams,
             cpuUsage = displayCpuUsage,
             gpuUsage = displayGpuUsage,
@@ -162,10 +163,14 @@ fun InferenceView(
     params: InferenceParams,
     cpuUsage: String,
     gpuUsage: String,
-    ramUsage: String
+    ramUsage: String,
+    initTime: String? = null,
+    infTime: String? = null
 ) {
 
     val rows = arrayOf(
+        TableRow("Inicialização", initTime),
+        TableRow("Tempo de inferência", infTime),
         TableRow("Uso de CPU", cpuUsage),
         TableRow("Uso de GPU", gpuUsage),
         TableRow("Uso de RAM", ramUsage)
@@ -173,18 +178,16 @@ fun InferenceView(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
             .background(LocalAppColors.current.primary)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxHeight(0.4F),
+                    .padding(0.dp, 20.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -201,8 +204,7 @@ fun InferenceView(
                         style = LocalAppTypography.current.tableSubtitle
                     )
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ){
@@ -220,7 +222,7 @@ fun InferenceView(
             }
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .background(LocalAppColors.current.secondary)
                     .padding(0.dp, 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -243,34 +245,35 @@ fun InferenceView(
 
 data class TableRow(
     val index: String,
-    val value: String
+    val value: String?
 )
 @Composable
 fun TextRow(row: TableRow) {
-    Row (
-        modifier = Modifier
-            .fillMaxWidth(0.7F)
-            .padding(0.dp, 0.dp, 0.dp, 10.dp)
-    ){
-        Box(
+    if(row.value !== null)
+        Row (
             modifier = Modifier
                 .fillMaxWidth(0.7F)
+                .padding(0.dp, 0.dp, 0.dp, 10.dp)
         ){
-            Text(
-                text = row.index,
-                style = LocalAppTypography.current.tableIndex
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.7F)
+            ){
+                Text(
+                    text = row.index,
+                    style = LocalAppTypography.current.tableIndex
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
+                Text(
+                    text = row.value,
+                    style = LocalAppTypography.current.tableContent
+                )
+            }
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-        ){
-            Text(
-                text = row.value,
-                style = LocalAppTypography.current.tableContent
-            )
-        }
-    }
 }
 
 
