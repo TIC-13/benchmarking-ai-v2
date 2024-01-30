@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
-import com.example.newbenchmarking.interfaces.DefaultModels
+import com.example.newbenchmarking.data.BENCHMARKING_TESTS
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 
@@ -20,7 +20,7 @@ import com.example.newbenchmarking.viewModel.InferenceViewModel
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 
     fun setDefaultModels(){
-        inferenceViewModel.updateInferenceParamsList(DefaultModels)
+        inferenceViewModel.updateInferenceParamsList(BENCHMARKING_TESTS)
     }
 
     val homeScreenButtons = arrayOf(
