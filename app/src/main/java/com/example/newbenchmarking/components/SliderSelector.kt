@@ -3,6 +3,7 @@ package com.example.newbenchmarking.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.theme.LocalAppColors
 
 @Composable
 fun SliderSelector(label: String, value: Int, onValueChange: (Float) -> Unit, rangeBottom: Float, rangeUp: Float, labelColor: Color = Color.Black) {
@@ -26,9 +28,9 @@ fun SliderSelector(label: String, value: Int, onValueChange: (Float) -> Unit, ra
             onValueChange = onValueChange,
             valueRange = rangeBottom..rangeUp,
             colors = SliderDefaults.colors(
-                activeTrackColor = MaterialTheme.colorScheme.secondary,
-                activeTickColor = MaterialTheme.colorScheme.secondary,
-                thumbColor = MaterialTheme.colorScheme.secondary
+                activeTrackColor = LocalAppColors.current.secondary,
+                activeTickColor = LocalAppColors.current.secondary,
+                thumbColor = LocalAppColors.current.primary
             )
         )
     }

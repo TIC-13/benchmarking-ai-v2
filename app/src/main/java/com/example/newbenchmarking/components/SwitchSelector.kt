@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.theme.LocalAppColors
 
 @Composable
 fun SwitchSelector(label: String, isChecked: Boolean, onCheckedChange: (Boolean) -> Unit, labelColor: Color = Color.White) {
@@ -29,7 +30,8 @@ fun SwitchSelector(label: String, isChecked: Boolean, onCheckedChange: (Boolean)
             checked = isChecked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.secondary
+                checkedTrackColor = LocalAppColors.current.secondary,
+                checkedThumbColor = LocalAppColors.current.primary
             )
         )
     }

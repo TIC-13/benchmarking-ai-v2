@@ -27,7 +27,7 @@ fun DropdownSelector(label: String, items: List<String>, onItemSelected: (index:
         Text(
             text = label,
             modifier = Modifier.padding(16.dp),
-            color =  Color.Black
+            color =  Color.White
         )
 
         Button(onClick = { expanded = !expanded }) {
