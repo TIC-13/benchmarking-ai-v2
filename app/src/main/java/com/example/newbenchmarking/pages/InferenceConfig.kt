@@ -20,6 +20,7 @@ import com.example.newbenchmarking.interfaces.models
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.interfaces.Datasets
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
@@ -28,10 +29,11 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         initial = arrayListOf(
             InferenceParams(
                 model = models[0],
-                numImages = 50,
+                numImages = Datasets[0].imagesId.size/4,
                 numThreads = 1,
                 useGPU = false,
-                useNNAPI = false
+                useNNAPI = false,
+                dataset = Datasets[0]
             )
         )
     )
@@ -54,14 +56,6 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             )
         }
         SliderSelector(
-            label = "Número de imagens: ${inferenceParams[0].numImages}",
-            value = inferenceParams[0].numImages,
-            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(numImages = it.toInt()))) },
-            rangeBottom = 15F,
-            rangeUp = 400F,
-            labelColor = Color.White
-        )
-        SliderSelector(
             label = "Número de threads: ${inferenceParams[0].numThreads}",
             value = inferenceParams[0].numThreads,
             onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(numThreads = it.toInt()))) },
@@ -75,6 +69,24 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             onItemSelected = { newIndex ->
                 viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(model = models[newIndex])))
             }
+        )
+        DropdownSelector(
+            "Dataset selecionado: ${inferenceParams[0].dataset.label}",
+            items = Datasets.map {x -> x.label},
+            onItemSelected = { newIndex ->
+                viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+                    dataset = Datasets[newIndex],
+                    numImages = Datasets[newIndex].imagesId.size/4
+                )))
+            }
+        )
+        SliderSelector(
+            label = "Número de imagens: ${inferenceParams[0].numImages}",
+            value = inferenceParams[0].numImages,
+            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(numImages = it.toInt()))) },
+            rangeBottom = 1F,
+            rangeUp = inferenceParams[0].dataset.imagesId.size.toFloat(),
+            labelColor = Color.White
         )
         Button(onClick = startInference) {
             Text(text = "Iniciar")

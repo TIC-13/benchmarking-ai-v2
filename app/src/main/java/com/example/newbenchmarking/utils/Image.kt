@@ -25,7 +25,8 @@ fun getImagesIdList(context: Context, numImages: Int): List<Int> {
     return imagesIdList
 }
 
-fun getBitmapImages(context: Context, numImages: Int): List<Bitmap> {
-    val imagesIdList = getImagesIdList(context, numImages)
-    return imagesIdList.map { getImage(context, it) }
+fun getBitmapImages(context: Context, imagesIdList: List<Int>, numImages: Int): List<Bitmap> {
+    return imagesIdList
+        .subList(0, numImages)
+        .map { getImage(context, it) }
 }

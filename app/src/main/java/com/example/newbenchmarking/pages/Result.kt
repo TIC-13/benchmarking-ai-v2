@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.items
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
+import com.example.newbenchmarking.interfaces.Datasets
 import com.example.newbenchmarking.theme.LocalAppColors
 
 @Composable
@@ -49,7 +50,8 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                 numImages = 50,
                 numThreads = 1,
                 useGPU = false,
-                useNNAPI = false
+                useNNAPI = false,
+                dataset = Datasets[0]
             )
         ))
     )

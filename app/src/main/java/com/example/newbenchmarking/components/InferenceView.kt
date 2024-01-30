@@ -105,6 +105,12 @@ fun InferenceView(
                             if(params.numThreads == 1) "" else "s",
                     style = LocalAppTypography.current.tableIndex
                 )
+                Text(
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 0.dp, 20.dp),
+                    text = params.dataset.label,
+                    style = LocalAppTypography.current.tableIndex
+                )
                 for(row in rows){
                     TextRow(row)
                 }

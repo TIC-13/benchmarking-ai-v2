@@ -3,6 +3,8 @@ package com.example.newbenchmarking.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.newbenchmarking.interfaces.Dataset
+import com.example.newbenchmarking.interfaces.Datasets
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.models
 class InferenceViewModel : ViewModel() {
@@ -13,7 +15,8 @@ class InferenceViewModel : ViewModel() {
             numImages = 50,
             numThreads = 1,
             useGPU = false,
-            useNNAPI = false
+            useNNAPI = false,
+            dataset = Datasets[0]
         )
     ))
     val inferenceParamsList: LiveData<ArrayList<InferenceParams>> = _inferenceParamsList

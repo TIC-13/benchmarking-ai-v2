@@ -32,6 +32,7 @@ import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.InferenceView
+import com.example.newbenchmarking.interfaces.Datasets
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.interfaces.models
@@ -54,7 +55,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             numImages = 50,
             numThreads = 1,
             useGPU = false,
-            useNNAPI = false
+            useNNAPI = false,
+            dataset = Datasets[0]
         ))
     )
 
@@ -79,7 +81,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             currParams = inferenceParams
             var result: Pair<Long, Long>
 
-            val currImages = getBitmapImages(context, inferenceParams.numImages)
+            val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
 
             withContext(Dispatchers.IO){
                 result = runTfLiteModel(context, inferenceParams, currImages)

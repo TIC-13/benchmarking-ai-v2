@@ -5,5 +5,6 @@ data class InferenceParams(
     var useNNAPI: Boolean,
     var useGPU: Boolean,
     var numThreads: Int,
-    var numImages: Int
+    var numImages: Int,
+    var dataset: Dataset,
 )
