@@ -8,7 +8,7 @@ val BENCHMARKING_TESTS = arrayListOf(
         useNNAPI = false,
         useGPU = false,
         numThreads = 1,
-        numImages = 400,
+        numImages = 5,
         dataset = DATASETS[0]
     ),
     InferenceParams(

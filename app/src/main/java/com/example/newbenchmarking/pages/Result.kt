@@ -60,7 +60,8 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     gpuUsage = result.gpuAverage.toString() + "%",
                     ramUsage = result.ramConsumedAverage.toInt().toString() + "MB",
                     initTime = result.loadTime.toString() + "ms",
-                    infTime = result.inferenceTimeAverage.toString() + "ms"
+                    infTime = result.inferenceTimeAverage.toString() + "ms",
+                    showInfoButton = true
                 )
             }
         }

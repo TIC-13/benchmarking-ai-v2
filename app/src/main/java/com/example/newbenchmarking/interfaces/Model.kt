@@ -5,6 +5,7 @@ import org.tensorflow.lite.DataType
 data class Model(
     val label: String,
     val description: String,
+    val longDescription: String,
     val filename: String,
     val inputShape: IntArray,
     val outputShape: IntArray,
