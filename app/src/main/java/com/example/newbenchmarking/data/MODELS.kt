@@ -36,7 +36,7 @@ val MODELS: List<Model> = listOf(
         outputDataType = DataType.FLOAT32
     ),
     Model(
-        "SSD MobileNet v1 (Detecção de objeto)",
+        "SSD MobileNet v1",
         "Detecção de objeto",
         "hello.",
         "ssd_mobilenet_v2.tflite",
@@ -76,7 +76,7 @@ val MODELS: List<Model> = listOf(
         outputDataType = DataType.FLOAT32
     ),
     Model(
-        "Image Super resolution - ESRGAN",
+        "ESRGAN",
         "Aumenta resolução de imagens",
         "hello.",
         "esrgan.tflite",
@@ -86,7 +86,7 @@ val MODELS: List<Model> = listOf(
         outputDataType = DataType.FLOAT32
     ),
     Model(
-        "Image deblurring - IMDN",
+        "IMDN",
         "Remove blurr de imagens",
         "hello.",
         "imdn_rtc_time.tflite",

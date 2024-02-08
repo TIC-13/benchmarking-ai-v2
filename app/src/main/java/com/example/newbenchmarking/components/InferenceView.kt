@@ -85,43 +85,56 @@ fun InferenceView(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        Text(
-                            modifier = Modifier.padding(0.dp, 5.dp),
-                            text = params.model.label,
-                            style = LocalAppTypography.current.tableTitle
-                        )
-                        if(showInfoButton){
-                            Box(
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(if(showInfoButton) 0.8F else 1F)
+                                .padding(5.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
                                 modifier = Modifier
-                                    .clickable { infoActive = true }
-                                    .padding(15.dp, 0.dp)
-                            ) {
+                                    .padding(5.dp, 5.dp),
+                                text = params.model.label,
+                                style = LocalAppTypography.current.tableTitle
+                            )
+                            Text(
+                                text = params.model.description,
+                                style = LocalAppTypography.current.tableSubtitle
+                            )
+                        }
+                        if(showInfoButton){
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                                ){
                                 InfoIcon()
                             }
                         }
                     }
-                    Row(
-                        modifier = Modifier.height(40.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(
-                            text = params.model.description,
-                            style = LocalAppTypography.current.tableSubtitle
-                        )
-                        if(params.useNNAPI)
-                            Chip(
-                                modifier = Modifier
-                                    .padding(10.dp, 10.dp),
-                                text = "NNAPI"
-                            )
-                        if(params.useGPU)
-                            Chip(
-                                modifier = Modifier
-                                    .fillMaxHeight(0.5F)
-                                    .padding(5.dp, 0.dp),
-                                text = "GPU"
-                            )
+
+                    if(params.useNNAPI || params.useGPU){
+                        Row(
+                            modifier = Modifier.height(30.dp),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            if(params.useNNAPI)
+                                Chip(
+                                    modifier = Modifier
+                                        .padding(10.dp, 10.dp),
+                                    text = "NNAPI"
+                                )
+                            if(params.useGPU)
+                                Chip(
+                                    modifier = Modifier
+                                        .fillMaxHeight(0.5F)
+                                        .padding(5.dp, 0.dp),
+                                    text = "GPU"
+                                )
+                        }
                     }
                 }
             }
