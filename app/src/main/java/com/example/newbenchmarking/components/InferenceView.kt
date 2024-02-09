@@ -124,14 +124,14 @@ fun InferenceView(
                             if(params.useNNAPI)
                                 Chip(
                                     modifier = Modifier
-                                        .padding(10.dp, 10.dp),
+                                        .fillMaxWidth(0.2F)
+                                        .fillMaxHeight(),
                                     text = "NNAPI"
                                 )
                             if(params.useGPU)
                                 Chip(
                                     modifier = Modifier
-                                        .fillMaxHeight(0.5F)
-                                        .padding(5.dp, 0.dp),
+                                        .fillMaxHeight(),
                                     text = "GPU"
                                 )
                         }

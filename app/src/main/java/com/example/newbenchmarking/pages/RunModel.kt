@@ -1,11 +1,15 @@
 package com.example.newbenchmarking.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.benchmark.CpuUsage
@@ -27,6 +32,7 @@ import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.InferenceResult
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppColors
+import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import getBitmapImages
@@ -117,16 +123,12 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         verticalArrangement = Arrangement.Bottom
     ){
         Column(
+            modifier = Modifier
+                .fillMaxHeight(0.5F),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .padding(0.dp, 200.dp),
-                color = LocalAppColors.current.primary,
-                trackColor = LocalAppColors.current.secondary
-            )
+            Text(text = "Carregando...", style = LocalAppTypography.current.title)
         }
         InferenceView(
             modifier = Modifier
