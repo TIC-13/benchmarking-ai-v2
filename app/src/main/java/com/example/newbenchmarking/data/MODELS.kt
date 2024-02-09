@@ -94,5 +94,15 @@ val MODELS: List<Model> = listOf(
         outputShape = intArrayOf(1, 1440, 960, 3),
         inputDataType = DataType.FLOAT32,
         outputDataType = DataType.FLOAT32
+    ),
+    Model(
+        "Yolox tiny",
+        "Detecção de objeto",
+        "hello.",
+        "yolox_tiny_full_integer_quant.opt.tflite",
+        inputShape = intArrayOf(1, 416, 416, 3),
+        outputShape = intArrayOf(100, 100, 100, 1, 1),
+        inputDataType = DataType.UINT8,
+        outputDataType = DataType.FLOAT32,
     )
 )
