@@ -7,12 +7,12 @@ import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.InferenceParams
 class InferenceViewModel : ViewModel() {
     // Initial values for InferenceParams
-    private val _inferenceParamsList = MutableLiveData(arrayListOf(
+    private val _inferenceParamsList = MutableLiveData(listOf(
         DEFAULT_PARAMS.params
     ))
-    val inferenceParamsList: LiveData<ArrayList<InferenceParams>> = _inferenceParamsList
+    val inferenceParamsList: LiveData<List<InferenceParams>> = _inferenceParamsList
 
-    fun updateInferenceParamsList(newList: ArrayList<InferenceParams>) {
+    fun updateInferenceParamsList(newList: List<InferenceParams>) {
         _inferenceParamsList.value = newList
     }
 }

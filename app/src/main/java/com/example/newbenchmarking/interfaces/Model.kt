@@ -10,6 +10,16 @@ data class Model(
     val inputShape: IntArray,
     val outputShape: IntArray,
     val inputDataType: DataType,
-    val outputDataType: DataType
+    val outputDataType: DataType,
+    var quantization: Quantization,
+    var category: Category
 )
+
+enum class Quantization {
+    FP32, FP16, INT8
+}
+
+enum class Category {
+    CLASSIFICATION, DETECTION, SEGMENTATION, IMAGE_DEBLURRING, IMAGE_SUPER_RESOLUTION
+}
 

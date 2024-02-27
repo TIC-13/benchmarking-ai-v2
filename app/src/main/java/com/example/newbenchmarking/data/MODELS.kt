@@ -1,6 +1,8 @@
 package com.example.newbenchmarking.data
 
+import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Model
+import com.example.newbenchmarking.interfaces.Quantization
 import org.tensorflow.lite.DataType
 
 val MODELS: List<Model> = listOf(
@@ -12,7 +14,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 224, 224, 3),
         outputShape = intArrayOf(1, 1000),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.CLASSIFICATION,
+        quantization = Quantization.FP32,
     ),
     Model(
         "Efficientnet INT8",
@@ -23,7 +27,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 224, 224, 3),
         outputShape = intArrayOf(1, 1000),
         inputDataType = DataType.UINT8,
-        outputDataType = DataType.UINT8
+        outputDataType = DataType.UINT8,
+        category = Category.CLASSIFICATION,
+        quantization = Quantization.INT8,
     ),
     Model(
         "DeepLab v3",
@@ -33,7 +39,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 257, 257, 3),
         outputShape = intArrayOf(1, 257, 257, 21),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.SEGMENTATION,
+        quantization = Quantization.FP32,
     ),
     Model(
         "SSD MobileNet v1",
@@ -43,7 +51,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 300, 300, 3),
         outputShape = intArrayOf(1, 300, 300, 3),
         inputDataType = DataType.UINT8,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.DETECTION,
+        quantization = Quantization.FP32,
     ),
     Model(
         "Yolo v4 - FP32",
@@ -53,7 +63,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.DETECTION,
+        quantization = Quantization.FP32,
     ),
     Model(
         "Yolo v4 - FP16",
@@ -63,7 +75,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.DETECTION,
+        quantization = Quantization.FP16,
     ),
     Model(
         "Yolo v4 - INT8",
@@ -73,7 +87,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 416, 416, 3),
         outputShape = intArrayOf(1, 416, 416, 3),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.DETECTION,
+        quantization = Quantization.INT8,
     ),
     Model(
         "ESRGAN",
@@ -83,7 +99,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 50, 50, 3),
         outputShape = intArrayOf(1, 200, 200, 3),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.IMAGE_SUPER_RESOLUTION,
+        quantization = Quantization.FP32,
     ),
     Model(
         "IMDN",
@@ -93,7 +111,9 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 720, 480, 3),
         outputShape = intArrayOf(1, 1440, 960, 3),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32
+        outputDataType = DataType.FLOAT32,
+        category = Category.IMAGE_DEBLURRING,
+        quantization = Quantization.FP32,
     ),
     Model(
         "Yolox tiny",
@@ -104,5 +124,7 @@ val MODELS: List<Model> = listOf(
         outputShape = intArrayOf(100, 100, 100, 1, 1),
         inputDataType = DataType.UINT8,
         outputDataType = DataType.FLOAT32,
+        category = Category.DETECTION,
+        quantization = Quantization.INT8,
     )
 )
