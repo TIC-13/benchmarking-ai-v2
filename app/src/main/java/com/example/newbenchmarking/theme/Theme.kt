@@ -20,6 +20,8 @@ import com.example.newbenchmarking.theme.Typography
 data class Colors(
     val primary: Color,
     val secondary: Color,
+    val gpu: Color,
+    val nnapi: Color,
     val text: Color
 )
 
@@ -40,6 +42,8 @@ data class Typography(
 val DefaultColors = Colors(
     primary = Color(0xFF862929),
     secondary = Color(0xFF023047),
+    gpu = Color(0xFF2292A4),
+    nnapi = Color(0xFF008148),
     text = Color.White
 )
 

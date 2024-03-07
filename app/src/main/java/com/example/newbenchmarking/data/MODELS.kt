@@ -7,7 +7,7 @@ import org.tensorflow.lite.DataType
 
 val MODELS: List<Model> = listOf(
     Model(
-        "Efficientnet FP32",
+        "Efficientnet",
         "Classificação de imagem",
         "O EfficientNet é um modelo de machine learning otimizado para classificação de imagens. Sua arquitetura eficiente e escalável o torna versátil para lidar com uma variedade de desafios em visão computacional.",
         "efficientNetFP32.tflite",
@@ -19,7 +19,7 @@ val MODELS: List<Model> = listOf(
         quantization = Quantization.FP32,
     ),
     Model(
-        "Efficientnet INT8",
+        "Efficientnet",
         "Classificação de imagem",
         "hello.",
         "efficientNetINT8.tflite",
@@ -39,7 +39,7 @@ val MODELS: List<Model> = listOf(
         inputShape = intArrayOf(1, 257, 257, 3),
         outputShape = intArrayOf(1, 257, 257, 21),
         inputDataType = DataType.FLOAT32,
-        outputDataType = DataType.FLOAT32,
+        outputDataType = DataType.FLOAT32 ,
         category = Category.SEGMENTATION,
         quantization = Quantization.FP32,
     ),
@@ -53,10 +53,10 @@ val MODELS: List<Model> = listOf(
         inputDataType = DataType.UINT8,
         outputDataType = DataType.FLOAT32,
         category = Category.DETECTION,
-        quantization = Quantization.FP32,
+        quantization = Quantization.INT8,
     ),
     Model(
-        "Yolo v4 - FP32",
+        "Yolo v4",
         "Detecção de objeto",
         "hello.",
         "--yolov4-tiny-416-fp32.tflite",
@@ -68,7 +68,7 @@ val MODELS: List<Model> = listOf(
         quantization = Quantization.FP32,
     ),
     Model(
-        "Yolo v4 - FP16",
+        "Yolo v4",
         "Detecção de objeto",
         "hello.",
         "--yolov4-tiny-416-fp16.tflite",
@@ -80,7 +80,7 @@ val MODELS: List<Model> = listOf(
         quantization = Quantization.FP16,
     ),
     Model(
-        "Yolo v4 - INT8",
+        "Yolo v4",
         "Detecção de objeto",
         "hello.",
         "--yolov4-tiny-416-int8.tflite",

@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -81,14 +83,18 @@ fun InferenceView(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row (
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ){
+                        if(showInfoButton){
+                            Spacer(modifier = Modifier.fillMaxWidth(0.2F))
+                        }
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth(if(showInfoButton) 0.8F else 1F)
-                                .padding(5.dp),
+                                .padding(5.dp)
+                                .fillMaxWidth(if (showInfoButton) 0.75F else 1F),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
@@ -102,40 +108,51 @@ fun InferenceView(
                                 text = params.model.description,
                                 style = LocalAppTypography.current.tableSubtitle
                             )
+                            
                         }
                         if(showInfoButton){
                             Column(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth(1F)
+                                    .clickable { infoActive = true },
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                                ){
+                                verticalArrangement = Arrangement.Center,
+                            ){
                                 InfoIcon()
                             }
                         }
                     }
-
-                    if(params.useNNAPI || params.useGPU){
                         Row(
-                            modifier = Modifier.height(30.dp),
+                            modifier = Modifier.height(20.dp),
                             horizontalArrangement = Arrangement.spacedBy(20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            if(params.useNNAPI)
+                            if(params.useNNAPI){
                                 Chip(
                                     modifier = Modifier
                                         .fillMaxWidth(0.2F)
                                         .fillMaxHeight(),
+                                    color = LocalAppColors.current.nnapi,
                                     text = "NNAPI"
                                 )
-                            if(params.useGPU)
+                            }else if(params.useGPU){
                                 Chip(
                                     modifier = Modifier
+                                        .fillMaxWidth(0.2F)
                                         .fillMaxHeight(),
+                                    color = LocalAppColors.current.gpu,
                                     text = "GPU"
                                 )
+                            }else{
+                                Chip(
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.2F)
+                                        .fillMaxHeight(),
+                                    text = "CPU"
+                                )
+                            }
+
                         }
-                    }
                 }
             }
             Column(
@@ -218,11 +235,11 @@ fun InfoIcon(color: Color = LocalAppColors.current.text) {
 
 
 @Composable
-fun Chip(modifier: Modifier = Modifier, text: String){
+fun Chip(modifier: Modifier = Modifier, text: String, color: Color = LocalAppColors.current.secondary){
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(50.dp))
-            .background(LocalAppColors.current.secondary),
+            .background(color),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
