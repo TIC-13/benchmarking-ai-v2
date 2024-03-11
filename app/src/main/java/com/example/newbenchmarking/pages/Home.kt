@@ -46,21 +46,21 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
     BackgroundWithContent(
         modifier = Modifier.padding(30.dp, 0.dp)
     ){
-        TitleView(
-            modifier = Modifier
-                .fillMaxWidth(0.7F)
-        )
-        ScoreView()
         Column(
-            verticalArrangement = Arrangement.spacedBy(28.dp)
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            for(button in homeScreenButtons){
-                Text(
-                    modifier = Modifier
-                        .clickable { button.onPress() },
-                    text = button.label,
-                    style = LocalAppTypography.current.menuButton,
-                )
+            TitleView(Modifier.padding(0.dp, 120.dp))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(28.dp)
+            ) {
+                for(button in homeScreenButtons){
+                    Text(
+                        modifier = Modifier
+                            .clickable { button.onPress() },
+                        text = button.label,
+                        style = LocalAppTypography.current.menuButton,
+                    )
+                }
             }
         }
     }

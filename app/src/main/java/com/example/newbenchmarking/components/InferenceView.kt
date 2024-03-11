@@ -101,7 +101,8 @@ fun InferenceView(
                             Text(
                                 modifier = Modifier
                                     .padding(5.dp, 5.dp),
-                                text = params.model.label,
+                                text = params.model.label + " - " + params.model.quantization,
+
                                 style = LocalAppTypography.current.tableTitle
                             )
                             Text(

@@ -88,9 +88,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
-
-        ScoreView()
-
         Button(onClick = { onBack() }) {
             Text(text = "Continuar", color = Color.White)
         }
