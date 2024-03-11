@@ -2,8 +2,10 @@ package com.example.newbenchmarking.pages
 
 import android.content.Context
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -19,11 +21,14 @@ import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
+import com.example.newbenchmarking.theme.LocalAppColors
+import com.example.newbenchmarking.theme.LocalAppTypography
 import java.io.File
 
 @Composable
@@ -84,12 +89,20 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     }
 
     BackgroundWithContent(
-        modifier = Modifier,
+        modifier = Modifier.padding(top = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(40.dp)
+        verticalArrangement = Arrangement.spacedBy(40.dp),
     ) {
-        Button(onClick = { onBack() }) {
-            Text(text = "Continuar", color = Color.White)
+
+        Text(text = "Resultados", style = LocalAppTypography.current.title)
+
+        Button(
+            colors = ButtonDefaults.buttonColors(LocalAppColors.current.primary),
+            modifier = Modifier.background(
+                color = LocalAppColors.current.primary,
+                shape = RoundedCornerShape(15.dp)
+        ) , onClick = { onBack() }) {
+            Text(text = "Voltar para tela inicial", color = Color.White)
         }
 
         LazyColumn (
