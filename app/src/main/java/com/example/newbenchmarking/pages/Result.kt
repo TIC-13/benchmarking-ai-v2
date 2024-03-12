@@ -40,7 +40,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         )
     )
 
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
 

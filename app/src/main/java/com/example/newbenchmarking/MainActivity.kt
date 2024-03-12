@@ -74,6 +74,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
             "runModel",
         ) {
                 RunModel(viewModel = inferenceViewModel, resultViewModel = resultViewModel) {
+                    navController.navigate("home")
                     navController.navigate("result")
                 }
         }

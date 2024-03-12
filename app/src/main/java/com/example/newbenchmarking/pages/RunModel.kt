@@ -1,5 +1,6 @@
 package com.example.newbenchmarking.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -117,6 +118,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             displayGpuUsage = gpuUsage.get().toString() + "%"
         }
     }
+
+    BackHandler(enabled = true){}
 
     BackgroundWithContent (
         horizontalAlignment = Alignment.CenterHorizontally,
