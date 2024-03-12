@@ -1,36 +1,41 @@
 package com.example.newbenchmarking.pages
 
+import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
-import com.example.newbenchmarking.viewModel.ResultViewModel
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.InferenceView
-import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
+import com.example.newbenchmarking.viewModel.ResultViewModel
+import android.os.HardwarePropertiesManager
 import java.io.File
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
 
@@ -40,6 +45,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         )
     )
 
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
 
@@ -48,12 +54,25 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
             val content: String,
         )
 
-        val csvList = mutableListOf<List<String>>()
+        fun getAndroidId(context: Context): String {
+            return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        }
+
+        fun getTotalRAM(): Long {
+            val actManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val memInfo = ActivityManager.MemoryInfo()
+            actManager.getMemoryInfo(memInfo)
+            return memInfo.totalMem
+        }
 
         for((index, result) in resultList.withIndex()){
 
             val line = arrayOf(
+                BenchPair("brand_name", Build.BRAND),
                 BenchPair("manufacturer", Build.MANUFACTURER),
+                BenchPair("phone_model", Build.MODEL),
+                BenchPair("android_id", getAndroidId(context)),
+                BenchPair("total_ram", getTotalRAM().toString()),
                 BenchPair("phone_model", Build.MODEL),
                 BenchPair("ml_model", result.params.model.label),
                 BenchPair("category", result.params.model.category.toString()),
