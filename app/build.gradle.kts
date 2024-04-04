@@ -72,6 +72,7 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite-gpu-api:2.14.0")
     implementation("androidx.compose.runtime:runtime-livedata:<compose_version>")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("org.tensorflow:tensorflow-lite-task-text:0.4.4")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

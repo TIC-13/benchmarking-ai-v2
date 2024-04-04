@@ -30,7 +30,9 @@ import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
+import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.InferenceResult
+import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
@@ -74,7 +76,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
 
             withContext(Dispatchers.IO){
-                result = runTfLiteModel(context, inferenceParams, currImages)
+                result = if(inferenceParams.model.category === Category.BERT)
+                        runBert(context, inferenceParams)
+                    else
+                        runTfLiteModel(context, inferenceParams, currImages)
             }
 
             val currResult = InferenceResult(

@@ -126,5 +126,17 @@ val MODELS: List<Model> = listOf(
         outputDataType = DataType.FLOAT32,
         category = Category.DETECTION,
         quantization = Quantization.INT8,
+    ),
+    Model(
+        "Bert",
+        "Perguntas e respostas",
+        "Perguntas e respostas",
+        "bert.tflite",
+        inputShape = intArrayOf(1, 416, 416, 3),
+        outputShape = intArrayOf(100, 100, 100, 1, 1),
+        inputDataType = DataType.UINT8,
+        outputDataType = DataType.FLOAT32,
+        category = Category.BERT,
+        quantization = Quantization.INT32,
     )
 )
