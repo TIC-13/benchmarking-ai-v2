@@ -32,6 +32,10 @@ import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import android.os.HardwarePropertiesManager
+import com.example.newbenchmarking.requests.Inference
+import com.example.newbenchmarking.requests.Phone
+import com.example.newbenchmarking.requests.PostData
+import com.example.newbenchmarking.requests.postResult
 import java.io.File
 
 
@@ -67,35 +71,32 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
 
         for((index, result) in resultList.withIndex()){
 
-            val line = arrayOf(
-                BenchPair("brand_name", Build.BRAND),
-                BenchPair("manufacturer", Build.MANUFACTURER),
-                BenchPair("phone_model", Build.MODEL),
-                BenchPair("android_id", getAndroidId(context)),
-                BenchPair("total_ram", getTotalRAM().toString()),
-                BenchPair("phone_model", Build.MODEL),
-                BenchPair("ml_model", result.params.model.label),
-                BenchPair("category", result.params.model.category.toString()),
-                BenchPair("quantization", result.params.model.quantization.toString()),
-                BenchPair("dataset", result.params.dataset.label),
-                BenchPair("num_images", result.params.numImages.toString()),
-                BenchPair("usesNNAPI", result.params.useNNAPI.toString()),
-                BenchPair("usesGPU", result.params.useGPU.toString()),
-                BenchPair("num_threads", result.params.numThreads.toString()),
-                BenchPair("cpu_usage", result.cpuAverage.toString()),
-                BenchPair("gpu_usage", result.gpuAverage.toString()),
-                BenchPair("ram_usage", result.ramConsumedAverage.toString()),
-                BenchPair("load_time", result.loadTime.toString()),
-                BenchPair("inference_time", result.inferenceTimeAverage.toString()),
-                BenchPair("timestamp", System.currentTimeMillis().toString())
-            )
-
-            if(index == 0){
-                //csvList.add(line.map{it.label})
-                println(line.map{it.label}.joinToString(","))
-            }
-            //csvList.add(line.map{it.content})
-            println(line.map{it.content}.joinToString(","))
+            postResult(PostData(
+                Phone(
+                    brand_name = Build.BRAND,
+                    manufacturer = Build.MANUFACTURER,
+                    phone_model = Build.MODEL,
+                    total_ram = getTotalRAM().toInt()
+                ),
+                Inference(
+                    init_speed = result.loadTime.toInt(),
+                    inf_speed = result.inferenceTimeAverage.toInt(),
+                    ml_model = result.params.model.label,
+                    category = result.params.model.category.toString(),
+                    quantization = result.params.model.quantization.toString(),
+                    dataset = result.params.dataset.label,
+                    num_images = result.params.numImages,
+                    uses_nnapi = result.params.useNNAPI,
+                    uses_gpu = result.params.useGPU,
+                    num_threads = result.params.numThreads,
+                    ram_usage = result.ramConsumedAverage.toInt(),
+                    gpu_usage = result.gpuAverage.toInt(),
+                    cpu_usage = result.cpuAverage.toInt(),
+                    gpu = null,
+                    cpu = null,
+                    android_id = getAndroidId(context)
+                )
+            ))
         }
 
         //createAndSaveCSV(context, "${Build.MANUFACTURER} ${Build.MODEL}", csvList)

@@ -73,6 +73,8 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:<compose_version>")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("org.tensorflow:tensorflow-lite-task-text:0.4.4")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
