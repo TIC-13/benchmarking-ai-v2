@@ -25,17 +25,11 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
 
     val homeScreenButtons = arrayOf(
         HomeScreenButton(
-            label = "Ver resultados"
-        ),
-        HomeScreenButton(
-            label = "Reiniciar teste",
+            label = "Iniciar testes",
             onPress = {
                 setDefaultModels()
                 goToRun()
             }
-        ),
-        HomeScreenButton(
-            label = "Ranking"
         ),
         HomeScreenButton(
             label = "Teste personalizado",
