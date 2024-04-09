@@ -136,7 +136,7 @@ val MODELS: List<Model> = listOf(
         outputShape = intArrayOf(100, 100, 100, 1, 1),
         inputDataType = DataType.UINT8,
         outputDataType = DataType.FLOAT32,
-        category = Category.BERT,
+        category = Category.LANGUAGE,
         quantization = Quantization.INT32,
     )
 )

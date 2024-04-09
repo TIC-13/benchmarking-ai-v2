@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
+import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
@@ -167,14 +168,14 @@ fun InferenceView(
                 Text(
                     modifier = Modifier
                         .padding(0.dp, 0.dp, 0.dp, 20.dp),
-                    text = "${params.numImages} Imagens - ${params.numThreads} thread" +
+                    text = "${params.numImages} ${if(params.model.category === Category.LANGUAGE) "Inferências" else "Imagens"} - ${params.numThreads} thread${if(params.numThreads == 1) "" else "s"}" +
                             if(params.numThreads == 1) "" else "s",
                     style = LocalAppTypography.current.tableIndex
                 )
                 Text(
                     modifier = Modifier
                         .padding(0.dp, 0.dp, 0.dp, 20.dp),
-                    text = params.dataset.label,
+                    text = if(params.model.category === Category.LANGUAGE) "" else params.dataset.label,
                     style = LocalAppTypography.current.tableIndex
                 )
                 for(row in rows){

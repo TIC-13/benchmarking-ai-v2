@@ -30,15 +30,19 @@ fun runBert(androidContext: Context, params: InferenceParams): Pair<Long, Long> 
         )
     }
 
-    val contextOfTheQuestion = "Google LLC is an American multinational technology company that specializes in Internet-related services and products, which include online advertising technologies, search engine, cloud computing, software, and hardware. It is considered one of the Big Four technology companies, alongside Amazon, Apple, and Facebook.\n" +
-            "\n" +
-            "Google was founded in September 1998 by Larry Page and Sergey Brin while they were Ph.D. students at Stanford University in California. Together they own about 14 percent of its shares and control 56 percent of the stockholder voting power through supervoting stock. They incorporated Google as a California privately held company on September 4, 1998, in California. Google was then reincorporated in Delaware on October 22, 2002. An initial public offering (IPO) took place on August 19, 2004, and Google moved to its headquarters in Mountain View, California, nicknamed the Googleplex. In August 2015, Google announced plans to reorganize its various interests as a conglomerate called Alphabet Inc. Google is Alphabet's leading subsidiary and will continue to be the umbrella company for Alphabet's Internet interests. Sundar Pichai was appointed CEO of Google, replacing Larry Page who became the CEO of Alphabet."
-    val questionToAsk = "Who is the CEO of Google?"
+    val contextOfTheQuestion = "O Motorola Edge 30 Pro recuperará normalmente as configurações para usar MMS a partir do cartão SIM ou as receberá por rede. As etapas a seguir contêm instruções sobre como configurar manualmente MMS no Motorola Edge 30 Pro. Acesse a tela inicial do aparelho. Para abrir o menu, deslize para cima. Deslize a tela de baixo para cima. Clique em Configurar. Clique em Rede e internet. Clique em Rede móvel. Escolha um cartão SIM, neste caso, SIM 1. Deslize a tela de baixo para cima. Clique em Nomes dos pontos de acesso. Clique no símbolo de mais. No campo Nome, digite Claro MMS. No campo APN, digite mms.claro.com.br. No campo Nome de usuário, digite claro. No campo Senha, digite claro. No campo MMSC, digite http://mms.claro.com.br. No campo Proxy de MMS, digite 200.169.126.010. Deslize a tela de baixo para cima. No campo Porta MMS, digite 8080. No campo MCC, digite 724. No campo MNC, digite 05. No campo Tipo de autenticação, marque None. Clique em Tipo de APN. Se esta tela for exibida, digite mms (obs.: em letras minúsculas) e clique em OK. Se esta tela não for exibida, marque MMS e clique em OK. Clique no símbolo de opções. Clique em Salvar. Volte para a tela inicial do aparelho. Para concluir o processo e ativar as configurações, é preciso reiniciar o dispositivo. Seu Motorola Edge 30 Pro estará, então, configurado para usar MSM. Para obter instruções sobre como reiniciar seu dispositivo, siga estas etapas. Para reiniciar o Motorola Edge 30 Pro, clique e mantenha pressionado o botão de ligar/desligar na lateral do Motorola Edge 30 Pro. Clique em Reiniciar. O Motorola Edge 30 Pro será inicializado automaticamente. Se esta tela for exibida, digite o PIN code do cartão SIM 1 e selecione o símbolo de seta no lado direito. Se esta tela não for exibida, pule para a próxima etapa. Se esta tela for exibida, digite o PIN code do cartão SIM 2 e selecione o símbolo de seta no lado direito. Se esta tela não for exibida, pule para a próxima etapa. Se esta tela for exibida, deslize o dedo por cima da tela para desbloqueá-la. Se esta tela não for exibida, pule para a próxima etapa. O Motorola Edge 30 Pro agora está pronto para uso."
+    val questionToAsk = "o que fazer depois de clicar em configurar?"
 
-    val inferenceTime = measureTimeMillis {
-        val answers = answerer.answer(contextOfTheQuestion, questionToAsk)
-        Log.d("Answers", answers[0].text)
+
+    val numTests = params.numImages
+    var totalTime = 0L
+
+    for(i in 1..numTests){
+        totalTime += measureTimeMillis {
+            val answers = answerer.answer(contextOfTheQuestion, questionToAsk)
+            Log.d("Answers", answers[0].text)
+        }
     }
 
-    return Pair(loadTime, inferenceTime)
+    return Pair(loadTime, totalTime/numTests)
 }

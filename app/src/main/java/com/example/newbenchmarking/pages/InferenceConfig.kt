@@ -18,6 +18,7 @@ import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.data.DATASETS
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.data.MODELS
+import com.example.newbenchmarking.interfaces.Category
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
@@ -68,18 +69,24 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
                 )))
             }
         )
-        DropdownSelector(
-            "Dataset selecionado: ${inferenceParams[0].dataset.label}",
-            items = DATASETS.map {x -> x.label},
-            onItemSelected = { newIndex ->
-                viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
-                    dataset = DATASETS[newIndex],
-                    numImages = DATASETS[newIndex].imagesId.size/4
-                )))
-            }
-        )
+        if(inferenceParams[0].model.category !== Category.LANGUAGE) {
+            DropdownSelector(
+                "Dataset selecionado: ${inferenceParams[0].dataset.label}",
+                items = DATASETS.map { x -> x.label },
+                onItemSelected = { newIndex ->
+                    viewModel.updateInferenceParamsList(
+                        arrayListOf(
+                            inferenceParams[0].copy(
+                                dataset = DATASETS[newIndex],
+                                numImages = DATASETS[newIndex].imagesId.size / 4
+                            )
+                        )
+                    )
+                }
+            )
+        }
         SliderSelector(
-            label = "Número de imagens: ${inferenceParams[0].numImages}",
+            label = "Número de ${if(inferenceParams[0].model.category === Category.LANGUAGE) "inferências" else "imagens"}: ${inferenceParams[0].numImages}",
             value = inferenceParams[0].numImages,
             onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
                 numImages = it.toInt()

@@ -76,7 +76,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
 
             withContext(Dispatchers.IO){
-                result = if(inferenceParams.model.category === Category.BERT)
+                result = if(inferenceParams.model.category === Category.LANGUAGE)
                         runBert(context, inferenceParams)
                     else
                         runTfLiteModel(context, inferenceParams, currImages)
