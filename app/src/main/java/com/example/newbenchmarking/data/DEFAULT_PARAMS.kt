@@ -8,6 +8,7 @@ val DEFAULT_PARAMS = InferenceResult(
     gpuAverage =  0,
     ramConsumedAverage =  0F,
     inferenceTimeAverage = 0L,
+    firstInference = null,
     loadTime = 0L,
     params = InferenceParams(
         model = MODELS[0],

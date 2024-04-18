@@ -6,5 +6,6 @@ data class InferenceResult(
     val ramConsumedAverage: Float,
     val inferenceTimeAverage: Long,
     val loadTime: Long,
+    val firstInference: Long?,
     val params: InferenceParams
 )

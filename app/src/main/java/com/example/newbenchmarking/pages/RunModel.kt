@@ -35,6 +35,7 @@ import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.InferenceResult
+import com.example.newbenchmarking.machineLearning.RunModelResult
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppColors
@@ -74,7 +75,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         for(inferenceParams in inferencesList){
 
             currParams = inferenceParams
-            var result: Pair<Long, Long>
+            var result: RunModelResult
 
             val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
 
@@ -86,8 +87,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             }
 
             val currResult = InferenceResult(
-                loadTime = result.first,
-                inferenceTimeAverage = result.second,
+                loadTime = result.load,
+                inferenceTimeAverage = result.average,
+                firstInference = result.first,
                 ramConsumedAverage = ramUsage.getAverage(),
                 gpuAverage = gpuUsage.getAverage(),
                 cpuAverage = cpuUsage.getAverageCPUConsumption(),

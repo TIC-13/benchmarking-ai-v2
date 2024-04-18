@@ -50,12 +50,14 @@ fun InferenceView(
     ramUsage: String,
     initTime: String? = null,
     infTime: String? = null,
+    firstInfTime: String? = null,
     showInfoButton: Boolean = false
 ) {
 
     val rows = arrayOf(
         TableRow("Inicialização", initTime),
-        TableRow("Tempo de inferência", infTime),
+        TableRow("Primeira inferência", firstInfTime),
+        TableRow("Outras inf. (média)", infTime),
         TableRow("Uso de CPU", cpuUsage),
         TableRow("Uso de GPU", gpuUsage),
         TableRow("Uso de RAM", ramUsage)

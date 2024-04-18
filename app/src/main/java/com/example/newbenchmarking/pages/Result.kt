@@ -90,7 +90,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     uses_gpu = result.params.useGPU,
                     num_threads = result.params.numThreads,
                     ram_usage = result.ramConsumedAverage.toInt(),
-                    gpu_usage = result.gpuAverage.toInt(),
+                    gpu_usage = result.gpuAverage,
                     cpu_usage = result.cpuAverage.toInt(),
                     gpu = null,
                     cpu = null,
@@ -98,8 +98,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                 )
             ))
         }
-
-        //createAndSaveCSV(context, "${Build.MANUFACTURER} ${Build.MODEL}", csvList)
     }
 
     fun onBack(){
@@ -137,6 +135,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     gpuUsage = result.gpuAverage.toString() + "%",
                     ramUsage = result.ramConsumedAverage.toInt().toString() + "MB",
                     initTime = result.loadTime.toString() + "ms",
+                    firstInfTime = result.firstInference.toString() + "ms",
                     infTime = result.inferenceTimeAverage.toString() + "ms",
                     showInfoButton = true
                 )
@@ -145,14 +144,3 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     }
 }
 
-fun createAndSaveCSV(context: Context, fileName: String, data: List<List<String>>) {
-    val stringBuilder = StringBuilder()
-    data.forEach { row ->
-        stringBuilder.append(row.joinToString(",")).append("\n")
-    }
-
-    context.filesDir?.let { filesDir ->
-        val file = File(filesDir, fileName)
-        file.writeText(stringBuilder.toString())
-    }
-}
