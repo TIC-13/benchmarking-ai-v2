@@ -19,6 +19,7 @@ import com.example.newbenchmarking.data.DATASETS
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.data.MODELS
 import com.example.newbenchmarking.interfaces.Category
+import kotlin.math.min
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
@@ -91,7 +92,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
                 numImages = it.toInt()
             ))) },
-            rangeBottom = 1F,
+            rangeBottom = min(15F, inferenceParams[0].dataset.imagesId.size.toFloat()),
             rangeUp = inferenceParams[0].dataset.imagesId.size.toFloat(),
             labelColor = Color.White
         )

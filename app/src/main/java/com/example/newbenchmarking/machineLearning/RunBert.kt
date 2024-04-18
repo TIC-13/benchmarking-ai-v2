@@ -54,5 +54,6 @@ fun runBert(androidContext: Context, params: InferenceParams): RunModelResult {
         load = loadTime,
         average = totalTime/(numTests-1),
         first = firstInferenceTime,
+        standardDeviation = null
     )
 }

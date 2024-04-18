@@ -50,14 +50,16 @@ fun InferenceView(
     ramUsage: String,
     initTime: String? = null,
     infTime: String? = null,
+    standardDeviation: String? = null,
     firstInfTime: String? = null,
     showInfoButton: Boolean = false
 ) {
 
     val rows = arrayOf(
-        TableRow("Inicialização", initTime),
-        TableRow("Primeira inferência", firstInfTime),
-        TableRow("Outras inf. (média)", infTime),
+        TableRow("Inicialização", initTime, show = initTime !== null),
+        TableRow("Primeira inferência", firstInfTime, show = firstInfTime !== null),
+        TableRow("Outras inf. (média)", "$infTime", show = infTime !== null),
+        TableRow("Outras inf. (STD)", "$standardDeviation", show = standardDeviation !== null),
         TableRow("Uso de CPU", cpuUsage),
         TableRow("Uso de GPU", gpuUsage),
         TableRow("Uso de RAM", ramUsage)
@@ -197,11 +199,12 @@ fun InferenceView(
 
 data class TableRow(
     val index: String,
-    val value: String?
+    val value: String?,
+    val show: Boolean = true
 )
 @Composable
 fun TextRow(row: TableRow) {
-    if(row.value !== null)
+    if(row.show)
         Row (
             modifier = Modifier
                 .fillMaxWidth(0.7F)
@@ -209,7 +212,7 @@ fun TextRow(row: TableRow) {
         ){
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.7F)
+                    .fillMaxWidth(0.6F)
             ){
                 Text(
                     text = row.index,
@@ -221,7 +224,7 @@ fun TextRow(row: TableRow) {
                     .fillMaxWidth()
             ){
                 Text(
-                    text = row.value,
+                    text = row.value ?: "",
                     style = LocalAppTypography.current.tableContent
                 )
             }

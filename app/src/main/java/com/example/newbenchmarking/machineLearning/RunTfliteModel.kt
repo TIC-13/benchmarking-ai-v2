@@ -22,7 +22,8 @@ import kotlin.system.measureTimeMillis
 data class RunModelResult(
     val load: Long,
     val average: Long,
-    val first: Long?
+    val first: Long?,
+    val standardDeviation: Double?
 )
 
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): RunModelResult {
@@ -80,18 +81,18 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
     gpuDelegate.close()
     val mediumInferenceTime = (totalInferenceTime/images.size - 1)
 
+    val standardDeviation = sqrt(inferencesList.sumOf {
+        (it - mediumInferenceTime).toDouble().pow(2.0)
+    } / inferencesList.size)
+
     if(firstInferenceTime !== null && mediumInferenceTime != 0L){
         val runMode = if(params.useNNAPI) "NNAPI" else if(params.useGPU) "GPU" else "CPU"
         val tag = "${params.model.label} ${params.model.quantization} ${runMode}"
 
-        val desvioPadrao = sqrt(inferencesList.sumOf {
-            (it - mediumInferenceTime).toDouble().pow(2.0)
-        } / inferencesList.size)
-
         Log.d("inftime", "$tag - ${params.numImages} imagens")
         Log.d("inftime", "Primeira inferência: $firstInferenceTime")
         Log.d("inftime", "Média das outras: $mediumInferenceTime")
-        Log.d("inftime", "Desvio padrão: $desvioPadrao")
+        Log.d("inftime", "Desvio padrão: $standardDeviation")
         Log.d("inftime", "")
     }
 
@@ -99,6 +100,7 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
         load = loadTime,
         average = mediumInferenceTime,
         first = firstInferenceTime,
+        standardDeviation = standardDeviation
     )
 }
 

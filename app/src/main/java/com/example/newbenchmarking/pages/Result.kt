@@ -31,12 +31,11 @@ import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.ResultViewModel
-import android.os.HardwarePropertiesManager
 import com.example.newbenchmarking.requests.Inference
 import com.example.newbenchmarking.requests.Phone
 import com.example.newbenchmarking.requests.PostData
 import com.example.newbenchmarking.requests.postResult
-import java.io.File
+import kotlin.math.floor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -80,7 +79,9 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                 ),
                 Inference(
                     init_speed = result.loadTime.toInt(),
-                    inf_speed = result.inferenceTimeAverage.toInt(),
+                    inf_speed = if(result.inferenceTimeAverage !== null) result.inferenceTimeAverage.toInt() else null,
+                    first_inf_speed = result.firstInference?.toInt(),
+                    standard_deviation = result.standardDeviation?.toInt(),
                     ml_model = result.params.model.label,
                     category = result.params.model.category.toString(),
                     quantization = result.params.model.quantization.toString(),
@@ -134,13 +135,22 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     cpuUsage = String.format("%.2f", result.cpuAverage) + "%",
                     gpuUsage = result.gpuAverage.toString() + "%",
                     ramUsage = result.ramConsumedAverage.toInt().toString() + "MB",
-                    initTime = result.loadTime.toString() + "ms",
-                    firstInfTime = result.firstInference.toString() + "ms",
+                    initTime = formatTime(result.loadTime),
+                    firstInfTime = formatTime(result.firstInference),
+                    standardDeviation = formatTime(result.standardDeviation?.toLong()),
                     infTime = result.inferenceTimeAverage.toString() + "ms",
                     showInfoButton = true
                 )
             }
         }
     }
+}
+
+fun formatTime(time: Long?): String?{
+    if(time == null) return null
+    return if(time >= 1000)
+        String.format("%.2f", time.toDouble() / 1000) + "s"
+    else
+        time.toString() + "ms"
 }
 

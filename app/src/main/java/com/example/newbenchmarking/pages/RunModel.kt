@@ -90,6 +90,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 loadTime = result.load,
                 inferenceTimeAverage = result.average,
                 firstInference = result.first,
+                standardDeviation = result.standardDeviation,
                 ramConsumedAverage = ramUsage.getAverage(),
                 gpuAverage = gpuUsage.getAverage(),
                 cpuAverage = cpuUsage.getAverageCPUConsumption(),

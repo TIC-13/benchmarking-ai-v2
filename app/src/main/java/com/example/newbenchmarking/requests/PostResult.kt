@@ -19,7 +19,9 @@ data class Phone(
 
 data class Inference(
     val init_speed: Int,
-    val inf_speed: Int,
+    val inf_speed: Int?,
+    val first_inf_speed: Int?,
+    val standard_deviation: Int?,
     val ml_model: String,
     val category: String,
     val quantization: String,
