@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -108,10 +111,12 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     LaunchedEffect(Unit) {
         while(true){
-            delay(100)
-            cpuUsage.calculateCPUUsage()
-            ramUsage.calculateUsage()
-            gpuUsage.calculateUsage()
+            withContext(Dispatchers.IO) {
+                delay(5)
+                cpuUsage.calculateCPUUsage()
+                ramUsage.calculateUsage()
+                gpuUsage.calculateUsage()
+            }
         }
     }
 
