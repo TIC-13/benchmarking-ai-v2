@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.data.BENCHMARKING_TESTS
 import com.example.newbenchmarking.data.DATASETS
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.data.MODELS
@@ -29,6 +31,10 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             DEFAULT_PARAMS.params
         )
     )
+    
+    LaunchedEffect(key1 = true) {
+        viewModel.updateInferenceParamsList(listOf(BENCHMARKING_TESTS[0]))
+    }
 
     BackgroundWithContent (
         horizontalAlignment = Alignment.CenterHorizontally
@@ -62,8 +68,8 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             labelColor = Color.White
         )
         DropdownSelector(
-            "Modelo selecionado: ${inferenceParams[0].model.label}",
-            items = MODELS.map {x -> x.label},
+            "Modelo selecionado: ${inferenceParams[0].model.label + " - " + inferenceParams[0].model.quantization}",
+            items = MODELS.map {x -> x.label + " - " + x.quantization},
             onItemSelected = { newIndex ->
                 viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
                     model = MODELS[newIndex]
