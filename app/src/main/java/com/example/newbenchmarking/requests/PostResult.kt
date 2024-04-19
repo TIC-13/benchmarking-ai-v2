@@ -18,7 +18,7 @@ data class Phone(
 )
 
 data class Inference(
-    val init_speed: Int,
+    val init_speed: Int?,
     val inf_speed: Int?,
     val first_inf_speed: Int?,
     val standard_deviation: Int?,
@@ -30,12 +30,13 @@ data class Inference(
     val uses_nnapi: Boolean,
     val uses_gpu: Boolean,
     val num_threads: Int,
-    val ram_usage: Int,
+    val ram_usage: Int?,
     val gpu_usage: Int?,
-    val cpu_usage: Int,
+    val cpu_usage: Int?,
     val gpu: String?,
     val cpu: String?,
-    val android_id: String
+    val android_id: String,
+    val errorMessage: String?
 )
 
 data class PostData(

@@ -45,27 +45,29 @@ import com.example.newbenchmarking.theme.LocalAppTypography
 fun InferenceView(
     modifier: Modifier = Modifier,
     params: InferenceParams,
-    cpuUsage: String,
-    gpuUsage: String,
-    ramUsage: String,
-    initTime: String? = null,
-    infTime: String? = null,
-    standardDeviation: String? = null,
-    firstInfTime: String? = null,
-    showInfoButton: Boolean = false
+    cpuUsage: Int?,
+    gpuUsage: Int?,
+    ramUsage: Int?,
+    initTime: Int? = null,
+    infTime: Int? = null,
+    standardDeviation: Int? = null,
+    firstInfTime: Int? = null,
+    showInfoButton: Boolean = false,
+    errorMessage: String? = null,
 ) {
 
     val rows = arrayOf(
-        TableRow("Inicialização", initTime, show = initTime !== null),
-        TableRow("Primeira inferência", firstInfTime, show = firstInfTime !== null),
-        TableRow("Outras inf. (média)", "$infTime", show = infTime !== null),
-        TableRow("Outras inf. (STD)", "$standardDeviation", show = standardDeviation !== null),
-        TableRow("Uso de CPU", cpuUsage),
-        TableRow("Uso de GPU", gpuUsage),
-        TableRow("Uso de RAM", ramUsage)
+        TableRow("Inicialização", formatTime(initTime), show = initTime !== null),
+        TableRow("Primeira inferência", formatTime(firstInfTime), show = firstInfTime !== null),
+        TableRow("Outras inf. (média)", formatTime(infTime), show = infTime !== null),
+        TableRow("Outras inf. (STD)", formatTime(standardDeviation), show = standardDeviation !== null),
+        TableRow("Uso de CPU", formatInt(cpuUsage, "%")),
+        TableRow("Uso de GPU", formatInt(gpuUsage, "%", false)),
+        TableRow("Uso de RAM", formatInt(ramUsage, "MB"))
     )
 
     var infoActive by remember { mutableStateOf(false) }
+    var showErrorActive by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -182,8 +184,25 @@ fun InferenceView(
                     text = if(params.model.category === Category.LANGUAGE) "" else params.dataset.label,
                     style = LocalAppTypography.current.tableIndex
                 )
-                for(row in rows){
-                    TextRow(row)
+                if(errorMessage != null){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(1F)
+                            .clickable { showErrorActive = true },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ){
+                        Text(
+                            modifier = Modifier.padding(5.dp, 0.dp),
+                            text = "Erro no modelo",
+                            style = LocalAppTypography.current.tableContent
+                        )
+                        InfoIcon()
+                    }
+                }else {
+                    for (row in rows) {
+                        TextRow(row)
+                    }
                 }
             }
         }
@@ -193,6 +212,13 @@ fun InferenceView(
             onConfirmation = { infoActive = false },
             dialogTitle = params.model.label,
             dialogText = params.model.longDescription
+        )
+    }
+    if(showErrorActive) {
+        Modal(
+            onConfirmation = { showErrorActive = false },
+            dialogTitle = "Erro retornado",
+            dialogText = errorMessage ?: "Erro ao executar a inferência"
         )
     }
 }
@@ -256,4 +282,19 @@ fun Chip(modifier: Modifier = Modifier, text: String, color: Color = LocalAppCol
         )
     }
 
+}
+
+fun formatTime(time: Int?): String{
+    if(time == null) return "Não medido"
+    return if(time >= 1000)
+        String.format("%.2f", time.toDouble() / 1000) + "s"
+    else
+        time.toString() + "ms"
+}
+
+fun formatInt(percent: Int?, complemento: String, returnsZero: Boolean = true): String {
+    return if(percent != null && (percent != 0 || returnsZero))
+        "$percent$complemento"
+    else
+        "Não medida"
 }

@@ -20,10 +20,10 @@ import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
 data class RunModelResult(
-    val load: Long,
-    val average: Long,
-    val first: Long?,
-    val standardDeviation: Double?
+    val load: Long? = null,
+    val average: Long? = null,
+    val first: Long? = null,
+    val standardDeviation: Double? = null
 )
 
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): RunModelResult {

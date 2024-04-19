@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,13 +62,13 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     val context = LocalContext.current
 
     var cpuUsage by remember { mutableStateOf(CpuUsage()) }
-    var displayCpuUsage by remember {mutableStateOf("0%")}
+    var displayCpuUsage by remember {mutableIntStateOf(0)}
 
     var ramUsage by remember { mutableStateOf(RamUsage()) }
-    var displayRamUsage by remember { mutableStateOf("0MB") }
+    var displayRamUsage by remember { mutableIntStateOf(0) }
 
     var gpuUsage by remember { mutableStateOf(GpuUsage())}
-    var displayGpuUsage by remember { mutableStateOf("0%") }
+    var displayGpuUsage by remember { mutableIntStateOf(0) }
 
     var currParams by remember { mutableStateOf(inferencesList[0]) }
 
@@ -75,25 +76,33 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         for(inferenceParams in inferencesList){
 
             currParams = inferenceParams
-            var result: RunModelResult
+            var result = RunModelResult()
+            var errorMessage: String? = null
 
             val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
 
             withContext(Dispatchers.IO){
-                result = if(inferenceParams.model.category === Category.LANGUAGE)
+                try {
+                    result = if(inferenceParams.model.category === Category.LANGUAGE)
                         runBert(context, inferenceParams)
                     else
                         runTfLiteModel(context, inferenceParams, currImages)
+                }catch (e: Exception){
+                        errorMessage = e.toString()
+                }
             }
 
+            val isError = errorMessage !== null
             val currResult = InferenceResult(
                 loadTime = result.load,
                 inferenceTimeAverage = result.average,
                 firstInference = result.first,
                 standardDeviation = result.standardDeviation,
-                ramConsumedAverage = ramUsage.getAverage(),
-                gpuAverage = gpuUsage.getAverage(),
-                cpuAverage = cpuUsage.getAverageCPUConsumption(),
+                ramConsumedAverage = if(!isError) ramUsage.getAverage() else null,
+                gpuAverage = if(!isError) gpuUsage.getAverage() else null,
+                cpuAverage = if(!isError) cpuUsage.getAverageCPUConsumption() else null,
+                isError = isError,
+                errorMessage = errorMessage,
                 params = inferenceParams,
             )
 
@@ -126,9 +135,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     LaunchedEffect(Unit) {
         while(true){
             delay(500)
-            displayCpuUsage = "%.2f".format(cpuUsage.getCPUUsage()) + "%"
-            displayRamUsage = ramUsage.get().toString() + "MB"
-            displayGpuUsage = gpuUsage.get().toString() + "%"
+            displayCpuUsage = cpuUsage.getCPUUsage().toInt()
+            displayRamUsage = ramUsage.get()
+            displayGpuUsage = gpuUsage.get()
         }
     }
 

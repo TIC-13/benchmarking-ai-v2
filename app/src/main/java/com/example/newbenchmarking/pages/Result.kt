@@ -78,7 +78,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     total_ram = getTotalRAM().toInt()
                 ),
                 Inference(
-                    init_speed = result.loadTime.toInt(),
+                    init_speed = result.loadTime?.toInt(),
                     inf_speed = if(result.inferenceTimeAverage !== null) result.inferenceTimeAverage.toInt() else null,
                     first_inf_speed = result.firstInference?.toInt(),
                     standard_deviation = result.standardDeviation?.toInt(),
@@ -90,12 +90,13 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     uses_nnapi = result.params.useNNAPI,
                     uses_gpu = result.params.useGPU,
                     num_threads = result.params.numThreads,
-                    ram_usage = result.ramConsumedAverage.toInt(),
+                    ram_usage = result.ramConsumedAverage?.toInt(),
                     gpu_usage = if(result.gpuAverage != 0 ) result.gpuAverage else null,
-                    cpu_usage = result.cpuAverage.toInt(),
+                    cpu_usage = result.cpuAverage?.toInt(),
                     gpu = null,
                     cpu = null,
-                    android_id = getAndroidId(context)
+                    android_id = getAndroidId(context),
+                    errorMessage = result.errorMessage
                 )
             ))
         }
@@ -132,25 +133,19 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         .fillMaxWidth(0.9f)
                         .clip(RoundedCornerShape(50.dp)),
                     params = result.params,
-                    cpuUsage = String.format("%.2f", result.cpuAverage) + "%",
-                    gpuUsage = if(result.gpuAverage != 0) result.gpuAverage.toString() + "%" else "Não medida",
-                    ramUsage = result.ramConsumedAverage.toInt().toString() + "MB",
-                    initTime = formatTime(result.loadTime),
-                    firstInfTime = formatTime(result.firstInference),
-                    standardDeviation = formatTime(result.standardDeviation?.toLong()),
-                    infTime = result.inferenceTimeAverage.toString() + "ms",
-                    showInfoButton = true
+                    cpuUsage = result.cpuAverage?.toInt(),
+                    gpuUsage = result.gpuAverage,
+                    ramUsage = result.ramConsumedAverage?.toInt(),
+                    initTime = result.loadTime?.toInt(),
+                    firstInfTime = result.firstInference?.toInt(),
+                    standardDeviation = result.standardDeviation?.toInt(),
+                    infTime = result.inferenceTimeAverage?.toInt(),
+                    showInfoButton = true,
+                    errorMessage = result.errorMessage
                 )
             }
         }
     }
 }
 
-fun formatTime(time: Long?): String?{
-    if(time == null) return null
-    return if(time >= 1000)
-        String.format("%.2f", time.toDouble() / 1000) + "s"
-    else
-        time.toString() + "ms"
-}
 

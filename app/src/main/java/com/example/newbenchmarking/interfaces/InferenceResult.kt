@@ -1,12 +1,14 @@
 package com.example.newbenchmarking.interfaces
 
 data class InferenceResult(
-    val cpuAverage: Float,
-    val gpuAverage: Int,
-    val ramConsumedAverage: Float,
-    val inferenceTimeAverage: Long?,
-    val loadTime: Long,
-    val firstInference: Long?,
-    val standardDeviation: Double?,
-    val params: InferenceParams
+    val cpuAverage: Float? = null,
+    val gpuAverage: Int? = null,
+    val ramConsumedAverage: Float? = null,
+    val inferenceTimeAverage: Long? = null,
+    val loadTime: Long? = null,
+    val firstInference: Long? = null,
+    val standardDeviation: Double? = null,
+    val params: InferenceParams,
+    val isError: Boolean = false,
+    val errorMessage: String? = null,
 )
