@@ -68,37 +68,38 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
             return memInfo.totalMem
         }
 
-        for((index, result) in resultList.withIndex()){
-
-            postResult(PostData(
-                Phone(
-                    brand_name = Build.BRAND,
-                    manufacturer = Build.MANUFACTURER,
-                    phone_model = Build.MODEL,
-                    total_ram = getTotalRAM().toInt()
-                ),
-                Inference(
-                    init_speed = result.loadTime?.toInt(),
-                    inf_speed = if(result.inferenceTimeAverage !== null) result.inferenceTimeAverage.toInt() else null,
-                    first_inf_speed = result.firstInference?.toInt(),
-                    standard_deviation = result.standardDeviation?.toInt(),
-                    ml_model = result.params.model.label,
-                    category = result.params.model.category.toString(),
-                    quantization = result.params.model.quantization.toString(),
-                    dataset = result.params.dataset.label,
-                    num_images = result.params.numImages,
-                    uses_nnapi = result.params.useNNAPI,
-                    uses_gpu = result.params.useGPU,
-                    num_threads = result.params.numThreads,
-                    ram_usage = result.ramConsumedAverage?.toInt(),
-                    gpu_usage = if(result.gpuAverage != 0 ) result.gpuAverage else null,
-                    cpu_usage = result.cpuAverage?.toInt(),
-                    gpu = null,
-                    cpu = null,
-                    android_id = getAndroidId(context),
-                    errorMessage = result.errorMessage
-                )
-            ))
+        if(resultList.size > 1){
+            for((index, result) in resultList.withIndex()){
+                postResult(PostData(
+                    Phone(
+                        brand_name = Build.BRAND,
+                        manufacturer = Build.MANUFACTURER,
+                        phone_model = Build.MODEL,
+                        total_ram = getTotalRAM().toInt()
+                    ),
+                    Inference(
+                        init_speed = result.loadTime?.toInt(),
+                        inf_speed = if(result.inferenceTimeAverage !== null) result.inferenceTimeAverage.toInt() else null,
+                        first_inf_speed = result.firstInference?.toInt(),
+                        standard_deviation = result.standardDeviation?.toInt(),
+                        ml_model = result.params.model.label,
+                        category = result.params.model.category.toString(),
+                        quantization = result.params.model.quantization.toString(),
+                        dataset = result.params.dataset.label,
+                        num_images = result.params.numImages,
+                        uses_nnapi = result.params.useNNAPI,
+                        uses_gpu = result.params.useGPU,
+                        num_threads = result.params.numThreads,
+                        ram_usage = result.ramConsumedAverage?.toInt(),
+                        gpu_usage = if(result.gpuAverage != 0 ) result.gpuAverage else null,
+                        cpu_usage = result.cpuAverage?.toInt(),
+                        gpu = null,
+                        cpu = null,
+                        android_id = getAndroidId(context),
+                        errorMessage = result.errorMessage
+                    )
+                ))
+            }
         }
     }
 
