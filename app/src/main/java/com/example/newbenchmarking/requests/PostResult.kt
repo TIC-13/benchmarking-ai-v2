@@ -31,7 +31,7 @@ data class Inference(
     val uses_gpu: Boolean,
     val num_threads: Int,
     val ram_usage: Int,
-    val gpu_usage: Int,
+    val gpu_usage: Int?,
     val cpu_usage: Int,
     val gpu: String?,
     val cpu: String?,
