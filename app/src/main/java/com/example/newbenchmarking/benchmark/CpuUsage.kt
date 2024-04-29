@@ -6,11 +6,12 @@ import java.io.InputStreamReader
 
 class CpuUsage {
 
-    private var cpuUsage = 0F
-    private var totalCPUUsage = 0F
-    private var numberOfCPUUsageSamples = 0L
+    private var cpuUsage = 0
+    private var totalCPUUsage = 0
+    private var numberOfCPUUsageSamples = 0
+    private var peak = 0
 
-    fun calculateCPUUsage(): Float {
+    fun calculateCPUUsage(): Int {
 
         val processName = "com.example.newbenchmarking"
 
@@ -45,23 +46,28 @@ class CpuUsage {
         }
 
         val processLine = processStringBuilder.toString()
-        val cpuUsageParsed = processLine.replace(Regex("\\s+"), " ").split(" ")[9].toFloat()
+        val cpuUsageParsed = processLine.replace(Regex("\\s+"), " ").split(" ")[9].toFloat().toInt()
 
         val totalCapacityLine = totalCapacityStringBuilder.toString()
-        val totalCapacity = Regex("^\\d+").find(totalCapacityLine)?.value?.toInt() ?: return 0F
+        val totalCapacity = Regex("^\\d+").find(totalCapacityLine)?.value?.toInt() ?: return 0
 
-        val cpuUsagePercentage = cpuUsageParsed / totalCapacity
+        val cpuUsagePercentage = cpuUsageParsed*100 / totalCapacity
         cpuUsage = cpuUsagePercentage
+        if(cpuUsage > peak) peak = cpuUsage
         totalCPUUsage += cpuUsagePercentage
         numberOfCPUUsageSamples ++
         return cpuUsagePercentage
     }
 
-    fun getCPUUsage(): Float {
-        return cpuUsage * 100
+    fun getCPUUsage(): Int {
+        return cpuUsage
     }
 
-    fun getAverageCPUConsumption(): Float {
-        return (totalCPUUsage/numberOfCPUUsageSamples) * 100
+    fun peak(): Int {
+        return peak
+    }
+
+    fun getAverageCPUConsumption(): Int {
+        return (totalCPUUsage/numberOfCPUUsageSamples)
     }
 }

@@ -92,7 +92,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         num_threads = result.params.numThreads,
                         ram_usage = result.ramConsumedAverage?.toInt(),
                         gpu_usage = if(result.gpuAverage != 0 ) result.gpuAverage else null,
-                        cpu_usage = result.cpuAverage?.toInt(),
+                        cpu_usage = result.cpuAverage,
                         gpu = null,
                         cpu = null,
                         android_id = getAndroidId(context),
@@ -134,15 +134,18 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         .fillMaxWidth(0.9f)
                         .clip(RoundedCornerShape(50.dp)),
                     params = result.params,
-                    cpuUsage = result.cpuAverage?.toInt(),
+                    cpuUsage = result.cpuAverage,
+                    cpuPeak = result.cpuPeak,
                     gpuUsage = result.gpuAverage,
+                    gpuPeak = result.gpuPeak,
                     ramUsage = result.ramConsumedAverage?.toInt(),
+                    ramPeak = result.ramPeak?.toInt(),
                     initTime = result.loadTime?.toInt(),
                     firstInfTime = result.firstInference?.toInt(),
                     standardDeviation = result.standardDeviation?.toInt(),
                     infTime = result.inferenceTimeAverage?.toInt(),
                     showInfoButton = true,
-                    errorMessage = result.errorMessage
+                    errorMessage = result.errorMessage,
                 )
             }
         }

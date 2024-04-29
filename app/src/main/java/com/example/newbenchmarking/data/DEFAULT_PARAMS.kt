@@ -4,7 +4,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.InferenceResult
 
 val DEFAULT_PARAMS = InferenceResult(
-    cpuAverage = 0F,
+    cpuAverage = 0,
     gpuAverage =  0,
     ramConsumedAverage =  0F,
     inferenceTimeAverage = null,

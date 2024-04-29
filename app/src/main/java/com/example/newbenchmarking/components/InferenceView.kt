@@ -48,6 +48,9 @@ fun InferenceView(
     cpuUsage: Int?,
     gpuUsage: Int?,
     ramUsage: Int?,
+    gpuPeak: Int? = null,
+    cpuPeak: Int? = null,
+    ramPeak: Int? = null,
     initTime: Int? = null,
     infTime: Int? = null,
     standardDeviation: Int? = null,
@@ -63,7 +66,10 @@ fun InferenceView(
         TableRow("Outras inf. (STD)", formatTime(standardDeviation), show = standardDeviation !== null),
         TableRow("Uso de CPU", formatInt(cpuUsage, "%")),
         TableRow("Uso de GPU", formatInt(gpuUsage, "%", false)),
-        TableRow("Uso de RAM", formatInt(ramUsage, "MB"))
+        TableRow("Uso de RAM", formatInt(ramUsage, "MB")),
+        TableRow("Pico CPU", formatInt(cpuPeak, "%"), show = cpuPeak !== null),
+        TableRow("Pico de GPU", formatInt(gpuPeak, "%"), show = gpuPeak !== null),
+        TableRow("Pico de RAM", formatInt(ramPeak, "MB"), show = gpuPeak !== null),
     )
 
     var infoActive by remember { mutableStateOf(false) }

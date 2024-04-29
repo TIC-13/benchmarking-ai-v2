@@ -10,6 +10,7 @@ class GpuUsage {
     private var usage = 0
     private var totalUsage = 0
     private var numSamples = 0
+    private var peak = 0
 
     fun calculateUsage() {
         val filePath = "/sys/kernel/gpu/gpu_busy"
@@ -23,6 +24,7 @@ class GpuUsage {
             println("Error reading file: ${e.message}")
             usage = 0
         }
+        if(usage > peak) peak = usage
         totalUsage += usage
         numSamples += 1
     }
@@ -48,6 +50,10 @@ class GpuUsage {
             println("Outro error em leitura adreno: " + e.message)
             return 0F
         }
+    }
+
+    fun peak(): Int {
+        return peak
     }
 
     fun get(): Int {

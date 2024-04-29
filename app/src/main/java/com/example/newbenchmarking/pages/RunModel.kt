@@ -101,6 +101,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 ramConsumedAverage = if(!isError) ramUsage.getAverage() else null,
                 gpuAverage = if(!isError) gpuUsage.getAverage() else null,
                 cpuAverage = if(!isError) cpuUsage.getAverageCPUConsumption() else null,
+                cpuPeak = cpuUsage.peak(),
+                gpuPeak = gpuUsage.peak(),
+                ramPeak = ramUsage.peak(),
                 isError = isError,
                 errorMessage = errorMessage,
                 params = inferenceParams,
@@ -161,7 +164,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             params = currParams,
             cpuUsage = displayCpuUsage,
             gpuUsage = displayGpuUsage,
-            ramUsage = displayRamUsage
+            ramUsage = displayRamUsage,
         )
     }
 }
