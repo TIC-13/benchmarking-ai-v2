@@ -1,13 +1,16 @@
 package com.example.newbenchmarking.data
 
+import com.example.newbenchmarking.benchmark.CpuUsage
+import com.example.newbenchmarking.benchmark.GpuUsage
+import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.BenchmarkResult
 
 val DEFAULT_PARAMS = BenchmarkResult(
-        cpuAverage = 0,
-        gpuAverage =  0,
-        ramConsumedAverage =  0F,
+        cpu = CpuUsage(),
+        ram = RamUsage(),
+        gpu = GpuUsage(),
         inference = Inference(
             load = null,
             average = null,

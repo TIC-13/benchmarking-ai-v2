@@ -90,12 +90,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             val currResult = BenchmarkResult(
                 inference = result,
                 params = inferenceParams,
-                ramConsumedAverage = if(!isError) ramUsage.getAverage() else null,
-                gpuAverage = if(!isError) gpuUsage.getAverage() else null,
-                cpuAverage = if(!isError) cpuUsage.getAverageCPUConsumption() else null,
-                cpuPeak = cpuUsage.peak(),
-                gpuPeak = gpuUsage.peak(),
-                ramPeak = ramUsage.peak(),
+                ram = ramUsage,
+                cpu = cpuUsage,
+                gpu = gpuUsage,
                 isError = isError,
                 errorMessage = errorMessage,
             )
