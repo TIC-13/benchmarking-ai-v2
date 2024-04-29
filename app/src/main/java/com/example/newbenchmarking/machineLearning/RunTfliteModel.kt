@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.util.Log
+import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
@@ -19,14 +20,8 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
-data class RunModelResult(
-    val load: Long? = null,
-    val average: Long? = null,
-    val first: Long? = null,
-    val standardDeviation: Double? = null
-)
 
-fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): RunModelResult {
+fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Inference {
 
     val model = loadModelFile(context.assets, modelName = params.model.filename)
     val gpuDelegate = GpuDelegate()
@@ -96,11 +91,11 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
         Log.d("inftime", "")
     }
 
-    return RunModelResult(
-        load = loadTime,
-        average = mediumInferenceTime,
-        first = firstInferenceTime,
-        standardDeviation = standardDeviation
+    return Inference(
+        load = loadTime.toInt(),
+        average = mediumInferenceTime.toInt(),
+        first = firstInferenceTime?.toInt(),
+        standardDeviation = standardDeviation.toInt()
     )
 }
 

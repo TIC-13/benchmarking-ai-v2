@@ -2,13 +2,14 @@ package com.example.newbenchmarking.machineLearning
 
 import android.content.Context
 import android.util.Log
+import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer.BertQuestionAnswererOptions
 import kotlin.system.measureTimeMillis
 
-fun runBert(androidContext: Context, params: InferenceParams): RunModelResult {
+fun runBert(androidContext: Context, params: InferenceParams): Inference {
 
     val baseOptions = BaseOptions.builder()
         .setNumThreads(params.numThreads)
@@ -50,10 +51,10 @@ fun runBert(androidContext: Context, params: InferenceParams): RunModelResult {
         }
     }
 
-    return RunModelResult(
-        load = loadTime,
-        average = totalTime/(numTests-1),
-        first = firstInferenceTime,
+    return Inference(
+        load = loadTime.toInt(),
+        average = (totalTime/(numTests-1)).toInt(),
+        first = firstInferenceTime?.toInt(),
         standardDeviation = null
     )
 }

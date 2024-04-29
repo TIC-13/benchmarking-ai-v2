@@ -26,8 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.CPUChip
+import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
+import com.example.newbenchmarking.components.NNAPIChip
+import com.example.newbenchmarking.components.Row
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
+import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.ResultViewModel
@@ -35,14 +40,13 @@ import com.example.newbenchmarking.requests.Inference
 import com.example.newbenchmarking.requests.Phone
 import com.example.newbenchmarking.requests.PostData
 import com.example.newbenchmarking.requests.postResult
-import kotlin.math.floor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
 
-    val resultList by resultViewModel.inferenceResultList.observeAsState(
+    val resultList by resultViewModel.benchmarkResultList.observeAsState(
         initial = arrayListOf(
             DEFAULT_PARAMS
         )
@@ -78,10 +82,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         total_ram = getTotalRAM().toInt()
                     ),
                     Inference(
-                        init_speed = result.loadTime?.toInt(),
-                        inf_speed = if(result.inferenceTimeAverage !== null) result.inferenceTimeAverage.toInt() else null,
-                        first_inf_speed = result.firstInference?.toInt(),
-                        standard_deviation = result.standardDeviation?.toInt(),
+                        init_speed = result.inference.load,
+                        inf_speed = result.inference.average,
+                        first_inf_speed = result.inference.average,
+                        standard_deviation = result.inference.standardDeviation,
                         ml_model = result.params.model.label,
                         category = result.params.model.category.toString(),
                         quantization = result.params.model.quantization.toString(),
@@ -133,19 +137,22 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .clip(RoundedCornerShape(50.dp)),
-                    params = result.params,
-                    cpuUsage = result.cpuAverage,
-                    cpuPeak = result.cpuPeak,
-                    gpuUsage = result.gpuAverage,
-                    gpuPeak = result.gpuPeak,
-                    ramUsage = result.ramConsumedAverage?.toInt(),
-                    ramPeak = result.ramPeak?.toInt(),
-                    initTime = result.loadTime?.toInt(),
-                    firstInfTime = result.firstInference?.toInt(),
-                    standardDeviation = result.standardDeviation?.toInt(),
-                    infTime = result.inferenceTimeAverage?.toInt(),
-                    showInfoButton = true,
-                    errorMessage = result.errorMessage,
+                    topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
+                    subtitle = result.params.model.description,
+                    bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.LANGUAGE) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
+                    bottomSecondTitle = result.params.dataset.label,
+                    chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
+                    rows = arrayOf(
+                        Row("Inicialização", "${result.inference.load.toString()} ms"),
+                        Row("Primeira inferência", "${result.inference.first.toString()} ms"),
+                        Row("Outras inf. (média)", "${result.inference.average.toString()} ms"),
+                        Row("Uso de CPU", "${result.cpuAverage.toString()}%"),
+                        Row("Uso de GPU", "${result.gpuAverage.toString()}%"),
+                        Row("Uso de RAM", "${result.ramConsumedAverage?.toInt().toString()}MB"),
+                        Row("Pico de CPU", "${result.cpuPeak.toString()}%"),
+                        Row("Pico de GPU", "${result.gpuPeak.toString()}%"),
+                        Row("Pico de RAM", "${result.ramPeak.toString()}MB"),
+                    )
                 )
             }
         }

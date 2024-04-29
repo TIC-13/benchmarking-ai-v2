@@ -1,18 +1,10 @@
 package com.example.newbenchmarking.pages
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,21 +17,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.CPUChip
+import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
+import com.example.newbenchmarking.components.NNAPIChip
+import com.example.newbenchmarking.components.Row
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
-import com.example.newbenchmarking.interfaces.InferenceResult
-import com.example.newbenchmarking.machineLearning.RunModelResult
+import com.example.newbenchmarking.interfaces.Inference
+import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
-import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
@@ -57,7 +51,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         )
     )
 
-    val resultsList by resultViewModel.inferenceResultList.observeAsState()
+    val resultsList by resultViewModel.benchmarkResultList.observeAsState()
 
     val context = LocalContext.current
 
@@ -76,7 +70,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         for(inferenceParams in inferencesList){
 
             currParams = inferenceParams
-            var result = RunModelResult()
+            var result = Inference()
             var errorMessage: String? = null
 
             val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
@@ -93,11 +87,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             }
 
             val isError = errorMessage !== null
-            val currResult = InferenceResult(
-                loadTime = result.load,
-                inferenceTimeAverage = result.average,
-                firstInference = result.first,
-                standardDeviation = result.standardDeviation,
+            val currResult = BenchmarkResult(
+                inference = result,
+                params = inferenceParams,
                 ramConsumedAverage = if(!isError) ramUsage.getAverage() else null,
                 gpuAverage = if(!isError) gpuUsage.getAverage() else null,
                 cpuAverage = if(!isError) cpuUsage.getAverageCPUConsumption() else null,
@@ -106,7 +98,6 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 ramPeak = ramUsage.peak(),
                 isError = isError,
                 errorMessage = errorMessage,
-                params = inferenceParams,
             )
 
             resultViewModel.updateInferenceResultList(
@@ -161,10 +152,16 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         InferenceView(
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
-            params = currParams,
-            cpuUsage = displayCpuUsage,
-            gpuUsage = displayGpuUsage,
-            ramUsage = displayRamUsage,
+            topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
+            subtitle = currParams.model.description,
+            chip = if(currParams.useNNAPI) NNAPIChip() else if (currParams.useGPU) GPUChip() else CPUChip(),
+            bottomFirstTitle = "${currParams.numImages} ${if(currParams.model.category !== Category.LANGUAGE) "imagens" else "inferências"} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
+            bottomSecondTitle = currParams.dataset.label,
+            rows = arrayOf(
+                Row("Uso de CPU", "$displayCpuUsage%"),
+                Row("Uso de GPU", "$displayGpuUsage%"),
+                Row("Uso de RAM", "${displayRamUsage}MB")
+            )
         )
     }
 }

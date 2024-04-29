@@ -1,6 +1,5 @@
 package com.example.newbenchmarking.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,20 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,45 +26,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
-import com.example.newbenchmarking.interfaces.Category
-import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 
 
+data class ChipProps(
+    val text: String,
+    val color: Color
+)
+
+data class Row(
+    val label: String,
+    val text: String
+)
+
+data class InfoContent(
+    val title: String,
+    val subtitle: String
+)
+
 @Composable
 fun InferenceView(
     modifier: Modifier = Modifier,
-    params: InferenceParams,
-    cpuUsage: Int?,
-    gpuUsage: Int?,
-    ramUsage: Int?,
-    gpuPeak: Int? = null,
-    cpuPeak: Int? = null,
-    ramPeak: Int? = null,
-    initTime: Int? = null,
-    infTime: Int? = null,
-    standardDeviation: Int? = null,
-    firstInfTime: Int? = null,
-    showInfoButton: Boolean = false,
-    errorMessage: String? = null,
+    topTitle: String,
+    subtitle: String,
+    chip: ChipProps? = null,
+    infoContent: InfoContent? = null,
+    bottomFirstTitle: String? = null,
+    bottomSecondTitle: String? = null,
+    rows: Array<Row>,
 ) {
 
-    val rows = arrayOf(
-        TableRow("Inicialização", formatTime(initTime), show = initTime !== null),
-        TableRow("Primeira inferência", formatTime(firstInfTime), show = firstInfTime !== null),
-        TableRow("Outras inf. (média)", formatTime(infTime), show = infTime !== null),
-        TableRow("Outras inf. (STD)", formatTime(standardDeviation), show = standardDeviation !== null),
-        TableRow("Uso de CPU", formatInt(cpuUsage, "%")),
-        TableRow("Uso de GPU", formatInt(gpuUsage, "%", false)),
-        TableRow("Uso de RAM", formatInt(ramUsage, "MB")),
-        TableRow("Pico CPU", formatInt(cpuPeak, "%"), show = cpuPeak !== null),
-        TableRow("Pico de GPU", formatInt(gpuPeak, "%"), show = gpuPeak !== null),
-        TableRow("Pico de RAM", formatInt(ramPeak, "MB"), show = gpuPeak !== null),
-    )
-
     var infoActive by remember { mutableStateOf(false) }
-    var showErrorActive by remember { mutableStateOf(false) }
+    val showInfoButton = infoContent !== null
 
     Box(
         modifier = modifier
@@ -114,12 +99,12 @@ fun InferenceView(
                             Text(
                                 modifier = Modifier
                                     .padding(5.dp, 5.dp),
-                                text = params.model.label + " - " + params.model.quantization,
+                                text = topTitle,
 
                                 style = LocalAppTypography.current.tableTitle
                             )
                             Text(
-                                text = params.model.description,
+                                text = subtitle,
                                 style = LocalAppTypography.current.tableSubtitle
                             )
                             
@@ -141,31 +126,15 @@ fun InferenceView(
                             horizontalArrangement = Arrangement.spacedBy(20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            if(params.useNNAPI){
+                            if(chip !== null) {
                                 Chip(
                                     modifier = Modifier
                                         .fillMaxWidth(0.2F)
                                         .fillMaxHeight(),
-                                    color = LocalAppColors.current.nnapi,
-                                    text = "NNAPI"
-                                )
-                            }else if(params.useGPU){
-                                Chip(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.2F)
-                                        .fillMaxHeight(),
-                                    color = LocalAppColors.current.gpu,
-                                    text = "GPU"
-                                )
-                            }else{
-                                Chip(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.2F)
-                                        .fillMaxHeight(),
-                                    text = "CPU"
+                                    color = chip.color,
+                                    text = chip.text
                                 )
                             }
-
                         }
                 }
             }
@@ -177,130 +146,133 @@ fun InferenceView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    modifier = Modifier
-                        .padding(0.dp, 0.dp, 0.dp, 20.dp),
-                    text = "${params.numImages} ${if(params.model.category === Category.LANGUAGE) "Inferências" else "Imagens"} - ${params.numThreads} thread${if(params.numThreads == 1) "" else "s"}" +
-                            if(params.numThreads == 1) "" else "s",
-                    style = LocalAppTypography.current.tableIndex
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(0.dp, 0.dp, 0.dp, 20.dp),
-                    text = if(params.model.category === Category.LANGUAGE) "" else params.dataset.label,
-                    style = LocalAppTypography.current.tableIndex
-                )
-                if(errorMessage != null){
-                    Row(
+                if(bottomFirstTitle !== null){
+                    Text(
                         modifier = Modifier
-                            .fillMaxWidth(1F)
-                            .clickable { showErrorActive = true },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ){
-                        Text(
-                            modifier = Modifier.padding(5.dp, 0.dp),
-                            text = "Erro no modelo",
-                            style = LocalAppTypography.current.tableContent
-                        )
-                        InfoIcon()
-                    }
-                }else {
-                    for (row in rows) {
+                            .padding(0.dp, 0.dp, 0.dp, 20.dp),
+                        text = bottomFirstTitle,
+                        style = LocalAppTypography.current.tableIndex
+                    )
+                }
+                if(bottomSecondTitle !== null){
+                    Text(
+                        modifier = Modifier
+                            .padding(0.dp, 0.dp, 0.dp, 20.dp),
+                        text = bottomSecondTitle,
+                        style = LocalAppTypography.current.tableIndex
+                    )
+                }
+                for (row in rows) {
                         TextRow(row)
-                    }
                 }
             }
         }
     }
-    if(infoActive) {
+    if(infoActive && infoContent !== null) {
         Modal(
             onConfirmation = { infoActive = false },
-            dialogTitle = params.model.label,
-            dialogText = params.model.longDescription
-        )
-    }
-    if(showErrorActive) {
-        Modal(
-            onConfirmation = { showErrorActive = false },
-            dialogTitle = "Erro retornado",
-            dialogText = errorMessage ?: "Erro ao executar a inferência"
+            dialogTitle = infoContent.title,
+            dialogText = infoContent.subtitle
         )
     }
 }
 
-data class TableRow(
-    val index: String,
-    val value: String?,
-    val show: Boolean = true
-)
 @Composable
-fun TextRow(row: TableRow) {
-    if(row.show)
-        Row (
+fun TextRow(row: Row) {
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(0.7F)
+            .padding(0.dp, 0.dp, 0.dp, 10.dp)
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth(0.7F)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-        ){
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.6F)
-            ){
-                Text(
-                    text = row.index,
-                    style = LocalAppTypography.current.tableIndex
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Text(
-                    text = row.value ?: "",
-                    style = LocalAppTypography.current.tableContent
-                )
-            }
+                .fillMaxWidth(0.6F)
+        ) {
+            Text(
+                text = row.label,
+                style = LocalAppTypography.current.tableIndex
+            )
         }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = row.text,
+                style = LocalAppTypography.current.tableContent
+            )
+        }
+    }
+}
+
+    @Composable
+    fun InfoIcon(color: Color = LocalAppColors.current.text) {
+        Icon(
+            painter = painterResource(id = R.drawable.help_circle),
+            "",
+            tint = color
+        )
+    }
+
+    @Composable
+    fun Chip(
+        modifier: Modifier = Modifier,
+        text: String,
+        color: Color = LocalAppColors.current.secondary
+    ) {
+        Column(
+            modifier = modifier
+                .clip(RoundedCornerShape(50.dp))
+                .background(color),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = text,
+                style = LocalAppTypography.current.chip
+            )
+        }
+
+    }
+
+    fun formatTime(time: Int?): String {
+        if (time == null) return "Não medido"
+        return if (time >= 1000)
+            String.format("%.2f", time.toDouble() / 1000) + "s"
+        else
+            time.toString() + "ms"
+    }
+
+    fun formatInt(percent: Int?, complemento: String, returnsZero: Boolean = true): String {
+        return if (percent != null && (percent != 0 || returnsZero))
+            "$percent$complemento"
+        else
+            "Não medida"
+    }
+
+@Composable
+fun NNAPIChip(): ChipProps {
+    return ChipProps(
+        text = "NNAPI",
+        color = LocalAppColors.current.nnapi
+    )
 }
 
 @Composable
-fun InfoIcon(color: Color = LocalAppColors.current.text) {
-    Icon(
-        painter = painterResource(id = R.drawable.help_circle),
-        "",
-        tint= color
+fun CPUChip(): ChipProps {
+    return ChipProps(
+        text = "CPU",
+        color = LocalAppColors.current.secondary
+    )
+}
+
+@Composable
+fun GPUChip(): ChipProps {
+    return ChipProps(
+        text = "GPU",
+        color = LocalAppColors.current.gpu
     )
 }
 
 
-@Composable
-fun Chip(modifier: Modifier = Modifier, text: String, color: Color = LocalAppColors.current.secondary){
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(50.dp))
-            .background(color),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ){
-        Text(
-            text = text,
-            style = LocalAppTypography.current.chip
-        )
-    }
-
-}
-
-fun formatTime(time: Int?): String{
-    if(time == null) return "Não medido"
-    return if(time >= 1000)
-        String.format("%.2f", time.toDouble() / 1000) + "s"
-    else
-        time.toString() + "ms"
-}
-
-fun formatInt(percent: Int?, complemento: String, returnsZero: Boolean = true): String {
-    return if(percent != null && (percent != 0 || returnsZero))
-        "$percent$complemento"
-    else
-        "Não medida"
-}
