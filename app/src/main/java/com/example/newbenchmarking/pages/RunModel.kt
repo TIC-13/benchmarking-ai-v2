@@ -27,7 +27,7 @@ import com.example.newbenchmarking.components.CPUChip
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
-import com.example.newbenchmarking.components.Row
+import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Inference
@@ -155,9 +155,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             bottomFirstTitle = "${currParams.numImages} ${if(currParams.model.category !== Category.BERT) "imagens" else "inferências"} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
             bottomSecondTitle = currParams.dataset.label,
             rows = arrayOf(
-                Row("Uso de CPU", "$displayCpuUsage%"),
-                Row("Uso de GPU", "$displayGpuUsage%"),
-                Row("Uso de RAM", "${displayRamUsage}MB")
+                ResultRow("Uso de CPU", "$displayCpuUsage%"),
+                ResultRow("Uso de GPU", "$displayGpuUsage%"),
+                ResultRow("Uso de RAM", "${displayRamUsage}MB")
             )
         )
     }

@@ -7,30 +7,48 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.R
+import com.example.newbenchmarking.components.AccordionProps
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
-import com.example.newbenchmarking.components.Row
+import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.theme.LocalAppColors
@@ -40,7 +58,6 @@ import com.example.newbenchmarking.requests.Inference
 import com.example.newbenchmarking.requests.Phone
 import com.example.newbenchmarking.requests.PostData
 import com.example.newbenchmarking.requests.postResult
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -54,24 +71,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
 
     val context = LocalContext.current
 
+    val expandedStates = rememberMutableBooleanArray(size = resultList.size, initialValue = false)
+    var expandButtonState by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-
-        data class BenchPair(
-            val label: String,
-            val content: String,
-        )
-
-        fun getAndroidId(context: Context): String {
-            return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        }
-
-        fun getTotalRAM(): Long {
-            val actManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val memInfo = ActivityManager.MemoryInfo()
-            actManager.getMemoryInfo(memInfo)
-            return memInfo.totalMem
-        }
-
         if(resultList.size > 1){
             for((index, result) in resultList.withIndex()){
                 postResult(PostData(
@@ -79,7 +82,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         brand_name = Build.BRAND,
                         manufacturer = Build.MANUFACTURER,
                         phone_model = Build.MODEL,
-                        total_ram = getTotalRAM().toInt()
+                        total_ram = getTotalRAM(context).toInt()
                     ),
                     Inference(
                         init_speed = result.inference.load,
@@ -118,7 +121,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         verticalArrangement = Arrangement.spacedBy(40.dp),
     ) {
 
-        Text(text = "Resultados", style = LocalAppTypography.current.title)
+        Text(
+            text = "Resultado",
+            style = LocalAppTypography.current.title
+        )
 
         Button(
             colors = ButtonDefaults.buttonColors(LocalAppColors.current.primary),
@@ -132,7 +138,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         LazyColumn (
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ){
-            items(resultList) { result ->
+            itemsIndexed(resultList) { index, result ->
                 InferenceView(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -143,20 +149,48 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     bottomSecondTitle = result.params.dataset.label,
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
                     rows = arrayOf(
-                        Row("Inicialização", "${result.inference.load.toString()} ms"),
-                        Row("Primeira inferência", "${result.inference.first.toString()} ms"),
-                        Row("Outras inf. (média)", "${result.inference.average.toString()} ms"),
+                        ResultRow("Inicialização", "${result.inference.load.toString()} ms"),
+                        ResultRow("Primeira inferência", "${result.inference.first.toString()} ms"),
+                        ResultRow("Outras inf. (média)", "${result.inference.average.toString()} ms"),
                     ),
-                    hiddenRows = arrayOf(
-                        Row("Uso de CPU", "${result.cpu.getAverageCPUConsumption()}%"),
-                        Row("Uso de GPU", "${result.gpu.getAverage()}%"),
-                        Row("Uso de RAM", "${result.ram.getAverage().toInt()}MB"),
-                        Row("Pico de CPU", "${result.cpu.peak()}%"),
-                        Row("Pico de GPU", "${result.gpu.peak()}%"),
-                        Row("Pico de RAM", "${result.ram.peak().toInt()}MB"),
+                    accordionProps = AccordionProps(
+                        rows = arrayOf(
+                            ResultRow("Uso de CPU", "${result.cpu.getAverageCPUConsumption()}%"),
+                            ResultRow("Uso de GPU", "${result.gpu.getAverage()}%"),
+                            ResultRow("Uso de RAM", "${result.ram.getAverage().toInt()}MB"),
+                            ResultRow("Pico de CPU", "${result.cpu.peak()}%"),
+                            ResultRow("Pico de GPU", "${result.gpu.peak()}%"),
+                            ResultRow("Pico de RAM", "${result.ram.peak().toInt()}MB"),
+                        ),
+                        expanded = expandedStates[index].value,
+                        setExpanded = {
+                            for(expanded in expandedStates) {
+                                expanded.value = it
+                            }
+                        }
                     )
                 )
             }
+        }
+    }
+}
+
+fun getAndroidId(context: Context): String {
+    return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+}
+
+fun getTotalRAM(context: Context): Long {
+    val actManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val memInfo = ActivityManager.MemoryInfo()
+    actManager.getMemoryInfo(memInfo)
+    return memInfo.totalMem
+}
+
+@Composable
+fun rememberMutableBooleanArray(size: Int, initialValue: Boolean): Array<MutableState<Boolean>> {
+    return remember {
+        Array(size) {
+            mutableStateOf(initialValue)
         }
     }
 }

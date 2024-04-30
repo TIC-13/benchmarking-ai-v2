@@ -37,6 +37,7 @@ import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import org.checkerframework.checker.units.qual.degrees
+import kotlin.math.exp
 
 
 data class ChipProps(
@@ -44,7 +45,7 @@ data class ChipProps(
     val color: Color
 )
 
-data class Row(
+data class ResultRow(
     val label: String,
     val text: String
 )
@@ -52,6 +53,12 @@ data class Row(
 data class InfoContent(
     val title: String,
     val subtitle: String
+)
+
+data class AccordionProps(
+    val rows: Array<ResultRow>,
+    val expanded: Boolean,
+    val setExpanded: (exp: Boolean) -> Unit
 )
 
 @Composable
@@ -63,8 +70,8 @@ fun InferenceView(
     infoContent: InfoContent? = null,
     bottomFirstTitle: String? = null,
     bottomSecondTitle: String? = null,
-    rows: Array<Row>,
-    hiddenRows: Array<Row>? = null
+    rows: Array<ResultRow>,
+    accordionProps: AccordionProps? = null
 ) {
 
     var infoActive by remember { mutableStateOf(false) }
@@ -175,8 +182,8 @@ fun InferenceView(
                 for (row in rows) {
                         TextRow(row)
                 }
-                if(hiddenRows !== null){
-                    Accordion(rows = hiddenRows)
+                if(accordionProps !== null){
+                    Accordion(accordionProps)
                 }
             }
         }
@@ -216,17 +223,18 @@ fun AccordionHeader(
 }
 
 @Composable
-fun Accordion(modifier: Modifier = Modifier, rows: Array<Row>) {
-    var expanded by remember { mutableStateOf(false) }
+fun Accordion(accordionProps: AccordionProps) {
+
+    val (rows, expanded, setExpanded) = accordionProps
 
     Column(
-        modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     )
     {
         AccordionHeader(title = if(!expanded) "Mostrar mais" else "Mostrar menos", isExpanded = expanded){
-            expanded = !expanded
+            setExpanded(!expanded)
         }
         AnimatedVisibility(visible = expanded) {
             Column {
@@ -238,10 +246,8 @@ fun Accordion(modifier: Modifier = Modifier, rows: Array<Row>) {
     }
 }
 
-
-
 @Composable
-fun TextRow(row: Row) {
+fun TextRow(row: ResultRow) {
 
     Row(
         modifier = Modifier
