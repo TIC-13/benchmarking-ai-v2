@@ -146,6 +146,8 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         Row("Inicialização", "${result.inference.load.toString()} ms"),
                         Row("Primeira inferência", "${result.inference.first.toString()} ms"),
                         Row("Outras inf. (média)", "${result.inference.average.toString()} ms"),
+                    ),
+                    hiddenRows = arrayOf(
                         Row("Uso de CPU", "${result.cpu.getAverageCPUConsumption()}%"),
                         Row("Uso de GPU", "${result.gpu.getAverage()}%"),
                         Row("Uso de RAM", "${result.ram.getAverage().toInt()}MB"),

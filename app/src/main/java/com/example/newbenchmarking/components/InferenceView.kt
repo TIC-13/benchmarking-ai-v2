@@ -1,5 +1,6 @@
 package com.example.newbenchmarking.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +12,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,12 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
+import org.checkerframework.checker.units.qual.degrees
 
 
 data class ChipProps(
@@ -55,6 +64,7 @@ fun InferenceView(
     bottomFirstTitle: String? = null,
     bottomSecondTitle: String? = null,
     rows: Array<Row>,
+    hiddenRows: Array<Row>? = null
 ) {
 
     var infoActive by remember { mutableStateOf(false) }
@@ -107,7 +117,7 @@ fun InferenceView(
                                 text = subtitle,
                                 style = LocalAppTypography.current.tableSubtitle
                             )
-                            
+
                         }
                         if(showInfoButton){
                             Column(
@@ -165,6 +175,9 @@ fun InferenceView(
                 for (row in rows) {
                         TextRow(row)
                 }
+                if(hiddenRows !== null){
+                    Accordion(rows = hiddenRows)
+                }
             }
         }
     }
@@ -178,25 +191,78 @@ fun InferenceView(
 }
 
 @Composable
+fun AccordionHeader(
+    title: String = "Header",
+    isExpanded: Boolean = false,
+    onTapped: () -> Unit = {}
+) {
+
+    val degrees = if (isExpanded) 180f else 0f
+
+    Row(
+        modifier = Modifier
+            .clickable { onTapped() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(title, style = LocalAppTypography.current.tableIndex)
+            Icon(
+                Icons.Outlined.ArrowDropDown,
+                contentDescription = "arrow-down",
+                modifier = Modifier.rotate(degrees),
+                tint = White
+            )
+    }
+}
+
+@Composable
+fun Accordion(modifier: Modifier = Modifier, rows: Array<Row>) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    )
+    {
+        AccordionHeader(title = if(!expanded) "Mostrar mais" else "Mostrar menos", isExpanded = expanded){
+            expanded = !expanded
+        }
+        AnimatedVisibility(visible = expanded) {
+            Column {
+                for(row in rows) {
+                    TextRow(row)
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
 fun TextRow(row: Row) {
 
     Row(
         modifier = Modifier
-            .fillMaxWidth(0.7F)
-            .padding(0.dp, 0.dp, 0.dp, 10.dp)
+            .fillMaxWidth(0.6F)
+            .padding(0.dp, 0.dp, 0.dp, 5.dp),
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.6F)
+                .weight(0.7F),
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = row.label,
                 style = LocalAppTypography.current.tableIndex
             )
         }
-        Box(
+        Spacer(modifier = Modifier.weight(0.1F))
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(0.4F),
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = row.text,
@@ -234,21 +300,6 @@ fun TextRow(row: Row) {
             )
         }
 
-    }
-
-    fun formatTime(time: Int?): String {
-        if (time == null) return "Não medido"
-        return if (time >= 1000)
-            String.format("%.2f", time.toDouble() / 1000) + "s"
-        else
-            time.toString() + "ms"
-    }
-
-    fun formatInt(percent: Int?, complemento: String, returnsZero: Boolean = true): String {
-        return if (percent != null && (percent != 0 || returnsZero))
-            "$percent$complemento"
-        else
-            "Não medida"
     }
 
 @Composable
