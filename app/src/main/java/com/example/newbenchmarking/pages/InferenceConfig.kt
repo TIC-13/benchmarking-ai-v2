@@ -76,7 +76,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
                 )))
             }
         )
-        if(inferenceParams[0].model.category !== Category.LANGUAGE) {
+        if(inferenceParams[0].model.category !== Category.BERT) {
             DropdownSelector(
                 "Dataset selecionado: ${inferenceParams[0].dataset.label}",
                 items = DATASETS.map { x -> x.label },
@@ -93,7 +93,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             )
         }
         SliderSelector(
-            label = "Número de ${if(inferenceParams[0].model.category === Category.LANGUAGE) "inferências" else "imagens"}: ${inferenceParams[0].numImages}",
+            label = "Número de ${if(inferenceParams[0].model.category === Category.BERT) "inferências" else "imagens"}: ${inferenceParams[0].numImages}",
             value = inferenceParams[0].numImages,
             onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
                 numImages = it.toInt()

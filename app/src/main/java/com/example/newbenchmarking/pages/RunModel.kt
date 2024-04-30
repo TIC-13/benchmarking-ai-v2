@@ -77,7 +77,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
             withContext(Dispatchers.IO){
                 try {
-                    result = if(inferenceParams.model.category === Category.LANGUAGE)
+                    result = if(inferenceParams.model.category === Category.BERT)
                         runBert(context, inferenceParams)
                     else
                         runTfLiteModel(context, inferenceParams, currImages)
@@ -152,7 +152,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
             subtitle = currParams.model.description,
             chip = if(currParams.useNNAPI) NNAPIChip() else if (currParams.useGPU) GPUChip() else CPUChip(),
-            bottomFirstTitle = "${currParams.numImages} ${if(currParams.model.category !== Category.LANGUAGE) "imagens" else "inferências"} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
+            bottomFirstTitle = "${currParams.numImages} ${if(currParams.model.category !== Category.BERT) "imagens" else "inferências"} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
             bottomSecondTitle = currParams.dataset.label,
             rows = arrayOf(
                 Row("Uso de CPU", "$displayCpuUsage%"),

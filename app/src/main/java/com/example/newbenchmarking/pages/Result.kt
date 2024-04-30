@@ -139,7 +139,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         .clip(RoundedCornerShape(50.dp)),
                     topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
                     subtitle = result.params.model.description,
-                    bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.LANGUAGE) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
+                    bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.BERT) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
                     bottomSecondTitle = result.params.dataset.label,
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
                     rows = arrayOf(
