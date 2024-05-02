@@ -45,6 +45,7 @@ import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.AccordionProps
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
+import com.example.newbenchmarking.components.ErrorProps
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
@@ -148,12 +149,12 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.BERT) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
                     bottomSecondTitle = result.params.dataset.label,
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
-                    rows = arrayOf(
+                    rows = if(result.errorMessage === null) arrayOf(
                         ResultRow("Inicialização", "${result.inference.load.toString()} ms"),
                         ResultRow("Primeira inferência", "${result.inference.first.toString()} ms"),
                         ResultRow("Outras inf. (média)", "${result.inference.average.toString()} ms"),
-                    ),
-                    accordionProps = AccordionProps(
+                    ) else null,
+                    accordionProps = if(result.errorMessage === null) AccordionProps(
                         rows = arrayOf(
                             ResultRow("Uso de CPU", "${result.cpu.getAverageCPUConsumption()}%"),
                             ResultRow("Uso de GPU", "${result.gpu.getAverage()}%"),
@@ -168,7 +169,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                                 expanded.value = it
                             }
                         }
-                    )
+                    ) else null,
+                    errorProps = if(result.errorMessage !== null)
+                            ErrorProps(title = "Erro retornado", message = result.errorMessage)
+                        else null
                 )
             }
         }

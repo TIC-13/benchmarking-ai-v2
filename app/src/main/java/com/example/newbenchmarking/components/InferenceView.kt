@@ -61,6 +61,11 @@ data class AccordionProps(
     val setExpanded: (exp: Boolean) -> Unit
 )
 
+data class ErrorProps(
+    val message: String,
+    val title: String,
+)
+
 @Composable
 fun InferenceView(
     modifier: Modifier = Modifier,
@@ -70,8 +75,9 @@ fun InferenceView(
     infoContent: InfoContent? = null,
     bottomFirstTitle: String? = null,
     bottomSecondTitle: String? = null,
-    rows: Array<ResultRow>,
-    accordionProps: AccordionProps? = null
+    rows: Array<ResultRow>? = null,
+    accordionProps: AccordionProps? = null,
+    errorProps: ErrorProps? = null
 ) {
 
     var infoActive by remember { mutableStateOf(false) }
@@ -179,11 +185,16 @@ fun InferenceView(
                         style = LocalAppTypography.current.tableIndex
                     )
                 }
-                for (row in rows) {
+                if(rows !== null){
+                    for (row in rows) {
                         TextRow(row)
+                    }
                 }
                 if(accordionProps !== null){
                     Accordion(accordionProps)
+                }
+                if(errorProps !== null){
+                    ErrorDisplay(errorProps)
                 }
             }
         }
@@ -195,6 +206,37 @@ fun InferenceView(
             dialogText = infoContent.subtitle
         )
     }
+}
+
+@Composable
+fun ErrorDisplay(
+    errorProps: ErrorProps
+) {
+
+    var showErrorActive by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(1F)
+            .clickable { showErrorActive = true },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ){
+        Text(
+            modifier = Modifier.padding(5.dp, 0.dp),
+            text = errorProps.title,
+            style = LocalAppTypography.current.tableContent
+        )
+        InfoIcon()
+    }
+    if(showErrorActive) {
+        Modal(
+            onConfirmation = { showErrorActive = false },
+            dialogTitle = "Erro retornado",
+            dialogText = errorProps.message
+        )
+    }
+
 }
 
 @Composable
