@@ -1,5 +1,6 @@
 package com.example.newbenchmarking.pages
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

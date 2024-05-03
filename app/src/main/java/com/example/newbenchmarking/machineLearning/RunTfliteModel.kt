@@ -23,11 +23,6 @@ import kotlin.system.measureTimeMillis
 
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Inference {
 
-    if(params.model.inputShape === null)
-        throw Exception("Tamanho da input do modelo não definido em MODELS.kt")
-    if(params.model.outputShape === null)
-        throw Exception("Tamanho da input do modelo não definido em MODELS.kt")
-
     val model = loadModelFile(context.assets, modelName = params.model.filename)
     val gpuDelegate = GpuDelegate()
 
@@ -50,21 +45,28 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
 
     var inferencesList = mutableListOf<Long>()
 
+    val inputTensor = interpreter.getInputTensor(0)
+    val outputTensor = interpreter.getOutputTensor(0)
+    val inputShape = params.model.inputShape ?: inputTensor.shape()
+    val outputShape = params.model.outputShape ?: outputTensor.shape()
+    val inputType = params.model.inputDataType ?: inputTensor.dataType()
+    val outputType = params.model.outputDataType ?: outputTensor.dataType()
+
+    val imageProcessorBuilder = ImageProcessor.Builder()
+    imageProcessorBuilder
+        .add(ResizeOp(inputShape[2], inputShape[1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+    imageProcessorBuilder.add(CastOp(inputType))
+
     images.forEachIndexed{ index, bitmap ->
-        val imageProcessorBuilder = ImageProcessor.Builder()
 
-        imageProcessorBuilder
-            .add(ResizeOp(params.model.inputShape!![2], params.model.inputShape!![1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-
-        imageProcessorBuilder.add(CastOp(params.model.inputDataType))
-        val tensorImage = TensorImage(params.model.inputDataType)
+        val tensorImage = TensorImage(inputType)
         tensorImage.load(bitmap)
 
-        val input = imageProcessorBuilder.build().process(tensorImage)
-        val output = TensorBuffer.createFixedSize(params.model.outputShape, params.model.outputDataType)
+        val input = imageProcessorBuilder.build().process(tensorImage).buffer
+        val output = TensorBuffer.createFixedSize(outputShape, outputType).buffer
 
         val inferenceTime = measureTimeMillis {
-            interpreter.run(input.buffer, output.buffer)
+            interpreter.run(input, output)
         }
 
         if(index != 0){

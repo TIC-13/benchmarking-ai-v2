@@ -7,11 +7,11 @@ data class Model(
     val description: String,
     val longDescription: String,
     val filename: String,
-    val inputShape: IntArray?,
-    val outputShape: IntArray?,
-    val inputDataType: DataType,
-    val outputDataType: DataType,
     var quantization: Quantization,
+    val inputShape: IntArray? = null,
+    val outputShape: IntArray? = null,
+    val inputDataType: DataType? = null,
+    val outputDataType: DataType? = null,
     var category: Category
 )
 
