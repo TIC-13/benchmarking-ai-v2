@@ -23,6 +23,11 @@ import kotlin.system.measureTimeMillis
 
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Inference {
 
+    if(params.model.inputShape === null)
+        throw Exception("Tamanho da input do modelo não definido em MODELS.kt")
+    if(params.model.outputShape === null)
+        throw Exception("Tamanho da input do modelo não definido em MODELS.kt")
+
     val model = loadModelFile(context.assets, modelName = params.model.filename)
     val gpuDelegate = GpuDelegate()
 
@@ -49,7 +54,7 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
         val imageProcessorBuilder = ImageProcessor.Builder()
 
         imageProcessorBuilder
-            .add(ResizeOp(params.model.inputShape[2], params.model.inputShape[1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+            .add(ResizeOp(params.model.inputShape!![2], params.model.inputShape!![1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
 
         imageProcessorBuilder.add(CastOp(params.model.inputDataType))
         val tensorImage = TensorImage(params.model.inputDataType)
