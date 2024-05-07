@@ -82,4 +82,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("com.opencsv:opencsv:4.6")
+    implementation("org.yaml:snakeyaml:1.30")
+
 }

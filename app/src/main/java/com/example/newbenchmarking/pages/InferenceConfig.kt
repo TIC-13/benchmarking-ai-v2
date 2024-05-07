@@ -1,5 +1,6 @@
 package com.example.newbenchmarking.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -15,11 +16,12 @@ import com.example.newbenchmarking.components.SwitchSelector
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.BackgroundWithContent
-import com.example.newbenchmarking.data.BENCHMARKING_TESTS
 import com.example.newbenchmarking.data.DATASETS
 import com.example.newbenchmarking.data.DEFAULT_PARAMS
-import com.example.newbenchmarking.data.MODELS
+import com.example.newbenchmarking.data.getBenchmarkingTests
+import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.interfaces.Category
 import kotlin.math.min
 
@@ -31,9 +33,13 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             DEFAULT_PARAMS.params
         )
     )
+
+    val context = LocalContext.current
+    val models = getModels(context)
+    val benchmarkingTests = getBenchmarkingTests(models)
     
     LaunchedEffect(key1 = true) {
-        viewModel.updateInferenceParamsList(listOf(BENCHMARKING_TESTS[0]))
+        viewModel.updateInferenceParamsList(listOf(benchmarkingTests[0]))
     }
 
     BackgroundWithContent (
@@ -69,10 +75,10 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         )
         DropdownSelector(
             "Modelo selecionado: ${inferenceParams[0].model.label + " - " + inferenceParams[0].model.quantization}",
-            items = MODELS.map {x -> x.label + " - " + x.quantization},
+            items = models.map {x -> x.label + " - " + x.quantization},
             onItemSelected = { newIndex ->
                 viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
-                    model = MODELS[newIndex]
+                    model = models[newIndex]
                 )))
             }
         )

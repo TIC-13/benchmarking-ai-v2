@@ -7,20 +7,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
-import com.example.newbenchmarking.data.BENCHMARKING_TESTS
+import com.example.newbenchmarking.data.getBenchmarkingTests
+import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 
 @Composable
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 
+    val context = LocalContext.current
+    val models = getModels(context)
+    val tests = getBenchmarkingTests(models)
+
     fun setDefaultModels(){
-        inferenceViewModel.updateInferenceParamsList(BENCHMARKING_TESTS)
+        inferenceViewModel.updateInferenceParamsList(tests)
     }
 
     val homeScreenButtons = arrayOf(

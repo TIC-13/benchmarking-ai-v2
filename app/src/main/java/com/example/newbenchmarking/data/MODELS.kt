@@ -1,99 +1,51 @@
 package com.example.newbenchmarking.data
 
+import android.content.Context
+import android.util.Log
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.Quantization
+import com.opencsv.CSVReader
 import org.tensorflow.lite.DataType
+import org.yaml.snakeyaml.Yaml
+import java.io.File
+import java.io.FileReader
+import java.io.InputStream
 
-val MODELS: List<Model> = listOf(
-    Model(
-        "Efficientnet",
-        "Classificação de imagem",
-        "O EfficientNet é um modelo de machine learning otimizado para classificação de imagens. Sua arquitetura eficiente e escalável o torna versátil para lidar com uma variedade de desafios em visão computacional.",
-        "efficientNetFP32.tflite",
-        category = Category.CLASSIFICATION,
-        quantization = Quantization.FP32,
-    ),
-    Model(
-        "Efficientnet",
-        "Classificação de imagem",
-        "hello.",
-        "efficientNetINT8.tflite",
-        category = Category.CLASSIFICATION,
-        quantization = Quantization.INT8,
-    ),
-    Model(
-        "DeepLab v3",
-        "Segmentação de imagem",
-        "hello.",
-        "deeplabv3.tflite",
-        category = Category.SEGMENTATION,
-        quantization = Quantization.FP32,
-    ),
-    Model(
-        "SSD MobileNet v1",
-        "Detecção de objeto",
-        "hello.",
-        "ssd_mobilenet_v2.tflite",
-        category = Category.DETECTION,
-        quantization = Quantization.INT8,
-    ),
-    Model(
-        "Yolo v4",
-        "Detecção de objeto",
-        "hello.",
-        "--yolov4-tiny-416-fp32.tflite",
-        outputShape = intArrayOf(1, 416, 416, 3),
-        category = Category.DETECTION,
-        quantization = Quantization.FP32,
-    ),
-    Model(
-        "Yolo v4",
-        "Detecção de objeto",
-        "hello.",
-        "--yolov4-tiny-416-fp16.tflite",
-        outputShape = intArrayOf(1, 416, 416, 3),
-        category = Category.DETECTION,
-        quantization = Quantization.FP16,
-    ),
-    Model(
-        "Yolo v4",
-        "Detecção de objeto",
-        "hello.",
-        "--yolov4-tiny-416-int8.tflite",
-        category = Category.DETECTION,
-        quantization = Quantization.INT8,
-    ),
-    Model(
-        "ESRGAN",
-        "Aumenta resolução de imagens",
-        "hello.",
-        "esrgan.tflite",
-        category = Category.IMAGE_SUPER_RESOLUTION,
-        quantization = Quantization.FP32,
-    ),
-    Model(
-        "IMDN",
-        "Remove blurr de imagens",
-        "hello.",
-        "imdn_rtc_time.tflite",
-        category = Category.IMAGE_DEBLURRING,
-        quantization = Quantization.FP32,
-    ),
-    Model(
-        "Yolox tiny",
-        "Detecção de objeto",
-        "hello.",
-        "yolox_tiny_full_integer_quant.opt.tflite",
-        category = Category.DETECTION,
-        quantization = Quantization.INT8,
-    ),
-    Model(
-        "Bert",
-        "Perguntas e respostas",
-        "Perguntas e respostas",
-        "bert.tflite",
-        category = Category.BERT,
-        quantization = Quantization.INT32,
-    )
-)
+fun getModels(context: Context): List<Model> {
+    val yaml = Yaml()
+    var inputStream: InputStream? = null
+    return try {
+        inputStream = context.assets.open("models.yaml")
+        val data: Map<String, Any> = yaml.load(inputStream)
+        val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
+        val modelsList = arrayListOf<Model>()
+        for(element in yamlList) {
+            try {
+                val inputShape = element["inputShape"] as ArrayList<Int>?
+                val outputShape = element["outputShape"] as ArrayList<Int>?
+                val model = Model(
+                    label = element["name"] as String,
+                    description = element["type"] as String,
+                    longDescription = element["description"] as String,
+                    filename = element["file"] as String,
+                    quantization = Quantization.valueOf(element["quantization"] as String),
+                    inputShape = if(inputShape !== null) inputShape.toIntArray() else null,
+                    outputShape = if(outputShape !== null) outputShape.toIntArray() else null,
+                    category = Category.valueOf(element["category"] as String)
+                )
+                modelsList.add(model)
+            }catch (e: Exception){
+                Log.e("model_error", "Erro ao adicionar modelo ${element["name"]}: ${e.message}")
+            }
+
+        }
+        modelsList
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
+    } finally {
+        inputStream?.close()
+    }
+}
+
