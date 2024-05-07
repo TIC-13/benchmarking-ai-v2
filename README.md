@@ -52,29 +52,37 @@ To add new models in Speed.AI, follow these steps:
 1. **Place the Model File**:
    - Place the `.tflite` file in the `ml` folder.
 
-2. **Modify the Code**:
-   - Open the file `Model.kt`.
-   - Add a `Model` object representing your new model to the `MODELS` list.
-
-3. **Data Class Structure**:
-   - When adding a `Model` object to the array, use the data class bellow:
-   - The input and output shape should not be null in the vision tasks, only in the BERT related ones.
+2. **Modify the models.yaml file**:
+   - Open the file `models.yaml`, inside the `assets` folder.
+   - Add a model to the models list, like the example bellow.
 
 <br/>
   
-   ```kotlin
+   ```yaml
+  - name: "Efficientnet"
+    type: "Classificação de imagem"
+    description: "O EfficientNet é um modelo de machine learning otimizado para classificação de imagens. Sua arquitetura eficiente e escalável o torna versátil para lidar com uma variedade de desafios em visão computacional."
+    file: "efficientNetFP32.tflite"
+    category: "CLASSIFICATION"
+    quantization: "FP32"
+```
+<br/>
 
-   data class Model(
-       val label: String,
-       val description: String,
-       val longDescription: String,
-       val filename: String,
-       val inputShape: IntArray?,
-       val outputShape: IntArray?,
-       val inputDataType: DataType,
-       val outputDataType: DataType,
-       var quantization: Quantization,
-       var category: Category
-   )
+3. **About the model structure**:
+   - The available categories and quantizations are defined in the Models.kt file, inside the interfaces folder:
+   - You can also define the shape of the models inputs and outputs in the `models.yaml` file. In that case, they will override the values that are retrieved automatically from the model. See the example bellow:
 
+  <br/>
+  
+   ```yaml
+  - name: "Yolo v4"
+    type: "Detecção de objeto"
+    description: "hello."
+    file: "--yolov4-tiny-416-fp32.tflite"
+    inputShape: [1, 416, 416, 3]
+    outputShape: [1, 416, 416, 3]
+    category: "DETECTION"
+    quantization: "FP32"
+```
+     
 
