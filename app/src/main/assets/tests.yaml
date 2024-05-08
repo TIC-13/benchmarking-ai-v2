@@ -1,0 +1,60 @@
+tests:
+  - model_id: 1
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 2
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 3
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 4
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 5
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 6
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 7
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 8
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 7
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 9
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 10
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40
+
+  - model_id: 11
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 40

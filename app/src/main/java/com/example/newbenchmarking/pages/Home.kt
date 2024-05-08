@@ -24,7 +24,7 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
 
     val context = LocalContext.current
     val models = getModels(context)
-    val tests = getBenchmarkingTests(models)
+    val tests = getBenchmarkingTests(context, models)
 
     fun setDefaultModels(){
         inferenceViewModel.updateInferenceParamsList(tests)

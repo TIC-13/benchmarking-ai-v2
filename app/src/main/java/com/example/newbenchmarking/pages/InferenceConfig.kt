@@ -31,13 +31,13 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
     val context = LocalContext.current
     val models = getModels(context)
-    val benchmarkingTests = getBenchmarkingTests(models)
+    val benchmarkingTests = getBenchmarkingTests(context, models)
 
     LaunchedEffect(key1 = true) {
         viewModel.updateInferenceParamsList(listOf(benchmarkingTests[0]))
     }
 
-    if(inferenceParams === null)
+    if(inferenceParams === null || inferenceParams!!.isEmpty())
         return;
 
     val paramsArray = inferenceParams!!
