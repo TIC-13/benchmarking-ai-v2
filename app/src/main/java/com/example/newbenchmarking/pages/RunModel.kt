@@ -1,5 +1,8 @@
 package com.example.newbenchmarking.pages
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +44,7 @@ import getBitmapImages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
@@ -50,7 +54,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     val context = LocalContext.current
 
-    if(inferencesList === null) return
+    if(inferencesList === null || inferencesList!!.isEmpty()) return
     val paramsList = inferencesList!!
 
     var cpuUsage by remember { mutableStateOf(CpuUsage()) }
@@ -67,18 +71,25 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     LaunchedEffect(Unit){
         for(inferenceParams in paramsList){
 
-            currParams = inferenceParams
             var result = Inference()
             var errorMessage: String? = null
-
-            val currImages = getBitmapImages(context, inferenceParams.dataset.imagesId, inferenceParams.numImages)
+            var images: List<Bitmap>?
 
             withContext(Dispatchers.IO){
+
+                images = getBitmapsFromAssetsFolder(
+                    context,
+                    folderName = inferenceParams.dataset.folder,
+                    numBitmaps = inferenceParams.numImages
+                )
+
+                currParams = inferenceParams
+
                 try {
                     result = if(inferenceParams.model.category === Category.BERT)
                         runBert(context, inferenceParams)
                     else
-                        runTfLiteModel(context, inferenceParams, currImages)
+                        runTfLiteModel(context, inferenceParams, images!!)
                 }catch (e: Exception){
                         errorMessage = e.toString()
                 }
@@ -105,8 +116,15 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             gpuUsage = GpuUsage()
             cpuUsage = CpuUsage()
             ramUsage = RamUsage()
-        }
 
+            withContext(Dispatchers.IO){
+                if (images != null) {
+                    for(image in images!!)
+                        image.recycle()
+                }
+            }
+
+        }
         goToResults()
     }
 
@@ -151,7 +169,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             subtitle = currParams.model.description,
             chip = if(currParams.useNNAPI) NNAPIChip() else if (currParams.useGPU) GPUChip() else CPUChip(),
             bottomFirstTitle = "${currParams.numImages} ${if(currParams.model.category !== Category.BERT) "imagens" else "inferências"} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
-            bottomSecondTitle = currParams.dataset.label,
+            bottomSecondTitle = currParams.dataset.name,
             rows = arrayOf(
                 ResultRow("Uso de CPU", "$displayCpuUsage%"),
                 ResultRow("Uso de GPU", "$displayGpuUsage%"),
@@ -161,3 +179,29 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
+fun getBitmapsFromAssetsFolder(context: Context, folderName: String, numBitmaps: Int): List<Bitmap> {
+    val filenames = getFilesFromAssetFolder(context, folderName).subList( 0, numBitmaps )
+    return filenames.mapNotNull { filename ->
+        loadBitmapFromAssets(context, folderName, filename)
+    }
+}
+
+fun loadBitmapFromAssets(context: Context, folderName: String, filename: String): Bitmap? {
+    return try {
+        context.assets.open("$folderName/$filename").use { inputStream ->
+            BitmapFactory.decodeStream(inputStream)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun getFilesFromAssetFolder(context: Context, folderName: String): List<String> {
+    return try {
+        context.assets.list(folderName)?.toList() ?: emptyList()
+    } catch (e: IOException) {
+        e.printStackTrace()
+        emptyList()
+    }
+}

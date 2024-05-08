@@ -1,15 +1,39 @@
 package com.example.newbenchmarking.data
 
+import android.content.Context
+import android.util.Log
 import com.example.newbenchmarking.data.imagesId.IMAGENET_ANIMALS
 import com.example.newbenchmarking.interfaces.Dataset
+import com.example.newbenchmarking.interfaces.InferenceParams
+import org.yaml.snakeyaml.Yaml
+import java.io.InputStream
 
-var DATASETS = listOf(
-    Dataset(
-        label = "Imagenet - Animais",
-        imagesId = IMAGENET_ANIMALS
-    ),
-    Dataset(
-        label = "Imagenet - Small",
-        imagesId = IMAGENET_ANIMALS.subList(0, 20)
-    )
-)
+fun loadDatasets(context: Context): List<Dataset> {
+    val yaml = Yaml()
+    var inputStream: InputStream? = null
+    return try {
+        inputStream = context.assets.open("datasets.yaml")
+        val data: Map<String, Any> = yaml.load(inputStream)
+        val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
+        val datasetsList = arrayListOf<Dataset>()
+        for(element in yamlList) {
+            try {
+                val test = Dataset(
+                    id = element["id"] as Int,
+                    name = element["name"] as String,
+                    folder = element["folder"] as String,
+                    size = element["size"] as Int
+                )
+                datasetsList.add(test)
+            }catch (e: Exception){
+                Log.e("dataset_error", "Erro ao adicionar dataset de id ${element["id"]}: ${e.message}")
+            }
+        }
+        datasetsList
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
+    } finally {
+        inputStream?.close()
+    }
+}

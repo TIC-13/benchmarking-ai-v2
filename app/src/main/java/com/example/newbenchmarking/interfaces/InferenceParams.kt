@@ -7,5 +7,4 @@ data class InferenceParams(
     var numThreads: Int,
     var numImages: Int,
     var dataset: Dataset,
-
     )

@@ -75,8 +75,6 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
         }else{
             firstInferenceTime = inferenceTime
         }
-
-        bitmap.recycle()
     }
 
     interpreter.close()

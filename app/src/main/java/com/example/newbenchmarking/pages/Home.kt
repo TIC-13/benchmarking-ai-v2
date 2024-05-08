@@ -17,6 +17,7 @@ import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
 import com.example.newbenchmarking.data.getModels
+import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 
@@ -25,7 +26,8 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
 
     val context = LocalContext.current
     val models = remember(context) { getModels(context) }
-    val tests = remember(context) { getBenchmarkingTests(context, models) }
+    val datasets = remember(context) { loadDatasets(context) }
+    val tests = remember(context) { getBenchmarkingTests(context, models, datasets) }
 
     fun setDefaultModels(){
         inferenceViewModel.updateInferenceParamsList(tests)

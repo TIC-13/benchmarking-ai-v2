@@ -3,13 +3,14 @@ package com.example.newbenchmarking.data
 import android.content.Context
 import android.util.Log
 import com.example.newbenchmarking.interfaces.Category
+import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.Quantization
 import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
 
-fun getBenchmarkingTests(context: Context, models: List<Model>): List<InferenceParams> {
+fun getBenchmarkingTests(context: Context, models: List<Model>, datasets: List<Dataset>): List<InferenceParams> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
@@ -20,9 +21,13 @@ fun getBenchmarkingTests(context: Context, models: List<Model>): List<InferenceP
         for(element in yamlList) {
             try {
                 val modelId = element["model_id"] as Int
+                val datasetId = element["dataset_id"] as Int
                 val selectedModel = models.find { it.id == modelId }
                 if(selectedModel === null)
                     throw Exception("Modelo usado para teste não foi definido em models.yaml")
+                val selectedDataset = datasets.find { it.id == datasetId }
+                if(selectedDataset === null)
+                    throw Exception("Dataset usado para teste não foi definido em datasets.yaml")
                 val runMode = element["runMode"] as String
 
                 val test = InferenceParams(
@@ -31,7 +36,7 @@ fun getBenchmarkingTests(context: Context, models: List<Model>): List<InferenceP
                     useGPU = runMode == "GPU",
                     numThreads = element["numThreads"] as Int,
                     numImages = element["numSamples"] as Int,
-                    dataset = DATASETS[0]
+                    dataset = selectedDataset
                 )
                 testsList.add(test)
             }catch (e: Exception){

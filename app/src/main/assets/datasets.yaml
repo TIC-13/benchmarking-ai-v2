@@ -1,0 +1,5 @@
+tests:
+  - id: 1
+    name: "Imagenet"
+    folder: "images"
+    size: 400

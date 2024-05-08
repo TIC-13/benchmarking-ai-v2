@@ -18,8 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.BackgroundWithContent
-import com.example.newbenchmarking.data.DATASETS
 import com.example.newbenchmarking.data.getModels
+import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
 import kotlin.math.min
 
@@ -28,6 +28,10 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
     val context = LocalContext.current
     val models = remember(context) { getModels(context) }
+    val datasets = remember(context) { loadDatasets(context) }
+
+    if(datasets.isEmpty())
+        throw Error("Nenhum dataset foi carregado")
 
     var params by remember { mutableStateOf(InferenceParams(
         model = models[0],
@@ -35,7 +39,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         numThreads = 1,
         useGPU = false,
         useNNAPI = false,
-        dataset = DATASETS[0]
+        dataset = datasets[0]
     )) }
 
     fun startTest() {
@@ -77,12 +81,12 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         )
         if(params.model.category !== Category.BERT) {
             DropdownSelector(
-                "Dataset selecionado: ${params.dataset.label}",
-                items = DATASETS.map { x -> x.label },
+                "Dataset selecionado: ${params.dataset.name}",
+                items = datasets.map { x -> x.name },
                 onItemSelected = { newIndex ->
                     params = params.copy(
-                        dataset = DATASETS[newIndex],
-                        numImages = min(15F, params.dataset.imagesId.size.toFloat()).toInt()
+                        dataset = datasets[newIndex],
+                        numImages = min(15F, params.dataset.size.toFloat()).toInt()
                     )
                 }
             )
@@ -91,8 +95,8 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             label = "Número de ${if(params.model.category === Category.BERT) "inferências" else "imagens"}: ${params.numImages}",
             value = params.numImages,
             onValueChange = { params = params.copy(numImages = it.toInt()) },
-            rangeBottom = min(15F, params.dataset.imagesId.size.toFloat()),
-            rangeUp = params.dataset.imagesId.size.toFloat(),
+            rangeBottom = min(15F, params.dataset.size.toFloat()),
+            rangeUp = params.dataset.size.toFloat(),
             labelColor = Color.White
         )
         Button(onClick = ::startTest) {

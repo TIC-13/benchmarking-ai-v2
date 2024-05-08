@@ -77,7 +77,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         ml_model = result.params.model.label,
                         category = result.params.model.category.toString(),
                         quantization = result.params.model.quantization.toString(),
-                        dataset = result.params.dataset.label,
+                        dataset = result.params.dataset.name,
                         num_images = result.params.numImages,
                         uses_nnapi = result.params.useNNAPI,
                         uses_gpu = result.params.useGPU,
@@ -131,7 +131,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
                     subtitle = result.params.model.description,
                     bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.BERT) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
-                    bottomSecondTitle = result.params.dataset.label,
+                    bottomSecondTitle = result.params.dataset.name,
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
                     rows = if(result.errorMessage === null) arrayOf(
                         ResultRow("Inicialização", "${result.inference.load.toString()} ms"),
