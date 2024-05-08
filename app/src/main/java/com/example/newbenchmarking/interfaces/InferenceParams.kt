@@ -8,4 +8,4 @@ data class InferenceParams(
     var numImages: Int,
     var dataset: Dataset,
 
-)
+    )

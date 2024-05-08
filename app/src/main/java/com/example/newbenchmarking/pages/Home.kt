@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -23,8 +24,8 @@ import com.example.newbenchmarking.viewModel.InferenceViewModel
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 
     val context = LocalContext.current
-    val models = getModels(context)
-    val tests = getBenchmarkingTests(context, models)
+    val models = remember(context) { getModels(context) }
+    val tests = remember(context) { getBenchmarkingTests(context, models) }
 
     fun setDefaultModels(){
         inferenceViewModel.updateInferenceParamsList(tests)
