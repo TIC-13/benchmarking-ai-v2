@@ -28,6 +28,7 @@ fun getModels(context: Context): List<Model> {
                     label = element["name"] as String,
                     description = element["type"] as String,
                     longDescription = element["description"] as String,
+                    id = element["id"] as Int,
                     filename = element["file"] as String,
                     quantization = Quantization.valueOf(element["quantization"] as String),
                     inputShape = if(inputShape !== null) inputShape.toIntArray() else null,

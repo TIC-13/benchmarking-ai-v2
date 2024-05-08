@@ -29,7 +29,6 @@ import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
-import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.BenchmarkResult
@@ -46,15 +45,13 @@ import kotlinx.coroutines.withContext
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
-    val inferencesList by viewModel.inferenceParamsList.observeAsState(
-        initial = arrayListOf(
-            DEFAULT_PARAMS.params
-        )
-    )
-
+    val inferencesList by viewModel.inferenceParamsList.observeAsState()
     val resultsList by resultViewModel.benchmarkResultList.observeAsState()
 
     val context = LocalContext.current
+
+    if(inferencesList === null) return
+    val paramsList = inferencesList!!
 
     var cpuUsage by remember { mutableStateOf(CpuUsage()) }
     var displayCpuUsage by remember {mutableIntStateOf(0)}
@@ -65,10 +62,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     var gpuUsage by remember { mutableStateOf(GpuUsage())}
     var displayGpuUsage by remember { mutableIntStateOf(0) }
 
-    var currParams by remember { mutableStateOf(inferencesList[0]) }
+    var currParams by remember { mutableStateOf(paramsList[0]) }
 
     LaunchedEffect(Unit){
-        for(inferenceParams in inferencesList){
+        for(inferenceParams in paramsList){
 
             currParams = inferenceParams
             var result = Inference()

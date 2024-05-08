@@ -19,7 +19,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.data.DATASETS
-import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.data.getBenchmarkingTests
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.interfaces.Category
@@ -28,19 +27,20 @@ import kotlin.math.min
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
 
-    val inferenceParams by viewModel.inferenceParamsList.observeAsState(
-        initial = arrayListOf(
-            DEFAULT_PARAMS.params
-        )
-    )
+    val inferenceParams by viewModel.inferenceParamsList.observeAsState()
 
     val context = LocalContext.current
     val models = getModels(context)
     val benchmarkingTests = getBenchmarkingTests(models)
-    
+
     LaunchedEffect(key1 = true) {
         viewModel.updateInferenceParamsList(listOf(benchmarkingTests[0]))
     }
+
+    if(inferenceParams === null)
+        return;
+
+    val paramsArray = inferenceParams!!
 
     BackgroundWithContent (
         horizontalAlignment = Alignment.CenterHorizontally
@@ -48,25 +48,25 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         Row() {
             SwitchSelector(
                 label = "NNAPI ativa",
-                isChecked = inferenceParams[0].useNNAPI,
-                onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+                isChecked = paramsArray[0].useNNAPI,
+                onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(paramsArray[0].copy(
                     useNNAPI = it
                 ))) },
                 labelColor = Color.White
             )
             SwitchSelector(
                 label = "GPU ativa",
-                isChecked = inferenceParams[0].useGPU,
-                onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+                isChecked = paramsArray[0].useGPU,
+                onCheckedChange = { viewModel.updateInferenceParamsList(arrayListOf(paramsArray[0].copy(
                     useGPU = it
                 )))},
                 labelColor = Color.White
             )
         }
         SliderSelector(
-            label = "Número de threads: ${inferenceParams[0].numThreads}",
-            value = inferenceParams[0].numThreads,
-            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+            label = "Número de threads: ${paramsArray[0].numThreads}",
+            value = paramsArray[0].numThreads,
+            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(paramsArray[0].copy(
                 numThreads = it.toInt()
             ))) },
             rangeBottom = 1F,
@@ -74,22 +74,22 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             labelColor = Color.White
         )
         DropdownSelector(
-            "Modelo selecionado: ${inferenceParams[0].model.label + " - " + inferenceParams[0].model.quantization}",
+            "Modelo selecionado: ${paramsArray[0].model.label + " - " + paramsArray[0].model.quantization}",
             items = models.map {x -> x.label + " - " + x.quantization},
             onItemSelected = { newIndex ->
-                viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+                viewModel.updateInferenceParamsList(arrayListOf(paramsArray[0].copy(
                     model = models[newIndex]
                 )))
             }
         )
-        if(inferenceParams[0].model.category !== Category.BERT) {
+        if(paramsArray[0].model.category !== Category.BERT) {
             DropdownSelector(
-                "Dataset selecionado: ${inferenceParams[0].dataset.label}",
+                "Dataset selecionado: ${paramsArray[0].dataset.label}",
                 items = DATASETS.map { x -> x.label },
                 onItemSelected = { newIndex ->
                     viewModel.updateInferenceParamsList(
                         arrayListOf(
-                            inferenceParams[0].copy(
+                            paramsArray[0].copy(
                                 dataset = DATASETS[newIndex],
                                 numImages = DATASETS[newIndex].imagesId.size / 4
                             )
@@ -99,13 +99,13 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
             )
         }
         SliderSelector(
-            label = "Número de ${if(inferenceParams[0].model.category === Category.BERT) "inferências" else "imagens"}: ${inferenceParams[0].numImages}",
-            value = inferenceParams[0].numImages,
-            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(inferenceParams[0].copy(
+            label = "Número de ${if(paramsArray[0].model.category === Category.BERT) "inferências" else "imagens"}: ${paramsArray[0].numImages}",
+            value = paramsArray[0].numImages,
+            onValueChange = { viewModel.updateInferenceParamsList(arrayListOf(paramsArray[0].copy(
                 numImages = it.toInt()
             ))) },
-            rangeBottom = min(15F, inferenceParams[0].dataset.imagesId.size.toFloat()),
-            rangeUp = inferenceParams[0].dataset.imagesId.size.toFloat(),
+            rangeBottom = min(15F, paramsArray[0].dataset.imagesId.size.toFloat()),
+            rangeUp = paramsArray[0].dataset.imagesId.size.toFloat(),
             labelColor = Color.White
         )
         Button(onClick = startInference) {

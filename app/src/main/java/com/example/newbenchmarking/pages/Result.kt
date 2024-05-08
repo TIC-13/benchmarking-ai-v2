@@ -7,22 +7,13 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,13 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.AccordionProps
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
@@ -50,7 +37,6 @@ import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
-import com.example.newbenchmarking.data.DEFAULT_PARAMS
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
@@ -64,20 +50,18 @@ import com.example.newbenchmarking.requests.postResult
 @Composable
 fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
 
-    val resultList by resultViewModel.benchmarkResultList.observeAsState(
-        initial = arrayListOf(
-            DEFAULT_PARAMS
-        )
-    )
+    val resultList by resultViewModel.benchmarkResultList.observeAsState()
+    if(resultList === null) return
+    val results = resultList!!
 
     val context = LocalContext.current
 
-    val expandedStates = rememberMutableBooleanArray(size = resultList.size, initialValue = false)
+    val expandedStates = rememberMutableBooleanArray(size = results.size, initialValue = false)
     var expandButtonState by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        if(resultList.size > 1){
-            for((index, result) in resultList.withIndex()){
+        if(results.size > 1){
+            for((index, result) in results.withIndex()){
                 postResult(PostData(
                     Phone(
                         brand_name = Build.BRAND,
@@ -139,7 +123,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         LazyColumn (
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ){
-            itemsIndexed(resultList) { index, result ->
+            itemsIndexed(results) { index, result ->
                 InferenceView(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
