@@ -13,17 +13,18 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import java.io.File
 import java.io.FileInputStream
+import java.nio.ByteBuffer
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
-
 fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Inference {
 
-    val model = loadModelFile(context.assets, modelName = params.model.filename)
+    val model = loadModelFileFromInternalStorage(context, modelName = params.model.filename)
     val gpuDelegate = GpuDelegate()
 
     val options = Interpreter.Options().apply {
@@ -110,5 +111,14 @@ fun loadModelFile(assetManager: AssetManager, modelName: String): MappedByteBuff
     val fileChannel = inputStream.channel
     val startOffset = fileDescriptor.startOffset
     val declaredLength = fileDescriptor.declaredLength
+    return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+}
+
+fun loadModelFileFromInternalStorage(context: Context, modelName: String): ByteBuffer {
+    val file = File(context.filesDir, modelName)
+    val fileInputStream = FileInputStream(file)
+    val fileChannel = fileInputStream.channel
+    val startOffset = 0L
+    val declaredLength = fileChannel.size()
     return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
 }

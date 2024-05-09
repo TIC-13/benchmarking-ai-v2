@@ -9,6 +9,7 @@ import com.opencsv.CSVReader
 import org.tensorflow.lite.DataType
 import org.yaml.snakeyaml.Yaml
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileReader
 import java.io.InputStream
 
@@ -16,7 +17,8 @@ fun getModels(context: Context): List<Model> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        inputStream = context.assets.open("models.yaml")
+        val file = File(context.filesDir, "models.yaml")
+        inputStream = FileInputStream(file)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
         val modelsList = arrayListOf<Model>()

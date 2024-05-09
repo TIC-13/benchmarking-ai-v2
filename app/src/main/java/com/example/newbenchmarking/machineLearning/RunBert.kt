@@ -7,6 +7,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer.BertQuestionAnswererOptions
+import java.io.File
 import kotlin.system.measureTimeMillis
 
 
@@ -33,7 +34,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
 
     val loadTime = measureTimeMillis {
         answerer = BertQuestionAnswerer.createFromFileAndOptions(
-            androidContext, params.model.filename, options
+            androidContext, File(androidContext.filesDir, params.model.filename).path, options
         )
     }
 

@@ -45,6 +45,8 @@ import getBitmapImages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 
 @Composable
@@ -85,7 +87,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                         val parsedInput = parseLanguageInput(context, inferenceParams.dataset.path)
                         runBert(context, inferenceParams, parsedInput)
                     }else{
-                        images = getBitmapsFromAssetsFolder(
+                        images = getBitmapsFromInternalStorage(
                             context,
                             folderName = inferenceParams.dataset.path,
                             numBitmaps = inferenceParams.numImages
@@ -145,7 +147,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     LaunchedEffect(Unit) {
         while(true){
             delay(500)
-            displayCpuUsage = cpuUsage.getCPUUsage().toInt()
+            displayCpuUsage = cpuUsage.getCPUUsage()
             displayRamUsage = ramUsage.get()
             displayGpuUsage = gpuUsage.get()
         }
@@ -182,16 +184,17 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
-fun getBitmapsFromAssetsFolder(context: Context, folderName: String, numBitmaps: Int): List<Bitmap> {
-    val filenames = getFilesFromAssetFolder(context, folderName).subList( 0, numBitmaps )
+fun getBitmapsFromInternalStorage(context: Context, folderName: String, numBitmaps: Int): List<Bitmap> {
+    val filenames = getFilesFromInternalFolder(context, folderName).subList(0, numBitmaps)
     return filenames.mapNotNull { filename ->
-        loadBitmapFromAssets(context, folderName, filename)
+        loadBitmapFromInternalStorage(context, folderName, filename)
     }
 }
 
-fun loadBitmapFromAssets(context: Context, folderName: String, filename: String): Bitmap? {
+fun loadBitmapFromInternalStorage(context: Context, folderName: String, filename: String): Bitmap? {
     return try {
-        context.assets.open("$folderName/$filename").use { inputStream ->
+        val file = File(context.filesDir, "$folderName/$filename")
+        FileInputStream(file).use { inputStream ->
             BitmapFactory.decodeStream(inputStream)
         }
     } catch (e: IOException) {
@@ -200,10 +203,11 @@ fun loadBitmapFromAssets(context: Context, folderName: String, filename: String)
     }
 }
 
-fun getFilesFromAssetFolder(context: Context, folderName: String): List<String> {
+fun getFilesFromInternalFolder(context: Context, folderName: String): List<String> {
     return try {
-        context.assets.list(folderName)?.toList() ?: emptyList()
-    } catch (e: IOException) {
+        val folder = File(context.filesDir, folderName)
+        folder.listFiles()?.map { it.name } ?: emptyList()
+    } catch (e: Exception) {
         e.printStackTrace()
         emptyList()
     }
@@ -211,7 +215,8 @@ fun getFilesFromAssetFolder(context: Context, folderName: String): List<String> 
 
 fun parseLanguageInput(context: Context, filePath: String): List<LanguageModelInput> {
     return try {
-        val fileContent = context.assets.open(filePath).bufferedReader().use { it.readText() }
+        val file = File(context.filesDir, filePath)
+        val fileContent = FileInputStream(file).bufferedReader().use { it.readText() }
         val contextQuestionPair = fileContent.split("\r\n\r\n")
         contextQuestionPair.map {
             val separatedPair = it.split("\r\n")
@@ -222,10 +227,11 @@ fun parseLanguageInput(context: Context, filePath: String): List<LanguageModelIn
         }
     } catch (e: IOException) {
         e.printStackTrace()
-        "Error loading file: ${e.message}"
+        println("Error loading file: ${e.message}")
         throw e
     }
 }
+
 
 
 

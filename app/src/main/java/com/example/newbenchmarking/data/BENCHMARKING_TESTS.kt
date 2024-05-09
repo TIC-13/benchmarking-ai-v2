@@ -8,13 +8,16 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.Quantization
 import org.yaml.snakeyaml.Yaml
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 
 fun getBenchmarkingTests(context: Context, models: List<Model>, datasets: List<Dataset>): List<InferenceParams> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        inputStream = context.assets.open("tests.yaml")
+        val file = File(context.filesDir, "tests.yaml")
+        inputStream = FileInputStream(file)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
         val testsList = arrayListOf<InferenceParams>()
