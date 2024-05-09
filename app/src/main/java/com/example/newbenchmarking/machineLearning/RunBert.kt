@@ -43,8 +43,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
 
     for(i in 0..<numTests){
         val inferenceTime = measureTimeMillis {
-            val answers = answerer.answer(inputs[i].context, inputs[i].question)
-            Log.d("Answers", answers[0].text)
+            answerer.answer(inputs[i].context, inputs[i].question)
         }
 
         if(i != 1){

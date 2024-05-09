@@ -6,11 +6,6 @@ tests:
     size: 400
 
   - id: 2
-    name: "Textos do bert"
-    path: "bert_inputs.txt"
-    size: 6
-
-  - id: 3
-    name: "Thales"
-    path: "bert_alt.txt"
-    size: 2
+    name: "Perguntas e respostas"
+    path: "qa_dataset.txt"
+    size: 253

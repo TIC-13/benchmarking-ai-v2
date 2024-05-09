@@ -81,9 +81,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 currParams = inferenceParams
 
                 try {
-                    result = if(inferenceParams.model.category === Category.BERT)
-                        runBert(context, inferenceParams, parseLanguageInput(context, inferenceParams.dataset.path))
-                    else{
+                    result = if(inferenceParams.model.category === Category.BERT) {
+                        val parsedInput = parseLanguageInput(context, inferenceParams.dataset.path)
+                        runBert(context, inferenceParams, parsedInput)
+                    }else{
                         images = getBitmapsFromAssetsFolder(
                             context,
                             folderName = inferenceParams.dataset.path,
