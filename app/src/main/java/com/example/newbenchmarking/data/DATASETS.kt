@@ -2,9 +2,7 @@ package com.example.newbenchmarking.data
 
 import android.content.Context
 import android.util.Log
-import com.example.newbenchmarking.data.imagesId.IMAGENET_ANIMALS
 import com.example.newbenchmarking.interfaces.Dataset
-import com.example.newbenchmarking.interfaces.InferenceParams
 import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
 
@@ -21,7 +19,7 @@ fun loadDatasets(context: Context): List<Dataset> {
                 val test = Dataset(
                     id = element["id"] as Int,
                     name = element["name"] as String,
-                    folder = element["folder"] as String,
+                    path = element["path"] as String,
                     size = element["size"] as Int
                 )
                 datasetsList.add(test)

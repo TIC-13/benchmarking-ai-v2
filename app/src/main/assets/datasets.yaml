@@ -1,5 +1,16 @@
 tests:
+
   - id: 1
     name: "Imagenet"
-    folder: "images"
+    path: "images"
     size: 400
+
+  - id: 2
+    name: "Textos do bert"
+    path: "bert_inputs.txt"
+    size: 6
+
+  - id: 3
+    name: "Thales"
+    path: "bert_alt.txt"
+    size: 2

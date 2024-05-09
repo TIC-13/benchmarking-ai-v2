@@ -35,6 +35,7 @@ import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.BenchmarkResult
+import com.example.newbenchmarking.machineLearning.LanguageModelInput
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppTypography
@@ -73,23 +74,24 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
             var result = Inference()
             var errorMessage: String? = null
-            var images: List<Bitmap>?
+            var images: List<Bitmap>? = null
 
             withContext(Dispatchers.IO){
-
-                images = getBitmapsFromAssetsFolder(
-                    context,
-                    folderName = inferenceParams.dataset.folder,
-                    numBitmaps = inferenceParams.numImages
-                )
 
                 currParams = inferenceParams
 
                 try {
                     result = if(inferenceParams.model.category === Category.BERT)
-                        runBert(context, inferenceParams)
-                    else
+                        runBert(context, inferenceParams, parseLanguageInput(context, inferenceParams.dataset.path))
+                    else{
+                        images = getBitmapsFromAssetsFolder(
+                            context,
+                            folderName = inferenceParams.dataset.path,
+                            numBitmaps = inferenceParams.numImages
+                        )
                         runTfLiteModel(context, inferenceParams, images!!)
+                    }
+
                 }catch (e: Exception){
                         errorMessage = e.toString()
                 }
@@ -205,3 +207,24 @@ fun getFilesFromAssetFolder(context: Context, folderName: String): List<String> 
         emptyList()
     }
 }
+
+fun parseLanguageInput(context: Context, filePath: String): List<LanguageModelInput> {
+    return try {
+        val fileContent = context.assets.open(filePath).bufferedReader().use { it.readText() }
+        val contextQuestionPair = fileContent.split("\r\n\r\n")
+        contextQuestionPair.map {
+            val separatedPair = it.split("\r\n")
+            LanguageModelInput(
+                context = separatedPair[0],
+                question = separatedPair[1]
+            )
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        "Error loading file: ${e.message}"
+        throw e
+    }
+}
+
+
+

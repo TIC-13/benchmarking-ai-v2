@@ -66,7 +66,7 @@ tests:
     numSamples: 40
 
   - model_id: 11
-    dataset_id: 1
+    dataset_id: 2
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 6

@@ -79,23 +79,21 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
                 params = params.copy(model = models[newIndex])
             }
         )
-        if(params.model.category !== Category.BERT) {
-            DropdownSelector(
-                "Dataset selecionado: ${params.dataset.name}",
-                items = datasets.map { x -> x.name },
-                onItemSelected = { newIndex ->
-                    params = params.copy(
-                        dataset = datasets[newIndex],
-                        numImages = min(15F, params.dataset.size.toFloat()).toInt()
-                    )
-                }
-            )
-        }
+        DropdownSelector(
+            "Dataset selecionado: ${params.dataset.name}",
+            items = datasets.map { x -> x.name },
+            onItemSelected = { newIndex ->
+                params = params.copy(
+                    dataset = datasets[newIndex],
+                    numImages = if(datasets[newIndex].size >= 15) 15 else 1
+                )
+            }
+        )
         SliderSelector(
             label = "Número de ${if(params.model.category === Category.BERT) "inferências" else "imagens"}: ${params.numImages}",
             value = params.numImages,
             onValueChange = { params = params.copy(numImages = it.toInt()) },
-            rangeBottom = min(15F, params.dataset.size.toFloat()),
+            rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
             rangeUp = params.dataset.size.toFloat(),
             labelColor = Color.White
         )
