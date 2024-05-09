@@ -1,5 +1,6 @@
 package com.example.newbenchmarking
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,11 +25,26 @@ import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        MainScope().launch {
+            if(!fileExistsInInternalStorage("models.yaml") ||
+                !fileExistsInInternalStorage("datasets.yaml") ||
+                !fileExistsInInternalStorage("tests.yaml"))
+            {
+                copyAssetsFolder()
+            }
+        }
         setContent {
             AppTheme {
                 Surface(
@@ -93,5 +109,46 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         }
     }
 }
+
+suspend fun Context.copyAssetsFolder(folderPath: String = "", destinationPath: String = filesDir.absolutePath): Unit = withContext(Dispatchers.IO) {
+    val assetManager = assets
+    val files = assetManager.list(folderPath) ?: return@withContext  // List all assets at this path
+
+    // Process each item in the current asset folder
+    for (filename in files) {
+        val path = if (folderPath.isEmpty()) filename else "$folderPath/$filename"
+        val outFile = File(destinationPath, filename)
+
+        try {
+            // Check if the current path is a file or directory by trying to list its contents
+            if (assetManager.list(path)!!.isEmpty()) {
+                // It's a file (or an empty directory, which typically won't happen in assets)
+                    assetManager.open(path).use { input ->
+                        outFile.parentFile?.mkdirs()  // Ensure directory structure exists
+                        outFile.outputStream().use { output ->
+                            input.copyTo(output, 1024)
+                        }
+                    }
+
+            } else {
+                // It's a directory, call the function recursively
+                if (!outFile.exists()) {
+                    outFile.mkdirs()  // Create directory if it doesn't exist
+                }
+                copyAssetsFolder(path, outFile.absolutePath)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()  // Log or handle the exception as needed
+        }
+    }
+}
+
+fun Context.fileExistsInInternalStorage(filename: String): Boolean {
+    val file = File(filesDir, filename)
+    return file.exists()
+}
+
+
+
 
 

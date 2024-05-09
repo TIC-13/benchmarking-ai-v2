@@ -2,7 +2,7 @@ tests:
 
   - id: 1
     name: "Imagenet"
-    path: "images"
+    path: "images_dataset"
     size: 400
 
   - id: 2
