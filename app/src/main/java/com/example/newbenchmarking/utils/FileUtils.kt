@@ -1,9 +1,13 @@
 package com.example.newbenchmarking.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.example.newbenchmarking.machineLearning.LanguageModelInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 
 suspend fun pasteAssets(context: Context, folderPath: String = "", destinationPath: String = context.filesDir.absolutePath): Unit = withContext(
@@ -40,7 +44,6 @@ suspend fun pasteAssets(context: Context, folderPath: String = "", destinationPa
     }
 }
 
-
 fun fileExists(fileParent: File, filename: String): Boolean {
     return File(fileParent, filename).exists()
 }
@@ -51,4 +54,73 @@ fun createFolderIfNotExists(fileParent: File, folderName: String): File {
         if (!folder.mkdirs())
             throw Exception("Erro na criação da pasta $folderName em ${fileParent.absolutePath}")
     return folder
+}
+
+
+fun getBitmapsFromFolder(folder: File, numBitmaps: Int): List<Bitmap> {
+    val filenames = getFilesFromFolder(folder).subList(0, numBitmaps)
+    return filenames.mapNotNull { filename ->
+        val file = File(folder, filename)
+        loadBitmapFromFile(file)
+    }
+}
+
+fun loadBitmapFromFile(file: File): Bitmap? {
+    return try {
+        FileInputStream(file).use { inputStream ->
+            BitmapFactory.decodeStream(inputStream)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun getFilesFromFolder(folder: File): List<String> {
+    return try {
+        folder.listFiles()?.map { it.name } ?: emptyList()
+    } catch (e: Exception) {
+        throw Exception("Erro ao listar arquivos da pasta ${e.message}")
+    }
+}
+
+fun parseLanguageDataset(file: File): List<LanguageModelInput> {
+    return try {
+        val fileContent = FileInputStream(file).bufferedReader().use { it.readText() }
+        val contextQuestionPair = fileContent.split("\r\n\r\n")
+        contextQuestionPair.map {
+            val separatedPair = it.split("\r\n")
+            LanguageModelInput(
+                context = separatedPair[0],
+                question = separatedPair[1]
+            )
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        println("Error loading file: ${e.message}")
+        throw e
+    }
+}
+
+fun clearFolderContents(folder: File) {
+    // Check if the directory exists and is indeed a directory
+    if (folder.exists() && folder.isDirectory) {
+        // List all contents and loop through them to delete each one
+        folder.listFiles()?.forEach { file ->
+            deleteRecursively(file)
+        }
+    } else {
+        println("The specified path is not a directory or does not exist.")
+    }
+}
+
+fun deleteRecursively(file: File) {
+    if (file.isDirectory) {
+        // If it's a directory, delete its contents recursively
+        file.listFiles()?.forEach { subFile ->
+            deleteRecursively(subFile)
+        }
+    }
+    // Delete the file or directory (now empty if it was a directory)
+    file.delete()
 }

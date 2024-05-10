@@ -42,6 +42,8 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
     val context = LocalContext.current
     val canReadExternalStorage = Environment.isExternalStorageManager()
+    val externalStorage = Environment.getExternalStorageDirectory()
+    val speedAIFolder = createFolderIfNotExists(externalStorage, "SpeedAI")
 
     var loadedModels by remember { mutableStateOf<List<Model>?>(null) }
     var loadedDatasets by remember { mutableStateOf<List<Dataset>?>(null) }
@@ -55,9 +57,6 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         if(!canReadExternalStorage) return@LaunchedEffect
 
         try {
-            val externalStorage = Environment.getExternalStorageDirectory()
-            val speedAIFolder = createFolderIfNotExists(externalStorage, "SpeedAI")
-
             if(!fileExists(speedAIFolder, "models.yaml") ||
                 !fileExists(speedAIFolder, "datasets.yaml") ||
                 !fileExists(speedAIFolder, "tests.yaml")
@@ -104,6 +103,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
     fun startTest() {
         viewModel.updateInferenceParamsList(listOf(params))
+        viewModel.updateFolder(speedAIFolder)
         startInference()
     }
 

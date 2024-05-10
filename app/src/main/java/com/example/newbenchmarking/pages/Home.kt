@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -18,35 +21,66 @@ import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
+import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.theme.LocalAppTypography
+import com.example.newbenchmarking.utils.clearFolderContents
+import com.example.newbenchmarking.utils.pasteAssets
 import com.example.newbenchmarking.viewModel.InferenceViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 
     val context = LocalContext.current
-    val models = remember(context) { getModels(File(context.filesDir, "models.yaml")) }
-    val datasets = remember(context) { loadDatasets(File(context.filesDir, "datasets.yaml")) }
-    val tests = remember(context) { getBenchmarkingTests(models, datasets, File(context.filesDir, "tests.yaml")) }
+    var isLoading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
 
-    fun setDefaultModels(){
-        inferenceViewModel.updateInferenceParamsList(tests)
+    suspend fun loadTestsInInternalStorage(): List<InferenceParams> {
+        pasteAssets(context, destinationPath = context.filesDir.absolutePath)
+        val models = getModels(File(context.filesDir, "models.yaml"))
+        val datasets = loadDatasets(File(context.filesDir, "datasets.yaml"))
+        return getBenchmarkingTests(models, datasets, File(context.filesDir, "tests.yaml"))
+    }
+
+    LaunchedEffect(key1 = isLoading) {
+        if(isLoading){
+            try {
+                var tests: List<InferenceParams>? = null
+                withContext(Dispatchers.IO){
+                    tests = loadTestsInInternalStorage()
+                }
+                if(tests == null) return@LaunchedEffect
+                inferenceViewModel.updateInferenceParamsList(tests!!)
+                inferenceViewModel.updateFolder(context.filesDir)
+                inferenceViewModel.updateAfterRun { clearFolderContents(context.filesDir) }
+                goToRun()
+            }catch(e: Exception) {
+                error = e.message
+            }
+            isLoading = false
+        }
     }
 
     val homeScreenButtons = arrayOf(
         HomeScreenButton(
             label = "Iniciar testes",
-            onPress = {
-                setDefaultModels()
-                goToRun()
-            }
+            onPress = { isLoading = true }
         ),
         HomeScreenButton(
             label = "Teste personalizado",
             onPress = { goToCustom() }
         )
     )
+
+    if(error !== null)
+        throw Exception("Erro ao carregar os modelos para o armazenamento interno")
+
+    if(isLoading)
+        return BackgroundWithContent {
+            //is loading
+        }
 
     BackgroundWithContent(
         modifier = Modifier.padding(30.dp, 0.dp)

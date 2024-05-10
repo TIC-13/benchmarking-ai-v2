@@ -39,6 +39,8 @@ import com.example.newbenchmarking.machineLearning.LanguageModelInput
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppTypography
+import com.example.newbenchmarking.utils.getBitmapsFromFolder
+import com.example.newbenchmarking.utils.parseLanguageDataset
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import kotlinx.coroutines.Dispatchers
@@ -51,10 +53,15 @@ import java.io.IOException
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
-    val inferencesList by viewModel.inferenceParamsList.observeAsState()
-    val resultsList by resultViewModel.benchmarkResultList.observeAsState()
-
     val context = LocalContext.current
+    val inferencesList by viewModel.inferenceParamsList.observeAsState()
+    val folder by viewModel.folder.observeAsState()
+    val afterRun by viewModel.afterRun.observeAsState()
+
+    if(folder == null)
+        throw Error("Pasta onde os arquivos são encontrados não definida")
+
+    val resultsList by resultViewModel.benchmarkResultList.observeAsState()
 
     if(inferencesList === null || inferencesList!!.isEmpty()) return
     val paramsList = inferencesList!!
@@ -83,15 +90,14 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
                 try {
                     result = if(inferenceParams.model.category === Category.BERT) {
-                        val parsedInput = parseLanguageInput(context, inferenceParams.dataset.path)
-                        runBert(context, inferenceParams, parsedInput, File(context.filesDir, inferenceParams.model.filename))
+                        val parsedInput = parseLanguageDataset(File(folder, inferenceParams.dataset.path))
+                        runBert(context, inferenceParams, parsedInput, File(folder, inferenceParams.model.filename))
                     }else{
-                        images = getBitmapsFromInternalStorage(
-                            context,
-                            folderName = inferenceParams.dataset.path,
+                        images = getBitmapsFromFolder(
+                            File(folder, inferenceParams.dataset.path),
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!, File(context.filesDir, inferenceParams.model.filename))
+                        runTfLiteModel(context, inferenceParams, images!!, File(folder, inferenceParams.model.filename))
                     }
 
                 }catch (e: Exception){
@@ -129,6 +135,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             }
 
         }
+        afterRun?.let { it() }
         goToResults()
     }
 
@@ -183,53 +190,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
-fun getBitmapsFromInternalStorage(context: Context, folderName: String, numBitmaps: Int): List<Bitmap> {
-    val filenames = getFilesFromInternalFolder(context, folderName).subList(0, numBitmaps)
-    return filenames.mapNotNull { filename ->
-        loadBitmapFromInternalStorage(context, folderName, filename)
-    }
-}
 
-fun loadBitmapFromInternalStorage(context: Context, folderName: String, filename: String): Bitmap? {
-    return try {
-        val file = File(context.filesDir, "$folderName/$filename")
-        FileInputStream(file).use { inputStream ->
-            BitmapFactory.decodeStream(inputStream)
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun getFilesFromInternalFolder(context: Context, folderName: String): List<String> {
-    return try {
-        val folder = File(context.filesDir, folderName)
-        folder.listFiles()?.map { it.name } ?: emptyList()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        emptyList()
-    }
-}
-
-fun parseLanguageInput(context: Context, filePath: String): List<LanguageModelInput> {
-    return try {
-        val file = File(context.filesDir, filePath)
-        val fileContent = FileInputStream(file).bufferedReader().use { it.readText() }
-        val contextQuestionPair = fileContent.split("\r\n\r\n")
-        contextQuestionPair.map {
-            val separatedPair = it.split("\r\n")
-            LanguageModelInput(
-                context = separatedPair[0],
-                question = separatedPair[1]
-            )
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        println("Error loading file: ${e.message}")
-        throw e
-    }
-}
 
 
 
