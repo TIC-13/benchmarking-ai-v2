@@ -21,14 +21,16 @@ import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
+import com.example.newbenchmarking.machineLearning.loadModelFile
+import java.io.File
 import kotlin.math.min
 
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
 
     val context = LocalContext.current
-    val models = remember(context) { getModels(context) }
-    val datasets = remember(context) { loadDatasets(context) }
+    val models = remember(context) { getModels(File(context.filesDir, "models.yaml")) }
+    val datasets = remember(context) { loadDatasets(File(context.filesDir, "datasets.yaml")) }
 
     if(datasets.isEmpty())
         throw Error("Nenhum dataset foi carregado")

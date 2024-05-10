@@ -12,11 +12,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-fun getBenchmarkingTests(context: Context, models: List<Model>, datasets: List<Dataset>): List<InferenceParams> {
+fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: File): List<InferenceParams> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        val file = File(context.filesDir, "tests.yaml")
         inputStream = FileInputStream(file)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>

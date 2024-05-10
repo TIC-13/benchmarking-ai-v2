@@ -22,9 +22,9 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
-fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>): Inference {
+fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>, file: File): Inference {
 
-    val model = loadModelFileFromInternalStorage(context, modelName = params.model.filename)
+    val model = loadModelFile(context, file)
     val gpuDelegate = GpuDelegate()
 
     val options = Interpreter.Options().apply {
@@ -105,17 +105,7 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
     )
 }
 
-fun loadModelFile(assetManager: AssetManager, modelName: String): MappedByteBuffer {
-    val fileDescriptor = assetManager.openFd(modelName)
-    val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-    val fileChannel = inputStream.channel
-    val startOffset = fileDescriptor.startOffset
-    val declaredLength = fileDescriptor.declaredLength
-    return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
-}
-
-fun loadModelFileFromInternalStorage(context: Context, modelName: String): ByteBuffer {
-    val file = File(context.filesDir, modelName)
+fun loadModelFile(context: Context, file: File): ByteBuffer {
     val fileInputStream = FileInputStream(file)
     val fileChannel = fileInputStream.channel
     val startOffset = 0L

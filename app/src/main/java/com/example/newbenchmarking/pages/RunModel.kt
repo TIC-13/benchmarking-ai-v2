@@ -85,14 +85,14 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 try {
                     result = if(inferenceParams.model.category === Category.BERT) {
                         val parsedInput = parseLanguageInput(context, inferenceParams.dataset.path)
-                        runBert(context, inferenceParams, parsedInput)
+                        runBert(context, inferenceParams, parsedInput, File(context.filesDir, inferenceParams.model.filename))
                     }else{
                         images = getBitmapsFromInternalStorage(
                             context,
                             folderName = inferenceParams.dataset.path,
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!)
+                        runTfLiteModel(context, inferenceParams, images!!, File(context.filesDir, inferenceParams.model.filename))
                     }
 
                 }catch (e: Exception){

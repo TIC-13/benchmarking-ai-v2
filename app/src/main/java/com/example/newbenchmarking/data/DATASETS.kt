@@ -8,11 +8,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-fun loadDatasets(context: Context): List<Dataset> {
+fun loadDatasets(file: File): List<Dataset> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        val file = File(context.filesDir, "datasets.yaml")
         inputStream = FileInputStream(file)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>

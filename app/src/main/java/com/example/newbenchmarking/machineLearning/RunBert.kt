@@ -16,7 +16,7 @@ data class LanguageModelInput(
     val question: String
 )
 
-fun runBert(androidContext: Context, params: InferenceParams, inputs: List<LanguageModelInput>): Inference {
+fun runBert(androidContext: Context, params: InferenceParams, inputs: List<LanguageModelInput>, file: File): Inference {
 
     val baseOptions = BaseOptions.builder()
         .setNumThreads(params.numThreads)
@@ -34,7 +34,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
 
     val loadTime = measureTimeMillis {
         answerer = BertQuestionAnswerer.createFromFileAndOptions(
-            androidContext, File(androidContext.filesDir, params.model.filename).path, options
+            androidContext, file.path, options
         )
     }
 

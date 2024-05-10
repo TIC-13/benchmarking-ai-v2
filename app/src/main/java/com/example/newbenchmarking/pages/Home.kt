@@ -20,14 +20,15 @@ import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
+import java.io.File
 
 @Composable
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 
     val context = LocalContext.current
-    val models = remember(context) { getModels(context) }
-    val datasets = remember(context) { loadDatasets(context) }
-    val tests = remember(context) { getBenchmarkingTests(context, models, datasets) }
+    val models = remember(context) { getModels(File(context.filesDir, "models.yaml")) }
+    val datasets = remember(context) { loadDatasets(File(context.filesDir, "datasets.yaml")) }
+    val tests = remember(context) { getBenchmarkingTests(models, datasets, File(context.filesDir, "tests.yaml")) }
 
     fun setDefaultModels(){
         inferenceViewModel.updateInferenceParamsList(tests)

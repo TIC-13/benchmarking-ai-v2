@@ -13,11 +13,10 @@ import java.io.FileInputStream
 import java.io.FileReader
 import java.io.InputStream
 
-fun getModels(context: Context): List<Model> {
+fun getModels(file: File): List<Model> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        val file = File(context.filesDir, "models.yaml")
         inputStream = FileInputStream(file)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
