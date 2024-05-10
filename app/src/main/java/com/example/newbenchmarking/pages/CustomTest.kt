@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
@@ -79,9 +80,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         throw Error("Erro ao carregar arquivos para armazenamento externo: ${error}")
 
     if(loadedModels == null || loadedDatasets == null)
-        return BackgroundWithContent {
-            //isLoading
-        }
+        return LoadingScreen()
 
     val models = loadedModels!!
     val datasets = loadedDatasets!!

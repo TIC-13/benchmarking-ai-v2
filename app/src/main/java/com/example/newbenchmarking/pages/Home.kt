@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
@@ -78,9 +79,7 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
         throw Exception("Erro ao carregar os modelos para o armazenamento interno")
 
     if(isLoading)
-        return BackgroundWithContent {
-            //is loading
-        }
+        return LoadingScreen()
 
     BackgroundWithContent(
         modifier = Modifier.padding(30.dp, 0.dp)
