@@ -1,9 +1,14 @@
 package com.example.newbenchmarking.pages
 
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,19 +26,72 @@ import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
-import com.example.newbenchmarking.machineLearning.loadModelFile
+import com.example.newbenchmarking.interfaces.Dataset
+import com.example.newbenchmarking.interfaces.Model
+import com.example.newbenchmarking.utils.createFolderIfNotExists
+import com.example.newbenchmarking.utils.fileExists
+import com.example.newbenchmarking.utils.pasteAssets
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.math.min
+import java.io.IOException
 
+@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
 
     val context = LocalContext.current
-    val models = remember(context) { getModels(File(context.filesDir, "models.yaml")) }
-    val datasets = remember(context) { loadDatasets(File(context.filesDir, "datasets.yaml")) }
+    val canReadExternalStorage = Environment.isExternalStorageManager()
+
+    var loadedModels by remember { mutableStateOf<List<Model>?>(null) }
+    var loadedDatasets by remember { mutableStateOf<List<Dataset>?>(null) }
+
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(key1 = Unit) {
+        loadedModels = null
+        loadedDatasets = null
+
+        if(!canReadExternalStorage) return@LaunchedEffect
+
+        try {
+            val externalStorage = Environment.getExternalStorageDirectory()
+            val speedAIFolder = createFolderIfNotExists(externalStorage, "SpeedAI")
+
+            if(!fileExists(speedAIFolder, "models.yaml") ||
+                !fileExists(speedAIFolder, "datasets.yaml") ||
+                !fileExists(speedAIFolder, "tests.yaml")
+            ){
+                pasteAssets(context, destinationPath = speedAIFolder.absolutePath)
+            }
+            withContext(Dispatchers.IO) {
+                loadedModels = getModels(File(speedAIFolder, "models.yaml"))
+                loadedDatasets = loadDatasets(File(speedAIFolder, "datasets.yaml"))
+            }
+        }catch(e: Exception) {
+            error = e.message
+        }
+    }
+
+    if(!canReadExternalStorage)
+        throw Error("Não tem permissão de ler armazenamento externo")
+
+    if(error !== null)
+        throw Error("Erro ao carregar arquivos para armazenamento externo: ${error}")
+
+    if(loadedModels == null || loadedDatasets == null)
+        return BackgroundWithContent {
+            //isLoading
+        }
+
+    val models = loadedModels!!
+    val datasets = loadedDatasets!!
 
     if(datasets.isEmpty())
         throw Error("Nenhum dataset foi carregado")
+
+    if(models.isEmpty())
+        throw Error("Nenhum modelo foi carregado")
 
     var params by remember { mutableStateOf(InferenceParams(
         model = models[0],

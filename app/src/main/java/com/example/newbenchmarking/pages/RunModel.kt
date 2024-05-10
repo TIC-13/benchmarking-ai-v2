@@ -41,7 +41,6 @@ import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
-import getBitmapImages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
