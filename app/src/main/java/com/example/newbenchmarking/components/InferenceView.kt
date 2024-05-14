@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,7 +86,7 @@ fun InferenceView(
 
     Box(
         modifier = modifier
-            .background(LocalAppColors.current.primary)
+            .background(MaterialTheme.colorScheme.primary)
     ) {
         Column(
             modifier = Modifier,
@@ -123,12 +124,13 @@ fun InferenceView(
                                 modifier = Modifier
                                     .padding(5.dp, 5.dp),
                                 text = topTitle,
-
-                                style = LocalAppTypography.current.tableTitle
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                             Text(
                                 text = subtitle,
-                                style = LocalAppTypography.current.tableSubtitle
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
 
                         }
@@ -164,7 +166,7 @@ fun InferenceView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(LocalAppColors.current.secondary)
+                    .background(MaterialTheme.colorScheme.secondary)
                     .padding(0.dp, 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -174,7 +176,8 @@ fun InferenceView(
                         modifier = Modifier
                             .padding(0.dp, 0.dp, 0.dp, 20.dp),
                         text = bottomFirstTitle,
-                        style = LocalAppTypography.current.tableIndex
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
                 if(bottomSecondTitle !== null){
@@ -182,7 +185,8 @@ fun InferenceView(
                         modifier = Modifier
                             .padding(0.dp, 0.dp, 0.dp, 20.dp),
                         text = bottomSecondTitle,
-                        style = LocalAppTypography.current.tableIndex
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondary
                     )
                 }
                 if(rows !== null){
@@ -254,7 +258,11 @@ fun AccordionHeader(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, style = LocalAppTypography.current.tableIndex)
+        Text(
+            title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
             Icon(
                 Icons.Outlined.ArrowDropDown,
                 contentDescription = "arrow-down",
@@ -303,7 +311,8 @@ fun TextRow(row: ResultRow) {
         ) {
             Text(
                 text = row.label,
-                style = LocalAppTypography.current.tableIndex
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
         Spacer(modifier = Modifier.weight(0.1F))
@@ -314,14 +323,15 @@ fun TextRow(row: ResultRow) {
         ) {
             Text(
                 text = row.text,
-                style = LocalAppTypography.current.tableContent
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
 }
 
     @Composable
-    fun InfoIcon(color: Color = LocalAppColors.current.text) {
+    fun InfoIcon(color: Color = MaterialTheme.colorScheme.onPrimary) {
         Icon(
             painter = painterResource(id = R.drawable.help_circle),
             "",
@@ -333,7 +343,7 @@ fun TextRow(row: ResultRow) {
     fun Chip(
         modifier: Modifier = Modifier,
         text: String,
-        color: Color = LocalAppColors.current.secondary
+        color: Color = MaterialTheme.colorScheme.secondary
     ) {
         Column(
             modifier = modifier
@@ -344,7 +354,8 @@ fun TextRow(row: ResultRow) {
         ) {
             Text(
                 text = text,
-                style = LocalAppTypography.current.chip
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSecondary
             )
         }
 
@@ -362,7 +373,7 @@ fun NNAPIChip(): ChipProps {
 fun CPUChip(): ChipProps {
     return ChipProps(
         text = "CPU",
-        color = LocalAppColors.current.secondary
+        color = MaterialTheme.colorScheme.secondary
     )
 }
 
