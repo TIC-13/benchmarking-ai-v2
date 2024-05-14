@@ -2,6 +2,7 @@ package com.example.newbenchmarking.data
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.InferenceParams
@@ -12,7 +13,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: File): List<InferenceParams> {
+fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: File, onError: ((e: Exception, elementId: Int?) -> Unit)? = null): List<InferenceParams> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
@@ -24,25 +25,31 @@ fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: Fil
             try {
                 val modelId = element["model_id"] as Int
                 val datasetId = element["dataset_id"] as Int
+
                 val selectedModel = models.find { it.id == modelId }
-                if(selectedModel === null)
-                    throw Exception("Modelo usado para teste não foi definido em models.yaml")
+                    ?: throw Exception("Modelo usado não definido em models.yaml")
+
                 val selectedDataset = datasets.find { it.id == datasetId }
-                if(selectedDataset === null)
-                    throw Exception("Dataset usado para teste não foi definido em datasets.yaml")
-                val runMode = element["runMode"] as String
+                    ?: throw Exception("Dataset usado não definido em datasets.yaml")
+
+                val runMode = element["runMode"] as? String
+                    ?: throw Exception("runMode não definido")
 
                 val test = InferenceParams(
                     model = selectedModel,
                     useNNAPI = runMode == "NNAPI",
                     useGPU = runMode == "GPU",
-                    numThreads = element["numThreads"] as Int,
-                    numImages = element["numSamples"] as Int,
+                    numThreads = element["numThreads"] as? Int
+                        ?: throw Exception("numThreads não definido"),
+                    numImages = element["numSamples"] as? Int
+                        ?: throw Exception("numSamples não definido"),
                     dataset = selectedDataset
                 )
                 testsList.add(test)
             }catch (e: Exception){
-                Log.e("test_error", "Erro ao adicionar teste com modelo de id ${element["model_id"]}: ${e.message}")
+                val id = element["model_id"] as? Int
+                Log.e("test_error", "Erro ao carregar teste de id ${id}: ${e.message}")
+                if(onError !== null) onError(e, id)
             }
         }
         testsList

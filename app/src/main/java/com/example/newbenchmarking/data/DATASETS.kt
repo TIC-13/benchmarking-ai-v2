@@ -8,7 +8,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-fun loadDatasets(file: File): List<Dataset> {
+fun loadDatasets(file: File, onError: ((e: Exception, elementId: Int?) -> Unit)? = null): List<Dataset> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
@@ -19,14 +19,20 @@ fun loadDatasets(file: File): List<Dataset> {
         for(element in yamlList) {
             try {
                 val test = Dataset(
-                    id = element["id"] as Int,
-                    name = element["name"] as String,
-                    path = element["path"] as String,
-                    size = element["size"] as Int
+                    id = element["id"] as? Int
+                        ?: throw Exception("id não definido"),
+                    name = element["name"] as? String
+                        ?: throw Exception("name não definido"),
+                    path = element["path"] as? String
+                        ?: throw Exception("path não definido"),
+                    size = element["size"] as? Int
+                        ?: throw Exception("size não definido")
                 )
                 datasetsList.add(test)
             }catch (e: Exception){
+                val id = element["id"] as? Int
                 Log.e("dataset_error", "Erro ao adicionar dataset de id ${element["id"]}: ${e.message}")
+                if(onError !== null) onError(e, id)
             }
         }
         datasetsList

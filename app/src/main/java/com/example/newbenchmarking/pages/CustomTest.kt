@@ -10,8 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -95,25 +99,32 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
 
     var loadedModels by remember { mutableStateOf<List<Model>?>(null) }
     var loadedDatasets by remember { mutableStateOf<List<Dataset>?>(null) }
+    var loadingFails by remember { mutableStateOf(emptyList<String>()) }
 
     var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(key1 = Unit) {
         loadedModels = null
         loadedDatasets = null
+        loadingFails = emptyList()
 
         if(!canReadExternalStorage) return@LaunchedEffect
 
         try {
             if(!fileExists(speedAIFolder, "models.yaml") ||
-                !fileExists(speedAIFolder, "datasets.yaml") ||
-                !fileExists(speedAIFolder, "tests.yaml")
+                !fileExists(speedAIFolder, "datasets.yaml")
             ){
                 pasteAssets(context, destinationPath = speedAIFolder.absolutePath)
             }
             withContext(Dispatchers.IO) {
-                loadedModels = getModels(File(speedAIFolder, "models.yaml"))
-                loadedDatasets = loadDatasets(File(speedAIFolder, "datasets.yaml"))
+                loadedModels = getModels(
+                    file = File(speedAIFolder, "models.yaml"),
+                    onError = { e, id -> loadingFails = loadingFails + "Erro ao carregar o modelo de ID $id: ${e.message}" }
+                )
+                loadedDatasets = loadDatasets(
+                    file = File(speedAIFolder, "datasets.yaml"),
+                    onError = { e, id -> loadingFails = loadingFails + "Erro ao carregar o dataset de ID $id: ${e.message}" }
+                )
             }
         }catch(e: Exception) {
             error = e.message
@@ -133,10 +144,10 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     val datasets = loadedDatasets!!
 
     if(datasets.isEmpty())
-        throw Error("Nenhum dataset foi carregado")
+        throw Error("Nenhum dataset foi carregado. O arquivo datasets.yaml deve estar vazio ou mal-formatado")
 
     if(models.isEmpty())
-        throw Error("Nenhum modelo foi carregado")
+        throw Error("Nenhum modelo foi carregado. O arquivo models.yaml deve estar vazio ou mal-formatado")
 
     var params by remember { mutableStateOf(InferenceParams(
         model = models[0],
@@ -154,9 +165,19 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     }
 
     BackgroundWithContent (
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Row() {
+        Column(
+            modifier = Modifier.padding(15.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+        ) {
+            for(loadingFail in loadingFails){
+                LoadingFailView(text = loadingFail)
+            }
+        }
+        Row {
             SwitchSelector(
                 label = "NNAPI ativa",
                 isChecked = params.useNNAPI,
@@ -238,5 +259,20 @@ private fun Context.requestAllFilesAccess() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
         startActivity(intent)
+    }
+}
+
+@Composable
+fun LoadingFailView(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.error,
+        shape = RoundedCornerShape(20)
+    ) {
+        Text(
+            modifier = Modifier.padding(15.dp),
+            text = text,
+            color = MaterialTheme.colorScheme.onError,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }

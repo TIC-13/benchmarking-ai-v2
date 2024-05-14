@@ -1,12 +1,10 @@
 package com.example.newbenchmarking.pages
 
 import android.os.Build
-import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,13 +19,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.LoadingScreen
-import com.example.newbenchmarking.components.ScoreView
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.InferenceParams
-import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.utils.clearFolderContents
 import com.example.newbenchmarking.utils.pasteAssets
 import com.example.newbenchmarking.viewModel.InferenceViewModel
@@ -45,9 +41,17 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
 
     suspend fun loadTestsInInternalStorage(): List<InferenceParams> {
         pasteAssets(context, destinationPath = context.filesDir.absolutePath)
-        val models = getModels(File(context.filesDir, "models.yaml"))
-        val datasets = loadDatasets(File(context.filesDir, "datasets.yaml"))
-        return getBenchmarkingTests(models, datasets, File(context.filesDir, "tests.yaml"))
+        val models = getModels(
+            file = File(context.filesDir, "models.yaml")
+        )
+        val datasets = loadDatasets(
+            file = File(context.filesDir, "datasets.yaml")
+        )
+        return getBenchmarkingTests(
+            models = models,
+            datasets = datasets,
+            file = File(context.filesDir, "tests.yaml"),
+        )
     }
 
     LaunchedEffect(key1 = isLoading) {
