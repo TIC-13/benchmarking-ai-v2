@@ -37,6 +37,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
         mlModelBinding = true
     }
@@ -84,5 +85,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("com.opencsv:opencsv:4.6")
     implementation("org.yaml:snakeyaml:1.30")
-
+    implementation("androidx.fragment:fragment-ktx:1.7.0")
 }

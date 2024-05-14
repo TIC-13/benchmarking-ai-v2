@@ -1,13 +1,20 @@
 package com.example.newbenchmarking.pages
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,6 +29,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.data.getModels
@@ -40,6 +51,42 @@ import java.io.IOException
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
+
+    var granted by remember { mutableStateOf(Environment.isExternalStorageManager()) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleObserver = remember {
+        LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                granted = Environment.isExternalStorageManager()
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        granted = Environment.isExternalStorageManager()
+    }
+
+    if(!granted){
+        return AskPermission()
+    }
+
+    CustomTest(
+        viewModel = viewModel,
+        startInference = startInference
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+@Composable
+fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
 
     val context = LocalContext.current
     val canReadExternalStorage = Environment.isExternalStorageManager()
@@ -159,5 +206,37 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
         Button(onClick = ::startTest) {
             Text(text = "Iniciar")
         }
+    }
+}
+
+@Composable
+fun AskPermission() {
+
+    val context = LocalContext.current
+
+    BackgroundWithContent (
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(15.dp)
+    ){
+        Column(
+            verticalArrangement = Arrangement.spacedBy(50.dp)
+        ) {
+            Text(
+                text = "Para usar essa função, o aplicativo precisa de permissão para ler os arquivos",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Button(onClick = { context.requestAllFilesAccess() }) {
+                Text(text = "Conceder permissão")
+            }
+        }
+    }
+}
+
+private fun Context.requestAllFilesAccess() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+        startActivity(intent)
     }
 }

@@ -1,5 +1,8 @@
 package com.example.newbenchmarking.pages
 
+import android.os.Build
+import android.os.Environment
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
 

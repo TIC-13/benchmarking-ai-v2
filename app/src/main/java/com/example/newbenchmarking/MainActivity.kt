@@ -71,7 +71,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
             HomeScreen(
                 inferenceViewModel = inferenceViewModel,
                 goToRun = { navController.navigate("runModel")},
-                goToCustom = {navController.navigate("inferenceConfig")}
+                goToCustom = {navController.navigate("inferenceConfig")},
             )
         }
         composable(
