@@ -33,9 +33,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
     val answerer: BertQuestionAnswerer
 
     val loadTime = measureTimeMillis {
-        answerer = BertQuestionAnswerer.createFromFileAndOptions(
-            androidContext, file.path, options
-        )
+        answerer = BertQuestionAnswerer.createFromFileAndOptions(file, options)
     }
 
     val numTests = params.numImages
@@ -47,7 +45,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
             answerer.answer(inputs[i].context, inputs[i].question)
         }
 
-        if(i != 1){
+        if(i != 0){
             totalTime += inferenceTime
         }else{
             firstInferenceTime = inferenceTime
