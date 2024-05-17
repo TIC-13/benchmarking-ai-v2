@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
@@ -33,7 +34,7 @@ import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit) {
+fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit, onBack: () -> Unit) {
 
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
@@ -85,7 +86,7 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
     )
 
     if(error !== null)
-        throw Exception("Erro ao carregar os modelos para o armazenamento interno")
+        return ErrorBoundary(text = "Erro ao carregar os modelos para o armazenamento interno", onBack = onBack)
 
     if(isLoading)
         return LoadingScreen()

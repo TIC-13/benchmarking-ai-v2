@@ -1,5 +1,4 @@
 tests:
-
   - id: 1
     name: "Imagenet"
     path: "images_dataset"

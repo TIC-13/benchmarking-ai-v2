@@ -37,7 +37,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.compose.rememberNavController
 import com.example.newbenchmarking.components.BackgroundWithContent
+import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
@@ -54,7 +56,7 @@ import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
+fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit, onBack: () -> Unit) {
 
     var granted by remember { mutableStateOf(Environment.isExternalStorageManager()) }
 
@@ -84,13 +86,14 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
     CustomTest(
         viewModel = viewModel,
-        startInference = startInference
+        startInference = startInference,
+        onBack = onBack
     )
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit) {
+fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit, onBack: () -> Unit) {
 
     val context = LocalContext.current
     val canReadExternalStorage = Environment.isExternalStorageManager()
@@ -132,10 +135,10 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     }
 
     if(!canReadExternalStorage)
-        throw Error("Não tem permissão de ler armazenamento externo")
+        return ErrorBoundary(text = "Permissão para ler armazenamento interno não concedida", onBack = onBack)
 
     if(error !== null)
-        throw Error("Erro ao carregar arquivos para armazenamento externo: ${error}")
+        return ErrorBoundary(text = "Erro ao carregar arquivos para armazenamento externo: ${error}", onBack = onBack)
 
     if(loadedModels == null || loadedDatasets == null)
         return LoadingScreen()
@@ -144,10 +147,10 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     val datasets = loadedDatasets!!
 
     if(datasets.isEmpty())
-        throw Error("Nenhum dataset foi carregado. O arquivo datasets.yaml deve estar vazio ou mal-formatado")
+        return ErrorBoundary(text = "Nenhum dataset foi carregado. O arquivo datasets.yaml deve estar vazio ou mal-formatado", onBack = onBack)
 
     if(models.isEmpty())
-        throw Error("Nenhum modelo foi carregado. O arquivo models.yaml deve estar vazio ou mal-formatado")
+        return ErrorBoundary(text = "Nenhum modelo foi carregado. O arquivo models.yaml deve estar vazio ou mal-formatado", onBack = onBack)
 
     var params by remember { mutableStateOf(InferenceParams(
         model = models[0],

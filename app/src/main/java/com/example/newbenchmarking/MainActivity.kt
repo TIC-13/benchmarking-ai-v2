@@ -72,14 +72,17 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                 inferenceViewModel = inferenceViewModel,
                 goToRun = { navController.navigate("runModel")},
                 goToCustom = {navController.navigate("inferenceConfig")},
+                onBack = {navController.popBackStack()}
             )
         }
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig(viewModel = inferenceViewModel) {
-                navController.navigate("runModel")
-            }
+            InferenceConfig(
+                viewModel = inferenceViewModel,
+                startInference = { navController.navigate("runModel") },
+                onBack = {navController.popBackStack()}
+            )
         }
         composable(
             "runModel",
