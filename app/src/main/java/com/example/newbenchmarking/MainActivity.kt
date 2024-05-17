@@ -1,5 +1,6 @@
 package com.example.newbenchmarking
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -24,13 +25,19 @@ import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppTheme {
+            com.example.compose.AppTheme(dynamicColor = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -64,15 +71,18 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
             HomeScreen(
                 inferenceViewModel = inferenceViewModel,
                 goToRun = { navController.navigate("runModel")},
-                goToCustom = {navController.navigate("inferenceConfig")}
+                goToCustom = {navController.navigate("inferenceConfig")},
+                onBack = {navController.popBackStack()}
             )
         }
         composable(
             "inferenceConfig"
         ){
-            InferenceConfig(viewModel = inferenceViewModel) {
-                navController.navigate("runModel")
-            }
+            InferenceConfig(
+                viewModel = inferenceViewModel,
+                startInference = { navController.navigate("runModel") },
+                onBack = {navController.popBackStack()}
+            )
         }
         composable(
             "runModel",

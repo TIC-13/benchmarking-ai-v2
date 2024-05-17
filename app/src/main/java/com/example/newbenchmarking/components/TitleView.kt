@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,17 +26,18 @@ fun TitleView(modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = "Speed.AI",
-                style = LocalAppTypography.current.title
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.headlineLarge
             )
             Image(
                 painter = painterResource(id = R.drawable.lightning),
                 contentDescription = "Icon in the shape of lightning"
             )
         }
-
         Text(
             text = "Benchmarking de modelos de machine learning",
-            style = LocalAppTypography.current.subtitle
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }

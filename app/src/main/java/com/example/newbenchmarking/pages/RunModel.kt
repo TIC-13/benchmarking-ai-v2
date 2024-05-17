@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,21 +40,29 @@ import com.example.newbenchmarking.machineLearning.LanguageModelInput
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.theme.LocalAppTypography
+import com.example.newbenchmarking.utils.getBitmapsFromFolder
+import com.example.newbenchmarking.utils.parseLanguageDataset
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
-import getBitmapImages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
-    val inferencesList by viewModel.inferenceParamsList.observeAsState()
-    val resultsList by resultViewModel.benchmarkResultList.observeAsState()
-
     val context = LocalContext.current
+    val inferencesList by viewModel.inferenceParamsList.observeAsState()
+    val folder by viewModel.folder.observeAsState()
+    val afterRun by viewModel.afterRun.observeAsState()
+
+    if(folder == null)
+        throw Error("Pasta onde os arquivos são encontrados não definida")
+
+    val resultsList by resultViewModel.benchmarkResultList.observeAsState()
 
     if(inferencesList === null || inferencesList!!.isEmpty()) return
     val paramsList = inferencesList!!
@@ -82,15 +91,14 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
                 try {
                     result = if(inferenceParams.model.category === Category.BERT) {
-                        val parsedInput = parseLanguageInput(context, inferenceParams.dataset.path)
-                        runBert(context, inferenceParams, parsedInput)
+                        val parsedInput = parseLanguageDataset(File(folder, inferenceParams.dataset.path))
+                        runBert(context, inferenceParams, parsedInput, File(folder, inferenceParams.model.filename))
                     }else{
-                        images = getBitmapsFromAssetsFolder(
-                            context,
-                            folderName = inferenceParams.dataset.path,
+                        images = getBitmapsFromFolder(
+                            File(folder, inferenceParams.dataset.path),
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!)
+                        runTfLiteModel(context, inferenceParams, images!!, File(folder, inferenceParams.model.filename))
                     }
 
                 }catch (e: Exception){
@@ -128,6 +136,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             }
 
         }
+        afterRun?.let { it() }
         goToResults()
     }
 
@@ -145,7 +154,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     LaunchedEffect(Unit) {
         while(true){
             delay(500)
-            displayCpuUsage = cpuUsage.getCPUUsage().toInt()
+            displayCpuUsage = cpuUsage.getCPUUsage()
             displayRamUsage = ramUsage.get()
             displayGpuUsage = gpuUsage.get()
         }
@@ -163,7 +172,11 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Carregando...", style = LocalAppTypography.current.title)
+            Text(
+                text = "Carregando...",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
         InferenceView(
             modifier = Modifier
@@ -182,50 +195,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
-fun getBitmapsFromAssetsFolder(context: Context, folderName: String, numBitmaps: Int): List<Bitmap> {
-    val filenames = getFilesFromAssetFolder(context, folderName).subList( 0, numBitmaps )
-    return filenames.mapNotNull { filename ->
-        loadBitmapFromAssets(context, folderName, filename)
-    }
-}
 
-fun loadBitmapFromAssets(context: Context, folderName: String, filename: String): Bitmap? {
-    return try {
-        context.assets.open("$folderName/$filename").use { inputStream ->
-            BitmapFactory.decodeStream(inputStream)
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
-    }
-}
 
-fun getFilesFromAssetFolder(context: Context, folderName: String): List<String> {
-    return try {
-        context.assets.list(folderName)?.toList() ?: emptyList()
-    } catch (e: IOException) {
-        e.printStackTrace()
-        emptyList()
-    }
-}
-
-fun parseLanguageInput(context: Context, filePath: String): List<LanguageModelInput> {
-    return try {
-        val fileContent = context.assets.open(filePath).bufferedReader().use { it.readText() }
-        val contextQuestionPair = fileContent.split("\r\n\r\n")
-        contextQuestionPair.map {
-            val separatedPair = it.split("\r\n")
-            LanguageModelInput(
-                context = separatedPair[0],
-                question = separatedPair[1]
-            )
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        "Error loading file: ${e.message}"
-        throw e
-    }
-}
 
 
 

@@ -7,6 +7,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer.BertQuestionAnswererOptions
+import java.io.File
 import kotlin.system.measureTimeMillis
 
 
@@ -15,7 +16,7 @@ data class LanguageModelInput(
     val question: String
 )
 
-fun runBert(androidContext: Context, params: InferenceParams, inputs: List<LanguageModelInput>): Inference {
+fun runBert(androidContext: Context, params: InferenceParams, inputs: List<LanguageModelInput>, file: File): Inference {
 
     val baseOptions = BaseOptions.builder()
         .setNumThreads(params.numThreads)
@@ -33,7 +34,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
 
     val loadTime = measureTimeMillis {
         answerer = BertQuestionAnswerer.createFromFileAndOptions(
-            androidContext, params.model.filename, options
+            androidContext, file.path, options
         )
     }
 
