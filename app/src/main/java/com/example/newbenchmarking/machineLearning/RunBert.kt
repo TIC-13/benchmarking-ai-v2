@@ -7,6 +7,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer.BertQuestionAnswererOptions
+import org.tensorflow.lite.task.text.qa.QaAnswer
 import java.io.File
 import kotlin.system.measureTimeMillis
 
@@ -39,10 +40,18 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
     val numTests = params.numImages
     var totalTime = 0L
     var firstInferenceTime: Long? = null
+    var totalChars = 0
 
     for(i in 0..<numTests){
+
+        var ans: MutableList<QaAnswer>? = null
+
         val inferenceTime = measureTimeMillis {
-            answerer.answer(inputs[i].context, inputs[i].question)
+            ans = answerer.answer(inputs[i].context, inputs[i].question)
+        }
+
+        if(ans !== null && ans!!.isNotEmpty()){
+            totalChars += ans!![0].text.length
         }
 
         if(i != 0){
@@ -56,6 +65,7 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
         load = loadTime.toInt(),
         average = (totalTime/(numTests-1)).toInt(),
         first = firstInferenceTime?.toInt(),
-        standardDeviation = null
+        standardDeviation = null,
+        charsPerSecond = (totalChars/(totalTime/1000)).toInt()
     )
 }

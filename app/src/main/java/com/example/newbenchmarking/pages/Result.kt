@@ -146,6 +146,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                             ResultRow("Pico de CPU", "${result.cpu.peak()}%"),
                             ResultRow("Pico de GPU", "${result.gpu.peak()}%"),
                             ResultRow("Pico de RAM", "${result.ram.peak().toInt()}MB"),
+                            if(result.inference.charsPerSecond !== null)
+                                ResultRow("Caract. por segundo", "${result.inference.charsPerSecond} char/s")
+                            else
+                                ResultRow("", "")
                         ),
                         expanded = expandedStates[index].value,
                         setExpanded = {
