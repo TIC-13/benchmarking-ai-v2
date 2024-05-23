@@ -16,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
@@ -76,17 +78,20 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
 
     val homeScreenButtons = arrayOf(
         HomeScreenButton(
-            label = "Iniciar testes",
+            label = stringResource(id = R.string.button_start_tests),
             onPress = { isLoading = true }
         ),
         HomeScreenButton(
-            label = "Teste personalizado",
+            label = stringResource(id = R.string.button_start_custom_inference),
             onPress = { goToCustom() }
         )
     )
 
     if(error !== null)
-        return ErrorBoundary(text = "Erro ao carregar os modelos para o armazenamento interno", onBack = onBack)
+        return ErrorBoundary(
+            text = stringResource(id = R.string.error_model_not_loaded), 
+            onBack = onBack
+        )
 
     if(isLoading)
         return LoadingScreen()

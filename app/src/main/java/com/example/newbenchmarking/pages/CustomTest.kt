@@ -34,10 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.rememberNavController
+import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
@@ -106,6 +108,9 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
 
     var error by remember { mutableStateOf<String?>(null) }
 
+    val labelErrorLoadingModel = stringResource(id = R.string.error_loading_model_of_id)
+    val labelErrorLoadingDataset = stringResource(id = R.string.error_loading_dataset_of_id)
+
     LaunchedEffect(key1 = Unit) {
         loadedModels = null
         loadedDatasets = null
@@ -122,11 +127,11 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             withContext(Dispatchers.IO) {
                 loadedModels = getModels(
                     file = File(speedAIFolder, "models.yaml"),
-                    onError = { e, id -> loadingFails = loadingFails + "Erro ao carregar o modelo de ID $id: ${e.message}" }
+                    onError = { e, id -> loadingFails = loadingFails + "$labelErrorLoadingModel $id: ${e.message}" }
                 )
                 loadedDatasets = loadDatasets(
                     file = File(speedAIFolder, "datasets.yaml"),
-                    onError = { e, id -> loadingFails = loadingFails + "Erro ao carregar o dataset de ID $id: ${e.message}" }
+                    onError = { e, id -> loadingFails = loadingFails + "$labelErrorLoadingDataset $id: ${e.message}" }
                 )
             }
         }catch(e: Exception) {
@@ -135,10 +140,16 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     }
 
     if(!canReadExternalStorage)
-        return ErrorBoundary(text = "Permissão para ler armazenamento interno não concedida", onBack = onBack)
+        return ErrorBoundary(
+            text = stringResource(id = R.string.error_permission),
+            onBack = onBack
+        )
 
     if(error !== null)
-        return ErrorBoundary(text = "Erro ao carregar arquivos para armazenamento externo: ${error}", onBack = onBack)
+        return ErrorBoundary(
+            text = "${stringResource(id = R.string.error_loading_files)}: ${error}",
+            onBack = onBack
+        )
 
     if(loadedModels == null || loadedDatasets == null)
         return LoadingScreen()
@@ -147,10 +158,16 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     val datasets = loadedDatasets!!
 
     if(datasets.isEmpty())
-        return ErrorBoundary(text = "Nenhum dataset foi carregado. O arquivo datasets.yaml deve estar vazio ou mal-formatado", onBack = onBack)
+        return ErrorBoundary(
+            text = stringResource(id = R.string.error_no_dataset_loaded), 
+            onBack = onBack
+        )
 
     if(models.isEmpty())
-        return ErrorBoundary(text = "Nenhum modelo foi carregado. O arquivo models.yaml deve estar vazio ou mal-formatado", onBack = onBack)
+        return ErrorBoundary(
+            text = stringResource(id = R.string.error_no_model_loaded), 
+            onBack = onBack
+        )
 
     var params by remember { mutableStateOf(InferenceParams(
         model = models[0],
@@ -182,20 +199,20 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
         }
         Row {
             SwitchSelector(
-                label = "NNAPI ativa",
+                label = stringResource(id = R.string.nnapi_active),
                 isChecked = params.useNNAPI,
                 onCheckedChange = { params = params.copy(useNNAPI = !params.useNNAPI) },
                 labelColor = Color.White
             )
             SwitchSelector(
-                label = "GPU ativa",
+                label = stringResource(id = R.string.gpu_active),
                 isChecked = params.useGPU,
                 onCheckedChange = { params = params.copy(useGPU = !params.useGPU)},
                 labelColor = Color.White
             )
         }
         SliderSelector(
-            label = "Número de threads: ${params.numThreads}",
+            label = "${stringResource(id = R.string.number_of_threads)}: ${params.numThreads}",
             value = params.numThreads,
             onValueChange = { params = params.copy(numThreads = it.toInt()) },
             rangeBottom = 1F,
@@ -203,14 +220,14 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             labelColor = Color.White
         )
         DropdownSelector(
-            "Modelo selecionado: ${params.model.label + " - " + params.model.quantization}",
+            "${stringResource(id = R.string.selected_model)}: ${params.model.label + " - " + params.model.quantization}",
             items = models.map {x -> x.label + " - " + x.quantization},
             onItemSelected = { newIndex ->
                 params = params.copy(model = models[newIndex])
             }
         )
         DropdownSelector(
-            "Dataset selecionado: ${params.dataset.name}",
+            "${stringResource(id = R.string.selected_dataset)}: ${params.dataset.name}",
             items = datasets.map { x -> x.name },
             onItemSelected = { newIndex ->
                 params = params.copy(
@@ -220,7 +237,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             }
         )
         SliderSelector(
-            label = "Número de ${if(params.model.category === Category.BERT) "inferências" else "imagens"}: ${params.numImages}",
+            label = "${stringResource(id = R.string.number_of)} ${stringResource(if(params.model.category === Category.BERT) R.string.inferences else R.string.images)}: ${params.numImages}",
             value = params.numImages,
             onValueChange = { params = params.copy(numImages = it.toInt()) },
             rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
@@ -228,7 +245,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             labelColor = Color.White
         )
         Button(onClick = ::startTest) {
-            Text(text = "Iniciar")
+            Text(text = stringResource(id = R.string.start))
         }
     }
 }
@@ -247,12 +264,12 @@ fun AskPermission() {
             verticalArrangement = Arrangement.spacedBy(50.dp)
         ) {
             Text(
-                text = "Para usar essa função, o aplicativo precisa de permissão para ler os arquivos",
+                text = stringResource(id = R.string.error_permission),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Button(onClick = { context.requestAllFilesAccess() }) {
-                Text(text = "Conceder permissão")
+                Text(text = stringResource(id = R.string.allow_permission))
             }
         }
     }

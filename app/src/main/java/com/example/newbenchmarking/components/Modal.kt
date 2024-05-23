@@ -8,6 +8,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +40,10 @@ fun Modal(
                     onConfirmation()
                 }
             ) {
-                Text("Fechar", color = LocalAppColors.current.text)
+                Text(
+                    stringResource(id = R.string.close),
+                    color = LocalAppColors.current.text
+                )
             }
         },
         containerColor = LocalAppColors.current.primary

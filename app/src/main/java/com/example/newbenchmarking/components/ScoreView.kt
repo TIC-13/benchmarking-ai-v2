@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppTypography
@@ -33,7 +34,7 @@ fun ScoreView(modifier: Modifier = Modifier) {
             )
         }
         Text(
-            text = "Pontuação geral",
+            text = stringResource(id = R.string.general_score),
             style = LocalAppTypography.current.scoreSubtitle
         )
     }

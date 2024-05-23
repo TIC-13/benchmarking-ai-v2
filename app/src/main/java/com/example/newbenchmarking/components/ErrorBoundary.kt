@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.newbenchmarking.R
 
 @Composable
 fun ErrorBoundary(modifier: Modifier = Modifier, text: String, onBack: () -> Unit) {
@@ -40,7 +42,7 @@ fun ErrorBoundary(modifier: Modifier = Modifier, text: String, onBack: () -> Uni
                         modifier = Modifier.size(100.dp)
                     )
                     Text(
-                        text = "Algo deu errado...",
+                        text = stringResource(id = R.string.something_went_wrong),
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -60,7 +62,7 @@ fun ErrorBoundary(modifier: Modifier = Modifier, text: String, onBack: () -> Uni
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
                         )) {
-                        Text(text = "Voltar")
+                        Text(text = stringResource(id = R.string.back))
                     }
                 }
                 

@@ -28,7 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.AccordionProps
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
@@ -57,7 +59,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     val context = LocalContext.current
 
     val expandedStates = rememberMutableBooleanArray(size = results.size, initialValue = false)
-    var expandButtonState by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if(results.size > 1){
@@ -107,7 +108,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     ) {
 
         Text(
-            text = "Resultado",
+            text = stringResource(id = R.string.result),
             style = LocalAppTypography.current.title
         )
 
@@ -117,7 +118,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                 color = LocalAppColors.current.primary,
                 shape = RoundedCornerShape(15.dp)
         ) , onClick = { onBack() }) {
-            Text(text = "Voltar para tela inicial", color = Color.White)
+            Text(text = stringResource(id = R.string.back_to_home), color = Color.White)
         }
 
         LazyColumn (
@@ -130,24 +131,53 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         .clip(RoundedCornerShape(50.dp)),
                     topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
                     subtitle = result.params.model.description,
-                    bottomFirstTitle = "${result.params.numImages} ${if(result.params.model.category !== Category.BERT) "imagens" else "inferências"} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
+                    bottomFirstTitle = "${result.params.numImages} ${stringResource(if(result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
                     bottomSecondTitle = result.params.dataset.name,
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
                     rows = if(result.errorMessage === null) arrayOf(
-                        ResultRow("Inicialização", "${result.inference.load.toString()} ms"),
-                        ResultRow("Primeira inferência", "${result.inference.first.toString()} ms"),
-                        ResultRow("Outras inf. (média)", "${result.inference.average.toString()} ms"),
+                        ResultRow(
+                            stringResource(id = R.string.initizalization),
+                            "${result.inference.load.toString()} ms"
+                        ),
+                        ResultRow(
+                            stringResource(id = R.string.first_inference),
+                            "${result.inference.first.toString()} ms"
+                        ),
+                        ResultRow(
+                            stringResource(id = R.string.other_inferences), 
+                            "${result.inference.average.toString()} ms"),
                     ) else null,
                     accordionProps = if(result.errorMessage === null) AccordionProps(
                         rows = arrayOf(
-                            ResultRow("Uso de CPU", "${result.cpu.getAverageCPUConsumption()}%"),
-                            ResultRow("Uso de GPU", "${result.gpu.getAverage()}%"),
-                            ResultRow("Uso de RAM", "${result.ram.getAverage().toInt()}MB"),
-                            ResultRow("Pico de CPU", "${result.cpu.peak()}%"),
-                            ResultRow("Pico de GPU", "${result.gpu.peak()}%"),
-                            ResultRow("Pico de RAM", "${result.ram.peak().toInt()}MB"),
+                            ResultRow(
+                                stringResource(id = R.string.cpu_usage), 
+                                "${result.cpu.getAverageCPUConsumption()}%"
+                            ),
+                            ResultRow(
+                                stringResource(id = R.string.gpu_usage), 
+                                "${result.gpu.getAverage()}%"
+                            ),
+                            ResultRow(
+                                stringResource(id = R.string.ram_usage), 
+                                "${result.ram.getAverage().toInt()}MB"
+                            ),
+                            ResultRow(
+                                stringResource(id = R.string.cpu_peak), 
+                                "${result.cpu.peak()}%"
+                            ),
+                            ResultRow(
+                                stringResource(id = R.string.gpu_peak),
+                                "${result.gpu.peak()}%"
+                            ),
+                            ResultRow(
+                                stringResource(id = R.string.ram_peak),
+                                "${result.ram.peak().toInt()}MB"
+                            ),
                             if(result.inference.charsPerSecond !== null)
-                                ResultRow("Caract. por segundo", "${result.inference.charsPerSecond} char/s")
+                                ResultRow(
+                                    stringResource(id = R.string.chars_per_sec),
+                                    "${result.inference.charsPerSecond} char/s"
+                                )
                             else
                                 ResultRow("", "")
                         ),
@@ -159,7 +189,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         }
                     ) else null,
                     errorProps = if(result.errorMessage !== null)
-                            ErrorProps(title = "Erro retornado", message = result.errorMessage)
+                            ErrorProps(
+                                title = stringResource(id = R.string.returned_error_label), 
+                                message = result.errorMessage
+                            )
                         else null
                 )
             }

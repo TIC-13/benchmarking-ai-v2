@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppColors
@@ -236,7 +237,7 @@ fun ErrorDisplay(
     if(showErrorActive) {
         Modal(
             onConfirmation = { showErrorActive = false },
-            dialogTitle = "Erro retornado",
+            dialogTitle = stringResource(id = R.string.returned_error_label),
             dialogText = errorProps.message
         )
     }
@@ -283,7 +284,14 @@ fun Accordion(accordionProps: AccordionProps) {
         verticalArrangement = Arrangement.Center
     )
     {
-        AccordionHeader(title = if(!expanded) "Mostrar mais" else "Mostrar menos", isExpanded = expanded){
+        AccordionHeader(
+            title = stringResource(id =
+                if(!expanded)
+                    R.string.show_more
+                else
+                    R.string.show_less),
+            isExpanded = expanded
+        ){
             setExpanded(!expanded)
         }
         AnimatedVisibility(visible = expanded) {
