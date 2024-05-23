@@ -1,0 +1,57 @@
+<resources>
+
+    <string name="folder_not_found_error">Erro ao carregar os modelos para o armazenamento interno</string>
+    <string name="error_loading_files">Erro ao carregar arquivos para armazenamento externo</string>
+    <string name="error_model_not_loaded">Pasta onde os arquivos são encontrados não definida</string>
+    <string name="error_loading_model_of_id">Erro carregando modelo de ID:</string>
+    <string name="error_loading_dataset_of_id">Erro carregando dataset de ID:</string>
+    <string name="error_no_dataset_loaded">Nenhum dataset foi carregado. O arquivo datasets.yaml deve estar vazio ou mal-formatado</string>
+    <string name="error_no_model_loaded">Nenhum modelo foi carregado. O arquivo models.yaml deve estar vazio ou mal-formatado</string>
+    <string name="error_permission">Permissão para ler armazenamento interno não concedida</string>
+    <string name="returned_error_label">Erro retornado</string>
+
+    <string name="back_to_home">De volta para a tela inicial</string>
+
+    <string name="initialization">Inicialização</string>
+    <string name="first_inference">Primeira inferência</string>
+    <string name="other_inferences">Outras inf. (média)</string>
+    <string name="gpu_usage">Uso de GPU</string>
+    <string name="cpu_usage">Uso de CPU</string>
+    <string name="ram_usage">Uso de RAM</string>
+    <string name="gpu_peak">Pico de GPU</string>
+    <string name="cpu_peak">Pico de CPU</string>
+    <string name="ram_peak">Pico de RAM</string>
+    <string name="chars_per_sec">Caract. por segundo</string>
+
+    <string name="button_start_tests">Iniciar testes</string>
+    <string name="button_start_custom_inference">Teste personalizado</string>
+
+    <string name="nnapi_active">NNAPI ativa</string>
+    <string name="gpu_active">GPU ativa</string>
+    <string name="number_of_threads">Número de threads</string>
+    <string name="selected_model">Modelo selecionado</string>
+    <string name="selected_dataset">Dataset selecionado</string>
+
+    <string name="result">Resultado</string>
+    <string name="images">imagens</string>
+    <string name="inferences">inferências</string>
+    <string name="number_of">Número de</string>
+    <string name="start">Iniciar</string>
+
+    <string name="permission_warning">Para usar essa função, o aplicativo precisa de permissão para ler os arquivos</string>
+    <string name="allow_permission">Conceder permissão</string>
+
+    <string name="something_went_wrong">Algo deu errado</string>
+    <string name="back">Voltar</string>
+
+    <string name="show_more">Mostrar mais</string>
+    <string name="show_less">Mostrar menos</string>
+    <string name="close">Fechar</string>
+
+    <string name="general_score">Pontuação geral</string>
+
+    <string name="app_name">Speed.AI</string>
+    <string name="app_description">Benchmarking de modelos de machine learning</string>
+
+    <string name="show_menu">Mostrar menu</string>
+</resources>

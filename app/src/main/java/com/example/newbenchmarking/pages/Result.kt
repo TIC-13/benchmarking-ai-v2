@@ -136,7 +136,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
                     rows = if(result.errorMessage === null) arrayOf(
                         ResultRow(
-                            stringResource(id = R.string.initizalization),
+                            stringResource(id = R.string.initialization),
                             "${result.inference.load.toString()} ms"
                         ),
                         ResultRow(
