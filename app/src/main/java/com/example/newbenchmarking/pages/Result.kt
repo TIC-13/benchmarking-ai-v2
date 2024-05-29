@@ -173,6 +173,14 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                                 stringResource(id = R.string.ram_peak),
                                 "${result.ram.peak().toInt()}MB"
                             ),
+                            ResultRow(
+                                "Variação de consumo de potência",
+                                "${formatDouble(result.energy.power)}W"
+                            ),
+                            ResultRow(
+                                "Variação de consumo de energia",
+                                "${formatDouble(result.energy.joule)}J"
+                            ),
                             if(result.inference.charsPerSecond !== null)
                                 ResultRow(
                                     stringResource(id = R.string.chars_per_sec),
@@ -218,6 +226,10 @@ fun rememberMutableBooleanArray(size: Int, initialValue: Boolean): Array<Mutable
             mutableStateOf(initialValue)
         }
     }
+}
+
+fun formatDouble(number: Double): String {
+    return String.format("%.2f", number)
 }
 
 

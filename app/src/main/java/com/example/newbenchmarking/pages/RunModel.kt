@@ -1,10 +1,16 @@
 package com.example.newbenchmarking.pages
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.BatteryManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,12 +35,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.benchmark.CpuUsage
+import com.example.newbenchmarking.benchmark.Energy
 import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
+import com.example.newbenchmarking.benchmark.Samples
+import com.example.newbenchmarking.benchmark.getEnergyConsumption
+import com.example.newbenchmarking.benchmark.standardDeviation
+import com.example.newbenchmarking.benchmark.timeFromEnergyConsumption
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
+import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.interfaces.BenchmarkResult
@@ -52,12 +65,52 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
-
+import java.lang.reflect.Method
 
 @Composable
-fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
+fun RunModel(viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
     val context = LocalContext.current
+
+    val voltages by remember { mutableStateOf(Samples<Float>()) }
+    val currents by remember { mutableStateOf(Samples<Float>()) }
+
+    var idleMeasuredEnergy by remember { mutableStateOf<Energy?>(null) }
+
+    LaunchedEffect(Unit) {
+        val initialTime = System.currentTimeMillis()
+        while(true) {
+            delay(10)
+            voltages.addSample(getBatteryVoltageVolts(context))
+            currents.addSample(getBatteryCurrentAmperes(context))
+            if(System.currentTimeMillis() - initialTime > 20000){
+                idleMeasuredEnergy = getEnergyConsumption(voltages, currents)
+                break
+            }
+        }
+    }
+
+    if(idleMeasuredEnergy === null)
+        return LoadingScreen()
+
+    return RunModelScreen(
+        viewModel = viewModel,
+        resultViewModel = resultViewModel,
+        idleMeasuredEnergy = idleMeasuredEnergy!!,
+        goToResults = goToResults
+    )
+}
+
+@Composable
+fun RunModelScreen(
+    viewModel: InferenceViewModel,
+    resultViewModel: ResultViewModel,
+    idleMeasuredEnergy: Energy,
+    goToResults: () -> Unit
+) {
+
+    val context = LocalContext.current
+
     val inferencesList by viewModel.inferenceParamsList.observeAsState()
     val folder by viewModel.folder.observeAsState()
     val afterRun by viewModel.afterRun.observeAsState()
@@ -78,6 +131,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     var gpuUsage by remember { mutableStateOf(GpuUsage())}
     var displayGpuUsage by remember { mutableIntStateOf(0) }
+
+    var voltages by remember { mutableStateOf(Samples<Float>()) }
+    var currents by remember { mutableStateOf(Samples<Float>()) }
+    var sampleVoltagesAndCurrents by remember { mutableStateOf(true) }
 
     var currParams by remember { mutableStateOf(paramsList[0]) }
 
@@ -110,6 +167,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             }
 
             val isError = errorMessage !== null
+
+            sampleVoltagesAndCurrents = false
+            val energyConsumption = getEnergyConsumption(voltages, currents)
+
             val currResult = BenchmarkResult(
                 inference = result,
                 params = inferenceParams,
@@ -117,6 +178,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 cpu = cpuUsage,
                 gpu = gpuUsage,
                 isError = isError,
+                energy = Energy(
+                    power = energyConsumption.power - idleMeasuredEnergy.power,
+                    joule = energyConsumption.joule - ((idleMeasuredEnergy.power) * timeFromEnergyConsumption(energyConsumption))
+                ),
                 errorMessage = errorMessage,
             )
 
@@ -130,6 +195,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             gpuUsage = GpuUsage()
             cpuUsage = CpuUsage()
             ramUsage = RamUsage()
+            voltages = Samples()
+            currents = Samples()
+
+            sampleVoltagesAndCurrents = true
 
             withContext(Dispatchers.IO){
                 if (images != null) {
@@ -150,6 +219,18 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 cpuUsage.calculateCPUUsage()
                 ramUsage.calculateUsage()
                 gpuUsage.calculateUsage()
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while(true){
+            if(!sampleVoltagesAndCurrents)
+                continue
+            withContext(Dispatchers.IO) {
+                delay(10)
+                voltages.addSample(getBatteryVoltageVolts(context))
+                currents.addSample(getBatteryCurrentAmperes(context))
             }
         }
     }
@@ -198,6 +279,19 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 }
 
+fun getBatteryVoltageVolts(context: Context): Float {
+    val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+    val batteryStatus = context.registerReceiver(null, intentFilter)
+    val result  = batteryStatus?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1) ?: -1
+    if(result == -1) throw Exception("Erro ao calcular a tensão")
+    return result / 1_000F
+}
+
+fun getBatteryCurrentAmperes(context: Context): Float {
+    val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+    val result = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toFloat()
+    return result / 1_000F
+}
 
 
 
