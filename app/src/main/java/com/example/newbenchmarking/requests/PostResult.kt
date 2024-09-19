@@ -1,6 +1,10 @@
 package com.example.newbenchmarking.requests
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import com.example.newbenchmarking.BuildConfig
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -9,6 +13,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.security.SecureRandom
+import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 data class Phone(
     val brand_name: String,
@@ -46,29 +55,67 @@ data class PostData(
 
 interface ApiService {
     @POST("inference")
-    suspend fun createPost(@Body postData: PostData): Response<Inference>
+    suspend fun createPost(@Body encryptedData: Map<String, String>): Response<Any>
 }
 
+const val apiAdress = BuildConfig.API_ADRESS
+
 val retrofit = Retrofit.Builder()
-    .baseUrl("http://localhost:3030/")
+    .baseUrl("$apiAdress/")
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 
 val apiService = retrofit.create(ApiService::class.java)
 
-fun postResult(postData: PostData) {
+const val secretKeyString = BuildConfig.API_KEY
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun encryptAndPostResult(postData: PostData) {
+    // Convert PostResult object to JSON using Gson
+    val gson = Gson()
+    val postDataJson = gson.toJson(postData)
+
+    // Encrypt the JSON string
+    val encryptedData = encryptData(postDataJson, secretKeyString)
+
+    // Prepare the encrypted data to send in a JSON format
+    val encryptedDataMap = mapOf("encryptedData" to encryptedData)
+
+    // Send the encrypted data to the server
     GlobalScope.launch(Dispatchers.IO) {
         try {
-            val response: Response<Inference> = apiService.createPost(postData)
+            val response: Response<Any> = apiService.createPost(encryptedDataMap)
             if (response.isSuccessful) {
-                Log.d("Post success", "Sent result over network")
+                Log.d("post", "Sent encrypted result over network")
             } else {
-                Log.d("Post failed", "Post failed " + response.code())
+                Log.d("post", "Post failed " + response.code())
             }
         } catch (e: Exception) {
-                Log.e("Post error", e.toString())
+            Log.e("post", e.toString())
         }
     }
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun encryptData(plainText: String, stringKey: String): String {
+    // Decode the Base64-encoded key string to get the key bytes
+    val keyBytes = Base64.getDecoder().decode(stringKey)
+    val secretKey = SecretKeySpec(keyBytes, "AES")  // Use the full keyBytes (should be 32 bytes for AES-256)
+
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+    val iv = ByteArray(16)
+    SecureRandom().nextBytes(iv)
+    val ivParameterSpec = IvParameterSpec(iv)
+
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec)
+
+    val encryptedData = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
+
+    val ivBase64 = Base64.getEncoder().encodeToString(iv)
+    val encryptedDataBase64 = Base64.getEncoder().encodeToString(encryptedData)
+
+    return "$ivBase64:$encryptedDataBase64"
 }
 
 

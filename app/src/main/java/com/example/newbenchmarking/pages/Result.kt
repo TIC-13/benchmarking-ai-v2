@@ -46,7 +46,7 @@ import com.example.newbenchmarking.viewModel.ResultViewModel
 import com.example.newbenchmarking.requests.Inference
 import com.example.newbenchmarking.requests.Phone
 import com.example.newbenchmarking.requests.PostData
-import com.example.newbenchmarking.requests.postResult
+import com.example.newbenchmarking.requests.encryptAndPostResult
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,7 +63,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     LaunchedEffect(Unit) {
         if(results.size > 1){
             for((index, result) in results.withIndex()){
-                postResult(PostData(
+                encryptAndPostResult(PostData(
                     Phone(
                         brand_name = Build.BRAND,
                         manufacturer = Build.MANUFACTURER,

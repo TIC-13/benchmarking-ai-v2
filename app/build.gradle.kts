@@ -1,9 +1,32 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties()
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { stream ->
+        localProperties.load(stream)
+    }
+}
+
+val apiAdress = localProperties.getProperty("API_ADRESS")
+val apiKey = localProperties.getProperty("API_KEY")
+
+if (apiAdress == null || apiKey == null) {
+    throw GradleException("API_ADRESS or API_KEY is missing in local.properties. Edit local.properties and create them")
+}
+
 android {
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     namespace = "com.example.newbenchmarking"
     compileSdk = 34
 
@@ -18,6 +41,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "API_ADRESS", "\"$apiAdress\"")
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
