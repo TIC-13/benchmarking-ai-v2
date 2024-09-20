@@ -151,11 +151,11 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         rows = arrayOf(
                             ResultRow(
                                 stringResource(id = R.string.cpu_usage), 
-                                "${result.cpu.getAverageCPUConsumption()}%"
+                                formatInt(result.cpu.getAverageCPUConsumption(), "%")
                             ),
                             ResultRow(
                                 stringResource(id = R.string.gpu_usage), 
-                                "${result.gpu.getAverage()}%"
+                                formatInt(result.gpu.getAverage(), "%")
                             ),
                             ResultRow(
                                 stringResource(id = R.string.ram_usage), 

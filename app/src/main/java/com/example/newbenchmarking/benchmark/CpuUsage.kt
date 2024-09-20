@@ -6,12 +6,12 @@ import java.io.InputStreamReader
 
 class CpuUsage {
 
-    private var cpuUsage = 0
+    private var cpuUsage: Int? = 0
     private var totalCPUUsage = 0
     private var numberOfCPUUsageSamples = 0
     private var peak = 0
 
-    fun calculateCPUUsage(): Int {
+    fun calculateCPUUsage(): Int? {
 
         val processName = "com.example.newbenchmarking"
 
@@ -39,27 +39,27 @@ class CpuUsage {
 
             process.waitFor()
             process.destroy()
-        } catch (e: IOException) {
+
+            val processLine = processStringBuilder.toString()
+            val cpuUsageParsed = processLine.replace(Regex("\\s+"), " ").split(" ")[9].toFloat().toInt()
+
+            val totalCapacityLine = totalCapacityStringBuilder.toString()
+            val totalCapacity = Regex("^\\d+").find(totalCapacityLine)?.value?.toInt() ?: return 0
+
+            val cpuUsagePercentage = cpuUsageParsed*100 / totalCapacity
+            cpuUsage = cpuUsagePercentage
+            if(cpuUsage!! > peak) peak = cpuUsage!!
+            totalCPUUsage += cpuUsagePercentage
+            numberOfCPUUsageSamples ++
+            return cpuUsagePercentage
+        } catch (e: Exception){
             e.printStackTrace()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
+            cpuUsage = null
+            return null
         }
-
-        val processLine = processStringBuilder.toString()
-        val cpuUsageParsed = processLine.replace(Regex("\\s+"), " ").split(" ")[9].toFloat().toInt()
-
-        val totalCapacityLine = totalCapacityStringBuilder.toString()
-        val totalCapacity = Regex("^\\d+").find(totalCapacityLine)?.value?.toInt() ?: return 0
-
-        val cpuUsagePercentage = cpuUsageParsed*100 / totalCapacity
-        cpuUsage = cpuUsagePercentage
-        if(cpuUsage > peak) peak = cpuUsage
-        totalCPUUsage += cpuUsagePercentage
-        numberOfCPUUsageSamples ++
-        return cpuUsagePercentage
     }
 
-    fun getCPUUsage(): Int {
+    fun getCPUUsage(): Int? {
         return cpuUsage
     }
 
@@ -67,7 +67,8 @@ class CpuUsage {
         return peak
     }
 
-    fun getAverageCPUConsumption(): Int {
+    fun getAverageCPUConsumption(): Int? {
+        if(numberOfCPUUsageSamples == 0) return null
         return (totalCPUUsage/numberOfCPUUsageSamples)
     }
 }

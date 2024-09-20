@@ -71,7 +71,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     val paramsList = inferencesList!!
 
     var cpuUsage by remember { mutableStateOf(CpuUsage()) }
-    var displayCpuUsage by remember {mutableIntStateOf(0)}
+    var displayCpuUsage by remember { mutableStateOf<Int?>(null) }
 
     var ramUsage by remember { mutableStateOf(RamUsage()) }
     var displayRamUsage by remember { mutableIntStateOf(0) }
@@ -190,12 +190,17 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
             bottomSecondTitle = currParams.dataset.name,
             rows = arrayOf(
-                ResultRow(stringResource(R.string.cpu_usage), "$displayCpuUsage%"),
-                ResultRow(stringResource(R.string.gpu_usage), "$displayGpuUsage%"),
-                ResultRow(stringResource(R.string.ram_usage), "${displayRamUsage}MB"),
+                ResultRow(stringResource(R.string.cpu_usage), formatInt(displayCpuUsage, "%")),
+                ResultRow(stringResource(R.string.gpu_usage), formatInt(displayGpuUsage, "%")),
+                ResultRow(stringResource(R.string.ram_usage), formatInt(displayRamUsage, "MB")),
             )
         )
     }
+}
+
+fun formatInt(value: Int?, suffix: String): String {
+    if(value == null) return "-"
+    return "${value}${suffix}"
 }
 
 
