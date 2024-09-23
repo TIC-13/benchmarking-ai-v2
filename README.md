@@ -85,4 +85,8 @@ To add new models in Speed.AI, follow these steps:
     quantization: "FP32"
 ```
      
+## Environment 
+
+In the Android project, set the backend address in `local.properties` under `API_ADDRESS` and assign a base64-encoded 32-byte (AES-256) value to `API_KEY`. Ensure that this key matches the one used in the backend.
+
 
