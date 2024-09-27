@@ -36,7 +36,13 @@ import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goToCustom: () -> Unit, onBack: () -> Unit) {
+fun HomeScreen(
+    inferenceViewModel: InferenceViewModel,
+    goToRun: () -> Unit,
+    goToCustom: () -> Unit,
+    onBack: () -> Unit,
+    goToInfo: () -> Unit
+) {
 
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(false) }
@@ -84,6 +90,10 @@ fun HomeScreen(inferenceViewModel: InferenceViewModel, goToRun: () -> Unit, goTo
         HomeScreenButton(
             label = stringResource(id = R.string.button_start_custom_inference),
             onPress = { goToCustom() }
+        ),
+        HomeScreenButton(
+            label = stringResource(id = R.string.about),
+            onPress = { goToInfo() }
         )
     )
 

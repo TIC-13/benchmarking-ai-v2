@@ -54,4 +54,5 @@
     <string name="app_description">Benchmarking de modelos de machine learning</string>
 
     <string name="show_menu">Mostrar menu</string>
+    <string name="about">Sobre</string>
 </resources>

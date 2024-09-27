@@ -53,4 +53,6 @@
     <string name="app_description">Machine learning models benchmarking</string>
 
     <string name="show_menu">Show menu</string>
+
+    <string name="about">About</string>
 </resources>

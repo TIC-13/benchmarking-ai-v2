@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.newbenchmarking.pages.HomeScreen
 import com.example.newbenchmarking.pages.InferenceConfig
+import com.example.newbenchmarking.pages.InfoScreen
 import com.example.newbenchmarking.pages.ResultScreen
 import com.example.newbenchmarking.pages.RunModel
 import com.example.newbenchmarking.theme.AppTheme
@@ -72,6 +73,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                 inferenceViewModel = inferenceViewModel,
                 goToRun = { navController.navigate("runModel")},
                 goToCustom = {navController.navigate("inferenceConfig")},
+                goToInfo = {navController.navigate(("info"))},
                 onBack = {navController.popBackStack()}
             )
         }
@@ -100,6 +102,13 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
                     navController.navigate("home")
                 }
             }
+        }
+        composable(
+            "info",
+        ){
+            InfoScreen(
+                goBack = { navController.popBackStack() }
+            )
         }
     }
 }
