@@ -2,6 +2,7 @@ package com.example.newbenchmarking.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import com.example.newbenchmarking.components.AccordionText
 import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import androidx.compose.material.icons.filled.Camera
+import com.example.newbenchmarking.components.OpenLinkInBrowser
 
 @Composable
 fun InfoScreen(goBack: () -> Unit) {
@@ -72,7 +74,14 @@ fun InfoScreen(goBack: () -> Unit) {
                     modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp),
                     title = stringResource(id = R.string.about_luxai_title),
                     content = stringResource(id = R.string.about_luxai),
-                    titleIcon = Icons.Default.Camera
+                    titleIcon = Icons.Default.Camera,
+                    componentAfterTitle = {
+                        OpenLinkInBrowser(
+                            modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
+                            text = stringResource(id = R.string.website_label),
+                            uri = "https://luxai.cin.ufpe.br"
+                        )
+                    }
                 )
 
             }
@@ -82,12 +91,14 @@ fun InfoScreen(goBack: () -> Unit) {
 
 }
 
+
 @Composable
 fun TextSection(
     modifier: Modifier = Modifier,
     title: String,
     content: String,
-    titleIcon: ImageVector? = null
+    titleIcon: ImageVector? = null,
+    componentAfterTitle: @Composable() (ColumnScope.() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -109,6 +120,10 @@ fun TextSection(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        if (componentAfterTitle != null) {
+            componentAfterTitle()
         }
 
         Text(
