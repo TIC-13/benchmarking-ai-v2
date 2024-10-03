@@ -55,4 +55,21 @@
 
     <string name="show_menu">Mostrar menu</string>
     <string name="about">Sobre</string>
+
+    <string name="about_app_title">Sobre o aplicativo</string>
+    <string name="about_app_content">Este aplicativo tem como principal objetivo realizar benchmarking de modelos de inteligência artificial voltados para visão computacional em smartphones Android. Ele avalia tarefas como classificação, detecção e segmentação.</string>
+
+    <string name="how_works_title">Como os Benchmarks Funcionam</string>
+    <string name="how_works_gpu_title">Benchmarking de GPU</string>
+    <string name="how_works_gpu">O uso da GPU é monitorado através de arquivos específicos do sistema: /sys/kernel/gpu/gpu_busy para GPUs Mali e /sys/class/kgsl/kgsl-3d0/gpubusy para GPUs Adreno.</string>
+    <string name="how_works_ram_title">Benchmarking de RAM</string>
+    <string name="how_works_ram">Para medir o uso de RAM, o aplicativo utiliza o valor de PSS (Proportional Set Size), que leva em conta tanto a memória usada exclusivamente pelo processo quanto a memória compartilhada com outros processos, mas apenas proporcionalmente ao número de processos que a utilizam.</string>
+    <string name="how_works_cpu_title">Por que o aplicativo não mede o uso da CPU?</string>
+    <string name="how_works_cpu">Desde o Android 8.0, o sistema operacional restringiu o acesso ao arquivo /proc durante a execução do aplicativo. Este arquivo era utilizado, entre outras coisas, para obter a porcentagem de uso da CPU. Devido a essas restrições, não é possível capturar a porcentagem de uso da CPU na versão de lançamento do aplicativo, apenas na versão de debug.</string>
+
+    <string name="about_luxai_title">Sobre a Lux.AI</string>
+    <string name="about_luxai">Lux.AI é um projeto desenvolvido no Centro de Informática da UFPE, como parte do PPI (Programas e Projetos Prioritários da Lei de Informática), com apoio do Ministério da Ciência, Tecnologia, Inovações e Comunicações, por meio da Lei de Informática (Lei Nº 8.248/91) e do Programa SOFTEX.\n\nAs principais áreas de estudo e desenvolvimento da Lux.AI incluem:\n\n1. Fotografia Computacional\n2. Inteligência Artificial\n3. Análise de Qualidade de Imagem\n4. Análise de Desempenho de Sistemas Heterogêneos.\n\nA Lux.AI desenvolve aplicativos móveis com funcionalidades baseadas em IA e aplica técnicas como treinamento, fine-tuning, pruning e outros métodos de otimização de desempenho para modelos de IA.\n\nAlém disso, oferece consultoria e serviços personalizados para a indústria, abrangendo desde o treinamento e fine-tuning de modelos de IA até a melhoria de desempenho em hardware restritivo.\n\nMais informações sobre a Lux.AI: luxai.cin.ufpe.br</string>
+
+
+
 </resources>

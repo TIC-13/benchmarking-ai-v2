@@ -52,26 +52,26 @@ fun InfoScreen(goBack: () -> Unit) {
 
                 TextSection(
                     modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp),
-                    title = "What does this app do?",
-                    content = "This app benchmarks LLMs"
+                    title = stringResource(R.string.about_app_title),
+                    content = stringResource(R.string.about_app_content)
                 )
 
-                AccordionItem(title = "How the benchmarking works") {
-                    AccordionItem(title = "CPU Measurement") {
-                        AccordionText(text = "dsalçkhfçasdlkf")
+                AccordionItem(title = stringResource(id = R.string.how_works_title)) {
+                    AccordionItem(title = stringResource(id = R.string.how_works_gpu_title)) {
+                        AccordionText(text = stringResource(id = R.string.how_works_gpu))
                     }
-                    AccordionItem(title = "GPU Measurement") {
-                        AccordionText(text = "dsalçkhfçasdlkf")
+                    AccordionItem(title = stringResource(id = R.string.how_works_ram_title)) {
+                        AccordionText(text = stringResource(id = R.string.how_works_ram))
                     }
-                    AccordionItem(title = "RAM Measurement") {
-                        AccordionText(text = "dsalçkhfçasdlkf")
+                    AccordionItem(title = stringResource(id = R.string.how_works_cpu_title)) {
+                        AccordionText(text = stringResource(id = R.string.how_works_cpu))
                     }
                 }
 
                 TextSection(
                     modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp),
-                    title = "About Lux.AI",
-                    content = "Lux.AI is a project",
+                    title = stringResource(id = R.string.about_luxai_title),
+                    content = stringResource(id = R.string.about_luxai),
                     titleIcon = Icons.Default.Camera
                 )
 
