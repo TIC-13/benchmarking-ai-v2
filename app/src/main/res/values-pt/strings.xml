@@ -71,4 +71,6 @@
     <string name="about_luxai">Lux.AI é um projeto desenvolvido no Centro de Informática da UFPE, como parte do PPI (Programas e Projetos Prioritários da Lei de Informática), com apoio do Ministério da Ciência, Tecnologia, Inovações e Comunicações, por meio da Lei de Informática (Lei Nº 8.248/91) e do Programa SOFTEX.\n\nAs principais áreas de estudo e desenvolvimento da Lux.AI incluem:\n\n1. Fotografia Computacional\n2. Inteligência Artificial\n3. Análise de Qualidade de Imagem\n4. Análise de Desempenho de Sistemas Heterogêneos.\n\nA Lux.AI desenvolve aplicativos móveis com funcionalidades baseadas em IA e aplica técnicas como treinamento, fine-tuning, pruning e outros métodos de otimização de desempenho para modelos de IA.\n\nAlém disso, oferece consultoria e serviços personalizados para a indústria, abrangendo desde o treinamento e fine-tuning de modelos de IA até a melhoria de desempenho em hardware restritivo.</string>
     <string name="website_label">Website da Lux.AI</string>
 
+    <string name="loading">Carregando</string>
+
 </resources>

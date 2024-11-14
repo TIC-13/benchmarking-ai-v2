@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -176,9 +177,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Carregando...",
+                text = "${stringResource(R.string.loading)}...",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = Color.White
             )
         }
         InferenceView(

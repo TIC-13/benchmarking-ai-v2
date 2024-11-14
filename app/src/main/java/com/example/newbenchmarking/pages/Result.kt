@@ -114,6 +114,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
 
         Text(
             text = stringResource(id = R.string.result),
+            color = Color.White,
             style = LocalAppTypography.current.title
         )
 
