@@ -2,14 +2,14 @@ models:
   - name: "Efficientnet"
     tag: "EFFICIENTNET-FP32"
     id: 1
-    type: "Classificação de imagem"
-    description: "O EfficientNet é um modelo de machine learning otimizado para classificação de imagens. Sua arquitetura eficiente e escalável o torna versátil para lidar com uma variedade de desafios em visão computacional."
+    type: "Image Classification"
+    description: "EfficientNet is a machine learning model optimized for image classification. Its efficient and scalable architecture makes it versatile for handling various challenges in computer vision."
     file: "efficientNetFP32.tflite"
     category: "CLASSIFICATION"
     quantization: "FP32"
 
   - name: "Efficientnet"
-    type: "Classificação de imagem"
+    type: "Image Classification"
     id: 2
     description: "hello."
     file: "efficientNetINT8.tflite"
@@ -17,7 +17,7 @@ models:
     quantization: "INT8"
 
   - name: "DeepLab v3"
-    type: "Segmentação de imagem"
+    type: "Image Segmentation"
     id: 3
     description: "hello."
     file: "deeplabv3.tflite"
@@ -25,7 +25,7 @@ models:
     quantization: "FP32"
 
   - name: "SSD MobileNet v1"
-    type: "Detecção de objeto"
+    type: "Object Detection"
     id: 4
     description: "hello."
     file: "ssd_mobilenet_v2.tflite"
@@ -33,7 +33,7 @@ models:
     quantization: "INT8"
 
   - name: "Yolo v4"
-    type: "Detecção de objeto"
+    type: "Object Detection"
     id: 5
     description: "hello."
     file: "--yolov4-tiny-416-fp32.tflite"
@@ -42,7 +42,7 @@ models:
     quantization: "FP32"
 
   - name: "Yolo v4"
-    type: "Detecção de objeto"
+    type: "Object Detection"
     id: 6
     description: "hello."
     file: "--yolov4-tiny-416-fp16.tflite"
@@ -51,7 +51,7 @@ models:
     quantization: "FP16"
 
   - name: "Yolo v4"
-    type: "Detecção de objeto"
+    type: "Object Detection"
     id: 7
     description: "hello."
     file: "--yolov4-tiny-416-int8.tflite"
@@ -60,7 +60,7 @@ models:
     quantization: "INT8"
 
   - name: "ESRGAN"
-    type: "Aumenta resolução de imagens"
+    type: "Image Super-Resolution"
     id: 8
     description: "hello."
     file: "esrgan.tflite"
@@ -68,7 +68,7 @@ models:
     quantization: "FP32"
 
   - name: "IMDN"
-    type: "Remove blurr de imagens"
+    type: "Image Deblurring"
     id: 9
     description: "hello."
     file: "imdn_rtc_time.tflite"
@@ -76,17 +76,9 @@ models:
     quantization: "FP32"
 
   - name: "Yolox tiny"
-    type: "Detecção de objeto"
+    type: "Object Detection"
     id: 10
     description: "hello."
     file: "yolox_tiny_full_integer_quant.opt.tflite"
     category: "DETECTION"
     quantization: "INT8"
-
-  - name: "Bert"
-    type: "Perguntas e respostas"
-    id: 11
-    description: "Perguntas e respostas"
-    file: "bert.tflite"
-    category: "BERT"
-    quantization: "INT32"

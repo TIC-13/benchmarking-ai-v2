@@ -3,8 +3,3 @@ tests:
     name: "Imagenet"
     path: "images_dataset"
     size: 400
-
-  - id: 2
-    name: "Perguntas e respostas"
-    path: "qa_dataset.txt"
-    size: 253
