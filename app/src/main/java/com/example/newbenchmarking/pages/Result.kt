@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,10 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     val context = LocalContext.current
 
     val expandedStates = rememberMutableBooleanArray(size = results.size, initialValue = false)
+
+    BackHandler {
+        back()
+    }
 
     LaunchedEffect(Unit) {
         if(results.size > 1){

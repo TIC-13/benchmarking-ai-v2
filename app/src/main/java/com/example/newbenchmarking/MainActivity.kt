@@ -90,7 +90,6 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
             "runModel",
         ) {
                 RunModel(viewModel = inferenceViewModel, resultViewModel = resultViewModel) {
-                    navController.navigate("home")
                     navController.navigate("result")
                 }
         }
@@ -99,7 +98,7 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         ){ backStackEntry ->
             backStackEntry.arguments?.let {
                 ResultScreen(resultViewModel = resultViewModel){
-                    navController.navigate("home")
+                    navController.popBackStack("home", false)
                 }
             }
         }
