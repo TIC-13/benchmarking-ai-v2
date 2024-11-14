@@ -61,8 +61,13 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
 
     val expandedStates = rememberMutableBooleanArray(size = results.size, initialValue = false)
 
-    BackHandler {
+    fun onBack(){
+        resultViewModel.updateInferenceResultList(arrayListOf())
         back()
+    }
+
+    BackHandler {
+        onBack()
     }
 
     LaunchedEffect(Unit) {
@@ -99,11 +104,6 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                 ))
             }
         }
-    }
-
-    fun onBack(){
-        resultViewModel.updateInferenceResultList(arrayListOf())
-        back()
     }
 
     BackgroundWithContent(
