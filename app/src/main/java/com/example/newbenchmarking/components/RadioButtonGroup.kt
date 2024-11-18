@@ -23,11 +23,13 @@ data class RadioButtonGroupOption(
 
 @Composable
 fun RadioButtonGroup(modifier: Modifier = Modifier, options: List<RadioButtonGroupOption>) {
-    Row {
+    Row(
+        modifier = modifier
+    ) {
         options.forEach { option ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier
+                modifier = Modifier
                     //.fillMaxWidth()
                     .padding(8.dp)
                     .clickable { option.onClick() }
@@ -40,7 +42,7 @@ fun RadioButtonGroup(modifier: Modifier = Modifier, options: List<RadioButtonGro
                     text = option.label,
                     color = Color.White,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                 )
             }
         }

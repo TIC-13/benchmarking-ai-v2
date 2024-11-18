@@ -6,9 +6,12 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +35,7 @@ import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -200,9 +204,13 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
         startInference()
     }
 
+    val sliderModifier = Modifier
+        .clip(RoundedCornerShape(10.dp))
+        .background(MaterialTheme.colorScheme.primary)
+
     BackgroundWithContent (
         modifier = Modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Column(
@@ -213,13 +221,28 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
                 LoadingFailView(text = loadingFail)
             }
         }
-        RadioButtonGroup(options = radioOptions)
+        RadioButtonGroup(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50.dp))
+                .background(MaterialTheme.colorScheme.secondary),
+            options = radioOptions
+        )
         SliderSelector(
+            modifier = sliderModifier,
             label = "${stringResource(id = R.string.number_of_threads)}: ${params.numThreads}",
             value = params.numThreads,
             onValueChange = { params = params.copy(numThreads = it.toInt()) },
             rangeBottom = 1F,
             rangeUp = 10F,
+            labelColor = Color.White
+        )
+        SliderSelector(
+            modifier = sliderModifier,
+            label = "${stringResource(id = R.string.number_of)} ${stringResource(if(params.model.category === Category.BERT) R.string.inferences else R.string.images)}: ${params.numImages}",
+            value = params.numImages,
+            onValueChange = { params = params.copy(numImages = it.toInt()) },
+            rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
+            rangeUp = params.dataset.size.toFloat(),
             labelColor = Color.White
         )
         DropdownSelector(
@@ -238,14 +261,6 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
                     numImages = if(datasets[newIndex].size >= 15) 15 else 1
                 )
             }
-        )
-        SliderSelector(
-            label = "${stringResource(id = R.string.number_of)} ${stringResource(if(params.model.category === Category.BERT) R.string.inferences else R.string.images)}: ${params.numImages}",
-            value = params.numImages,
-            onValueChange = { params = params.copy(numImages = it.toInt()) },
-            rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
-            rangeUp = params.dataset.size.toFloat(),
-            labelColor = Color.White
         )
         Button(onClick = ::startTest) {
             Text(text = stringResource(id = R.string.start))
