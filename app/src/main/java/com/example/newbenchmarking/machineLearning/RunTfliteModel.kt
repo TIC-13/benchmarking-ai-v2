@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.interfaces.RunMode
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.ops.CastOp
@@ -28,10 +29,10 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
     val gpuDelegate = GpuDelegate()
 
     val options = Interpreter.Options().apply {
-        if(params.useGPU){
+        if(params.runMode == RunMode.GPU){
             this.addDelegate(gpuDelegate)
         }
-        useNNAPI = params.useNNAPI
+        useNNAPI = params.runMode == RunMode.NNAPI
         numThreads = params.numThreads
     }
 
@@ -87,7 +88,7 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
     } / inferencesList.size)
 
     if(firstInferenceTime !== null && mediumInferenceTime != 0L){
-        val runMode = if(params.useNNAPI) "NNAPI" else if(params.useGPU) "GPU" else "CPU"
+        val runMode = if(params.runMode == RunMode.NNAPI) "NNAPI" else if(params.runMode == RunMode.GPU) "GPU" else "CPU"
         val tag = "${params.model.label} ${params.model.quantization} ${runMode}"
 
         Log.d("inftime", "$tag - ${params.numImages} imagens")

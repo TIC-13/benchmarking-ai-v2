@@ -8,6 +8,7 @@ import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.Quantization
+import com.example.newbenchmarking.interfaces.RunMode
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.FileInputStream
@@ -37,8 +38,13 @@ fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: Fil
 
                 val test = InferenceParams(
                     model = selectedModel,
-                    useNNAPI = runMode == "NNAPI",
-                    useGPU = runMode == "GPU",
+                    runMode =
+                        if(runMode == "NNAPI")
+                            RunMode.NNAPI
+                        else if(runMode == "GPU")
+                            RunMode.GPU
+                        else
+                            RunMode.CPU,
                     numThreads = element["numThreads"] as? Int
                         ?: throw Exception("numThreads não definido"),
                     numImages = element["numSamples"] as? Int

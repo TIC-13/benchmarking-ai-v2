@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
+import com.example.newbenchmarking.interfaces.RunMode
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer
 import org.tensorflow.lite.task.text.qa.BertQuestionAnswerer.BertQuestionAnswererOptions
@@ -22,9 +23,9 @@ fun runBert(androidContext: Context, params: InferenceParams, inputs: List<Langu
     val baseOptions = BaseOptions.builder()
         .setNumThreads(params.numThreads)
 
-    if(params.useGPU)
+    if(params.runMode == RunMode.GPU)
         baseOptions.useGpu()
-    if(params.useNNAPI)
+    if(params.runMode == RunMode.NNAPI)
         baseOptions.useNnapi()
 
     val options = BertQuestionAnswererOptions.builder()

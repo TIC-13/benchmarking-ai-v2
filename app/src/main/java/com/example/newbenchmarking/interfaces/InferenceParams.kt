@@ -2,9 +2,12 @@ package com.example.newbenchmarking.interfaces
 
 data class InferenceParams(
     var model: Model,
-    var useNNAPI: Boolean,
-    var useGPU: Boolean,
+    var runMode: RunMode,
     var numThreads: Int,
     var numImages: Int,
     var dataset: Dataset,
     )
+
+enum class RunMode {
+    CPU, GPU, NNAPI
+}

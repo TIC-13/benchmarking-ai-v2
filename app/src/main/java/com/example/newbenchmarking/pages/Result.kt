@@ -41,6 +41,7 @@ import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.interfaces.Category
+import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.ResultViewModel
@@ -90,8 +91,8 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                         quantization = result.params.model.quantization.toString(),
                         dataset = result.params.dataset.name,
                         num_images = result.params.numImages,
-                        uses_nnapi = result.params.useNNAPI,
-                        uses_gpu = result.params.useGPU,
+                        uses_nnapi = result.params.runMode == RunMode.NNAPI,
+                        uses_gpu = result.params.runMode == RunMode.GPU,
                         num_threads = result.params.numThreads,
                         ram_usage = result.ram.getAverage().toInt(),
                         gpu_usage = result.gpu.getAverage(),
@@ -139,7 +140,7 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     subtitle = result.params.model.description,
                     bottomFirstTitle = "${result.params.numImages} ${stringResource(if(result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
                     bottomSecondTitle = result.params.dataset.name,
-                    chip = if(result.params.useNNAPI) NNAPIChip() else if (result.params.useGPU) GPUChip() else CPUChip(),
+                    chip = if(result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
                     rows = if(result.errorMessage === null) arrayOf(
                         ResultRow(
                             stringResource(id = R.string.initialization),

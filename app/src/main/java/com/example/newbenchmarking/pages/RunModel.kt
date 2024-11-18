@@ -40,6 +40,7 @@ import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Inference
+import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
 import com.example.newbenchmarking.utils.getBitmapsFromFolder
@@ -187,7 +188,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
             topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
             subtitle = currParams.model.description,
-            chip = if(currParams.useNNAPI) NNAPIChip() else if (currParams.useGPU) GPUChip() else CPUChip(),
+            chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
             bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
             bottomSecondTitle = currParams.dataset.name,
             rows = arrayOf(

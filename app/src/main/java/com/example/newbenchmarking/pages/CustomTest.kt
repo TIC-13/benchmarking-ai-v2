@@ -43,11 +43,14 @@ import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
+import com.example.newbenchmarking.components.RadioButtonGroup
+import com.example.newbenchmarking.components.RadioButtonGroupOption
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.Model
+import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.utils.createFolderIfNotExists
 import com.example.newbenchmarking.utils.fileExists
 import com.example.newbenchmarking.utils.pasteAssets
@@ -173,10 +176,23 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
         model = models[0],
         numImages = 15,
         numThreads = 1,
-        useGPU = false,
-        useNNAPI = false,
+        runMode = RunMode.CPU,
         dataset = datasets[0]
     )) }
+
+    val radioOptions = remember(params) {
+        listOf(
+            Pair("CPU", RunMode.CPU),
+            Pair("GPU", RunMode.GPU),
+            Pair("NNAPI", RunMode.NNAPI)
+        ).map { (label, mode) ->
+            RadioButtonGroupOption(
+                label = label,
+                isSelected = params.runMode == mode,
+                onClick = { params = params.copy(runMode = mode) }
+            )
+        }
+    }
 
     fun startTest() {
         viewModel.updateInferenceParamsList(listOf(params))
@@ -197,20 +213,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
                 LoadingFailView(text = loadingFail)
             }
         }
-        Row {
-            SwitchSelector(
-                label = stringResource(id = R.string.nnapi_active),
-                isChecked = params.useNNAPI,
-                onCheckedChange = { params = params.copy(useNNAPI = !params.useNNAPI) },
-                labelColor = Color.White
-            )
-            SwitchSelector(
-                label = stringResource(id = R.string.gpu_active),
-                isChecked = params.useGPU,
-                onCheckedChange = { params = params.copy(useGPU = !params.useGPU)},
-                labelColor = Color.White
-            )
-        }
+        RadioButtonGroup(options = radioOptions)
         SliderSelector(
             label = "${stringResource(id = R.string.number_of_threads)}: ${params.numThreads}",
             value = params.numThreads,
