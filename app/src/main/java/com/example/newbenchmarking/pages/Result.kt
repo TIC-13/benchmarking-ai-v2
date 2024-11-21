@@ -8,13 +8,18 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.AccordionProps
+import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
 import com.example.newbenchmarking.components.ErrorProps
@@ -40,6 +46,7 @@ import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
+import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.theme.LocalAppColors
@@ -107,101 +114,100 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
         }
     }
 
-    BackgroundWithContent(
-        modifier = Modifier.padding(top = 30.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(40.dp),
-    ) {
-
-        Text(
-            text = stringResource(id = R.string.result),
-            color = Color.White,
-            style = LocalAppTypography.current.title
+    Scaffold(topBar =
+    {
+        AppTopBar(
+            title = stringResource(id = R.string.result),
+            onBack = { onBack() }
         )
+    }
+    ) { paddingValues ->
+        BackgroundWithContent(
+            modifier = Modifier
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        Button(
-            colors = ButtonDefaults.buttonColors(LocalAppColors.current.primary),
-            modifier = Modifier.background(
-                color = LocalAppColors.current.primary,
-                shape = RoundedCornerShape(15.dp)
-        ) , onClick = { onBack() }) {
-            Text(text = stringResource(id = R.string.back_to_home), color = Color.White)
-        }
-
-        LazyColumn (
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ){
-            itemsIndexed(results) { index, result ->
-                InferenceView(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .clip(RoundedCornerShape(50.dp)),
-                    topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
-                    subtitle = result.params.model.description,
-                    bottomFirstTitle = "${result.params.numImages} ${stringResource(if(result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if(result.params.numThreads != 1) "s" else ""}",
-                    bottomSecondTitle = result.params.dataset.name,
-                    chip = if(result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-                    rows = if(result.errorMessage === null) arrayOf(
-                        ResultRow(
-                            stringResource(id = R.string.initialization),
-                            "${result.inference.load.toString()} ms"
-                        ),
-                        ResultRow(
-                            stringResource(id = R.string.first_inference),
-                            "${result.inference.first.toString()} ms"
-                        ),
-                        ResultRow(
-                            stringResource(id = R.string.other_inferences), 
-                            "${result.inference.average.toString()} ms"),
-                    ) else null,
-                    accordionProps = if(result.errorMessage === null) AccordionProps(
-                        rows = arrayOf(
+            ScrollableWithButton(
+                buttonOnPress = { onBack() },
+                buttonLabel = stringResource(id = R.string.back_to_home)
+            ) {
+                for((index, result) in results.withIndex()) {
+                    InferenceView(
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .fillMaxWidth(0.9f)
+                            .clip(RoundedCornerShape(50.dp)),
+                        topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
+                        subtitle = result.params.model.description,
+                        bottomFirstTitle = "${result.params.numImages} ${stringResource(if (result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if (result.params.numThreads != 1) "s" else ""}",
+                        bottomSecondTitle = result.params.dataset.name,
+                        chip = if (result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
+                        rows = if (result.errorMessage === null) arrayOf(
                             ResultRow(
-                                stringResource(id = R.string.cpu_usage), 
-                                formatInt(result.cpu.getAverageCPUConsumption(), "%")
+                                stringResource(id = R.string.initialization),
+                                "${result.inference.load.toString()} ms"
                             ),
                             ResultRow(
-                                stringResource(id = R.string.gpu_usage), 
-                                formatInt(result.gpu.getAverage(), "%")
+                                stringResource(id = R.string.first_inference),
+                                "${result.inference.first.toString()} ms"
                             ),
                             ResultRow(
-                                stringResource(id = R.string.ram_usage), 
-                                "${result.ram.getAverage().toInt()}MB"
+                                stringResource(id = R.string.other_inferences),
+                                "${result.inference.average.toString()} ms"
                             ),
-                            ResultRow(
-                                stringResource(id = R.string.cpu_peak), 
-                                "${result.cpu.peak()}%"
-                            ),
-                            ResultRow(
-                                stringResource(id = R.string.gpu_peak),
-                                "${result.gpu.peak()}%"
-                            ),
-                            ResultRow(
-                                stringResource(id = R.string.ram_peak),
-                                "${result.ram.peak().toInt()}MB"
-                            ),
-                            if(result.inference.charsPerSecond !== null)
+                        ) else null,
+                        accordionProps = if (result.errorMessage === null) AccordionProps(
+                            rows = arrayOf(
                                 ResultRow(
-                                    stringResource(id = R.string.chars_per_sec),
-                                    "${result.inference.charsPerSecond} char/s"
-                                )
-                            else
-                                ResultRow("", "")
-                        ),
-                        expanded = expandedStates[index].value,
-                        setExpanded = {
-                            for(expanded in expandedStates) {
-                                expanded.value = it
+                                    stringResource(id = R.string.cpu_usage),
+                                    formatInt(result.cpu.getAverageCPUConsumption(), "%")
+                                ),
+                                ResultRow(
+                                    stringResource(id = R.string.gpu_usage),
+                                    formatInt(result.gpu.getAverage(), "%")
+                                ),
+                                ResultRow(
+                                    stringResource(id = R.string.ram_usage),
+                                    "${result.ram.getAverage().toInt()}MB"
+                                ),
+                                ResultRow(
+                                    stringResource(id = R.string.cpu_peak),
+                                    "${result.cpu.peak()}%"
+                                ),
+                                ResultRow(
+                                    stringResource(id = R.string.gpu_peak),
+                                    "${result.gpu.peak()}%"
+                                ),
+                                ResultRow(
+                                    stringResource(id = R.string.ram_peak),
+                                    "${result.ram.peak().toInt()}MB"
+                                ),
+                                if (result.inference.charsPerSecond !== null)
+                                    ResultRow(
+                                        stringResource(id = R.string.chars_per_sec),
+                                        "${result.inference.charsPerSecond} char/s"
+                                    )
+                                else
+                                    ResultRow("", "")
+                            ),
+                            expanded = expandedStates[index].value,
+                            setExpanded = {
+                                for (expanded in expandedStates) {
+                                    expanded.value = it
+                                }
                             }
-                        }
-                    ) else null,
-                    errorProps = if(result.errorMessage !== null)
+                        ) else null,
+                        errorProps = if (result.errorMessage !== null)
                             ErrorProps(
-                                title = stringResource(id = R.string.returned_error_label), 
+                                title = stringResource(id = R.string.returned_error_label),
                                 message = result.errorMessage
                             )
                         else null
-                )
+                    )
+                }
+                Spacer(modifier = Modifier.height(15.dp))
             }
         }
     }

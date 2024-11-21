@@ -10,7 +10,7 @@
     <string name="error_permission">Permissão para ler armazenamento interno não concedida</string>
     <string name="returned_error_label">Erro retornado</string>
 
-    <string name="back_to_home">De volta para a tela inicial</string>
+    <string name="back_to_home">CONTINUE</string>
 
     <string name="initialization">Inicialização</string>
     <string name="first_inference">Primeira inferência</string>

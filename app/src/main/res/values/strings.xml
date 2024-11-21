@@ -9,7 +9,7 @@
     <string name="error_permission">Permission to read internal storage not granted</string>
     <string name="returned_error_label">Returned error</string>
 
-    <string name="back_to_home">Back to home screen</string>
+    <string name="back_to_home">CONTINUE</string>
 
     <string name="initialization">Initialization</string>
     <string name="first_inference">First inference</string>
