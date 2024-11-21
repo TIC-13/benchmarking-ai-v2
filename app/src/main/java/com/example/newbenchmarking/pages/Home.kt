@@ -32,6 +32,7 @@ import com.example.newbenchmarking.utils.clearFolderContents
 import com.example.newbenchmarking.utils.pasteAssets
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -83,16 +84,16 @@ fun HomeScreen(
         }
     }
 
-    val homeScreenButtons = arrayOf(
-        HomeScreenButton(
+    val homeScreenButtons = listOf(
+        HomeScreenButtonProps(
             label = stringResource(id = R.string.button_start_tests),
             onPress = { isLoading = true }
         ),
-        HomeScreenButton(
+        HomeScreenButtonProps(
             label = stringResource(id = R.string.button_start_custom_inference),
             onPress = { goToCustom() }
         ),
-        HomeScreenButton(
+        HomeScreenButtonProps(
             label = stringResource(id = R.string.about),
             onPress = { goToInfo() }
         )
@@ -117,21 +118,59 @@ fun HomeScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(28.dp)
             ) {
-                for(button in homeScreenButtons){
-                    Text(
-                        modifier = Modifier
-                            .clickable { button.onPress() },
-                        text = button.label,
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+                HomeScreenButtons(buttons = homeScreenButtons)
             }
         }
     }
 }
 
-data class HomeScreenButton(
+@Composable
+fun HomeScreenButtons(buttons: List<HomeScreenButtonProps>) {
+
+    val isExecuting = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = isExecuting) {
+        delay(1000)
+        isExecuting.value = false
+    }
+
+    fun composeOnPress(onPress: () -> Unit): () -> Unit {
+        return fun() {
+            if (!isExecuting.value) {
+                isExecuting.value = true
+                onPress()
+            }
+        }
+    }
+
+    for (props in buttons) {
+        val (label, onPress) = props
+        HomeScreenButton(
+            props = HomeScreenButtonProps(
+                label = label,
+                onPress = composeOnPress(onPress)
+            )
+        )
+    }
+
+}
+
+
+@Composable
+fun HomeScreenButton(props: HomeScreenButtonProps) {
+    val (label, onPress) = props
+
+    Text(
+        modifier = Modifier
+            .clickable { onPress() },
+        text = label,
+        color = Color.White,
+        style = MaterialTheme.typography.bodyLarge
+    )
+}
+
+
+data class HomeScreenButtonProps(
     val label: String,
     val onPress: () -> Unit = {}
 )
