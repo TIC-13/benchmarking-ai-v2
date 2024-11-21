@@ -35,12 +35,12 @@ import androidx.compose.ui.window.PopupProperties
 import com.example.newbenchmarking.R
 
 @Composable
-fun DropdownSelector(label: String, items: List<String>, onItemSelected: (index: Int) -> Unit) {
+fun DropdownSelector(modifier: Modifier = Modifier, label: String, items: List<String>, onItemSelected: (index: Int) -> Unit) {
     val isDropDownExpanded = remember { mutableStateOf(false) }
     val selectedItemIndex = remember { mutableIntStateOf(0) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(0.8f)
             .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.secondary),

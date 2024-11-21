@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,11 +46,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.rememberNavController
 import com.example.newbenchmarking.R
+import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.RadioButtonGroup
 import com.example.newbenchmarking.components.RadioButtonGroupOption
+import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.data.getModels
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
@@ -207,63 +211,81 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
     val sliderModifier = Modifier
         .clip(RoundedCornerShape(10.dp))
         .background(MaterialTheme.colorScheme.primary)
+        .fillMaxWidth(0.9f)
 
-    BackgroundWithContent (
-        modifier = Modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Column(
-            modifier = Modifier.padding(15.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-        ) {
-            for(loadingFail in loadingFails){
-                LoadingFailView(text = loadingFail)
-            }
-        }
-        RadioButtonGroup(
+    val dropdownModifier = Modifier
+        .fillMaxWidth(0.9f)
+
+    Scaffold(topBar =
+    {
+        AppTopBar(
+            title = stringResource(id = R.string.custom_test),
+            onBack = { onBack() }
+        )
+    }
+    ) { paddingValues ->
+        BackgroundWithContent(
             modifier = Modifier
-                .clip(RoundedCornerShape(50.dp))
-                .background(MaterialTheme.colorScheme.secondary),
-            options = radioOptions
-        )
-        SliderSelector(
-            modifier = sliderModifier,
-            label = "${stringResource(id = R.string.number_of_threads)}: ${params.numThreads}",
-            value = params.numThreads,
-            onValueChange = { params = params.copy(numThreads = it.toInt()) },
-            rangeBottom = 1F,
-            rangeUp = 10F,
-            labelColor = Color.White
-        )
-        SliderSelector(
-            modifier = sliderModifier,
-            label = "${stringResource(id = R.string.number_of)} ${stringResource(if(params.model.category === Category.BERT) R.string.inferences else R.string.images)}: ${params.numImages}",
-            value = params.numImages,
-            onValueChange = { params = params.copy(numImages = it.toInt()) },
-            rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
-            rangeUp = params.dataset.size.toFloat(),
-            labelColor = Color.White
-        )
-        DropdownSelector(
-            stringResource(id = R.string.selected_model),
-            items = models.map {x -> x.label + " - " + x.quantization},
-            onItemSelected = { newIndex ->
-                params = params.copy(model = models[newIndex])
-            }
-        )
-        DropdownSelector(
-            stringResource(id = R.string.selected_dataset),
-            items = datasets.map { x -> x.name },
-            onItemSelected = { newIndex ->
-                params = params.copy(
-                    dataset = datasets[newIndex],
-                    numImages = if(datasets[newIndex].size >= 15) 15 else 1
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ScrollableWithButton(
+                buttonOnPress = ::startTest,
+                buttonLabel = stringResource(id = R.string.start)
+            ){
+                Column(
+                    //modifier = Modifier.padding(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                ) {
+                    for(loadingFail in loadingFails){
+                        LoadingFailView(text = loadingFail)
+                    }
+                }
+                RadioButtonGroup(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(MaterialTheme.colorScheme.secondary),
+                    options = radioOptions
+                )
+                SliderSelector(
+                    modifier = sliderModifier,
+                    label = "${stringResource(id = R.string.number_of_threads)}: ${params.numThreads}",
+                    value = params.numThreads,
+                    onValueChange = { params = params.copy(numThreads = it.toInt()) },
+                    rangeBottom = 1F,
+                    rangeUp = 10F,
+                    labelColor = Color.White
+                )
+                SliderSelector(
+                    modifier = sliderModifier,
+                    label = "${stringResource(id = R.string.number_of)} ${stringResource(if(params.model.category === Category.BERT) R.string.inferences else R.string.images)}: ${params.numImages}",
+                    value = params.numImages,
+                    onValueChange = { params = params.copy(numImages = it.toInt()) },
+                    rangeBottom = if(params.dataset.size >= 15) 15F else 1F,
+                    rangeUp = params.dataset.size.toFloat(),
+                    labelColor = Color.White
+                )
+                DropdownSelector(
+                    modifier = dropdownModifier,
+                    label = stringResource(id = R.string.selected_model),
+                    items = models.map {x -> x.label + " - " + x.quantization},
+                    onItemSelected = { newIndex ->
+                        params = params.copy(model = models[newIndex])
+                    }
+                )
+                DropdownSelector(
+                    modifier = dropdownModifier,
+                    label = stringResource(id = R.string.selected_dataset),
+                    items = datasets.map { x -> x.name },
+                    onItemSelected = { newIndex ->
+                        params = params.copy(
+                            dataset = datasets[newIndex],
+                            numImages = if(datasets[newIndex].size >= 15) 15 else 1
+                        )
+                    }
                 )
             }
-        )
-        Button(onClick = ::startTest) {
-            Text(text = stringResource(id = R.string.start))
         }
     }
 }

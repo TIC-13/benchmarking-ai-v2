@@ -31,11 +31,12 @@
     <string name="selected_model">Model</string>
     <string name="selected_dataset">Dataset</string>
 
+    <string name="custom_test">Custom test</string>
     <string name="result">Result</string>
     <string name="images">Images</string>
     <string name="inferences">Inferences</string>
     <string name="number_of">Number of</string>
-    <string name="start">Start</string>
+    <string name="start">START</string>
 
     <string name="permission_warning">To use this function, the app needs permission to read the files</string>
     <string name="allow_permission">Grant permission</string>

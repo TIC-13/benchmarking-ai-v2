@@ -32,11 +32,12 @@
     <string name="selected_model">Modelo</string>
     <string name="selected_dataset">Dataset</string>
 
+    <string name="custom_test">Teste customizado</string>
     <string name="result">Resultado</string>
     <string name="images">imagens</string>
     <string name="inferences">inferências</string>
     <string name="number_of">Número de</string>
-    <string name="start">Iniciar</string>
+    <string name="start">INICIAR</string>
 
     <string name="permission_warning">Para usar essa função, o aplicativo precisa de permissão para ler os arquivos</string>
     <string name="allow_permission">Conceder permissão</string>
