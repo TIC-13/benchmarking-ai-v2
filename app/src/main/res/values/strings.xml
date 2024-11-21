@@ -28,8 +28,8 @@
     <string name="nnapi_active">NNAPI active</string>
     <string name="gpu_active">GPU active</string>
     <string name="number_of_threads">Number of threads</string>
-    <string name="selected_model">Selected model</string>
-    <string name="selected_dataset">Selected dataset</string>
+    <string name="selected_model">Model</string>
+    <string name="selected_dataset">Dataset</string>
 
     <string name="result">Result</string>
     <string name="images">Images</string>

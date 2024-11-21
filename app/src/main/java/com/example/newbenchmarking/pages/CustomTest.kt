@@ -246,14 +246,14 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             labelColor = Color.White
         )
         DropdownSelector(
-            "${stringResource(id = R.string.selected_model)}: ${params.model.label + " - " + params.model.quantization}",
+            stringResource(id = R.string.selected_model),
             items = models.map {x -> x.label + " - " + x.quantization},
             onItemSelected = { newIndex ->
                 params = params.copy(model = models[newIndex])
             }
         )
         DropdownSelector(
-            "${stringResource(id = R.string.selected_dataset)}: ${params.dataset.name}",
+            stringResource(id = R.string.selected_dataset),
             items = datasets.map { x -> x.name },
             onItemSelected = { newIndex ->
                 params = params.copy(

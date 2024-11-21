@@ -29,8 +29,8 @@
     <string name="nnapi_active">NNAPI ativa</string>
     <string name="gpu_active">GPU ativa</string>
     <string name="number_of_threads">Número de threads</string>
-    <string name="selected_model">Modelo selecionado</string>
-    <string name="selected_dataset">Dataset selecionado</string>
+    <string name="selected_model">Modelo</string>
+    <string name="selected_dataset">Dataset</string>
 
     <string name="result">Resultado</string>
     <string name="images">imagens</string>
