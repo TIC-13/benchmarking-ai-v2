@@ -43,7 +43,8 @@ fun HomeScreen(
     goToRun: () -> Unit,
     goToCustom: () -> Unit,
     onBack: () -> Unit,
-    goToInfo: () -> Unit
+    goToInfo: () -> Unit,
+    goToSavedResults: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -92,6 +93,10 @@ fun HomeScreen(
         HomeScreenButtonProps(
             label = stringResource(id = R.string.button_start_custom_inference),
             onPress = { goToCustom() }
+        ),
+        HomeScreenButtonProps(
+            label = stringResource(id = R.string.results),
+            onPress = { goToSavedResults() }
         ),
         HomeScreenButtonProps(
             label = stringResource(id = R.string.about),

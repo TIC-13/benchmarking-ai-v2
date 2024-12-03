@@ -59,6 +59,7 @@ import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.utils.createFolderIfNotExists
 import com.example.newbenchmarking.utils.fileExists
 import com.example.newbenchmarking.utils.pasteAssets
@@ -185,7 +186,8 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
         numImages = 15,
         numThreads = 1,
         runMode = RunMode.CPU,
-        dataset = datasets[0]
+        dataset = datasets[0],
+        type = Type.Custom
     )) }
 
     val radioOptions = remember(params) {

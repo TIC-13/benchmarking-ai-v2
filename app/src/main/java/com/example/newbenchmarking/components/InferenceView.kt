@@ -59,8 +59,6 @@ data class InfoContent(
 
 data class AccordionProps(
     val rows: Array<ResultRow>,
-    val expanded: Boolean,
-    val setExpanded: (exp: Boolean) -> Unit
 )
 
 data class ErrorProps(
@@ -133,7 +131,6 @@ fun InferenceView(
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
-
                         }
                         if(showInfoButton){
                             Column(
@@ -276,7 +273,9 @@ fun AccordionHeader(
 @Composable
 fun Accordion(accordionProps: AccordionProps) {
 
-    val (rows, expanded, setExpanded) = accordionProps
+    val (rows) = accordionProps
+
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
         Modifier.fillMaxWidth(),
@@ -292,7 +291,7 @@ fun Accordion(accordionProps: AccordionProps) {
                     R.string.show_less),
             isExpanded = expanded
         ){
-            setExpanded(!expanded)
+            expanded = !expanded
         }
         AnimatedVisibility(visible = expanded) {
             Column {

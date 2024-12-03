@@ -6,8 +6,13 @@ data class InferenceParams(
     var numThreads: Int,
     var numImages: Int,
     var dataset: Dataset,
+    var type: Type = Type.Benchmarking,
     )
 
 enum class RunMode {
     CPU, GPU, NNAPI
+}
+
+enum class Type {
+    Benchmarking, Custom
 }

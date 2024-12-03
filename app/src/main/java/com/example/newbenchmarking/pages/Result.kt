@@ -47,8 +47,10 @@ import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
 import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.components.ScrollableWithButton
+import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
 import com.example.newbenchmarking.viewModel.ResultViewModel
@@ -56,18 +58,22 @@ import com.example.newbenchmarking.requests.Inference
 import com.example.newbenchmarking.requests.Phone
 import com.example.newbenchmarking.requests.PostData
 import com.example.newbenchmarking.requests.encryptAndPostResult
+import com.example.newbenchmarking.templates.ResultScreen
+import com.example.newbenchmarking.utils.saveResultLocally
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel, back: () -> Unit) {
+fun BenchmarkResultScreen(
+    modifier: Modifier = Modifier,
+    resultViewModel: ResultViewModel,
+    back: () -> Unit
+) {
 
     val resultList by resultViewModel.benchmarkResultList.observeAsState()
     if(resultList === null) return
     val results = resultList!!
 
     val context = LocalContext.current
-
-    val expandedStates = rememberMutableBooleanArray(size = results.size, initialValue = false)
 
     fun onBack(){
         resultViewModel.updateInferenceResultList(arrayListOf())
@@ -79,8 +85,13 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
     }
 
     LaunchedEffect(Unit) {
-        if(results.size > 1){
             for((index, result) in results.withIndex()){
+
+                if(result.params.type == Type.Custom)
+                    continue
+
+                saveResultLocally(context, result)
+
                 encryptAndPostResult(PostData(
                     Phone(
                         brand_name = Build.BRAND,
@@ -111,106 +122,9 @@ fun ResultScreen(modifier: Modifier = Modifier, resultViewModel: ResultViewModel
                     )
                 ))
             }
-        }
     }
 
-    Scaffold(topBar =
-    {
-        AppTopBar(
-            title = stringResource(id = R.string.result),
-            onBack = { onBack() }
-        )
-    }
-    ) { paddingValues ->
-        BackgroundWithContent(
-            modifier = Modifier
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            ScrollableWithButton(
-                buttonOnPress = { onBack() },
-                buttonLabel = stringResource(id = R.string.back_to_home)
-            ) {
-                for((index, result) in results.withIndex()) {
-                    InferenceView(
-                        modifier = Modifier
-                            .padding(top = 15.dp)
-                            .fillMaxWidth(0.9f)
-                            .clip(RoundedCornerShape(50.dp)),
-                        topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
-                        subtitle = result.params.model.description,
-                        bottomFirstTitle = "${result.params.numImages} ${stringResource(if (result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if (result.params.numThreads != 1) "s" else ""}",
-                        bottomSecondTitle = result.params.dataset.name,
-                        chip = if (result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-                        rows = if (result.errorMessage === null) arrayOf(
-                            ResultRow(
-                                stringResource(id = R.string.initialization),
-                                "${result.inference.load.toString()} ms"
-                            ),
-                            ResultRow(
-                                stringResource(id = R.string.first_inference),
-                                "${result.inference.first.toString()} ms"
-                            ),
-                            ResultRow(
-                                stringResource(id = R.string.other_inferences),
-                                "${result.inference.average.toString()} ms"
-                            ),
-                        ) else null,
-                        accordionProps = if (result.errorMessage === null) AccordionProps(
-                            rows = arrayOf(
-                                ResultRow(
-                                    stringResource(id = R.string.cpu_usage),
-                                    formatInt(result.cpu.getAverageCPUConsumption(), "%")
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.gpu_usage),
-                                    formatInt(result.gpu.getAverage(), "%")
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.ram_usage),
-                                    "${result.ram.getAverage().toInt()}MB"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.cpu_peak),
-                                    "${result.cpu.peak()}%"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.gpu_peak),
-                                    "${result.gpu.peak()}%"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.ram_peak),
-                                    "${result.ram.peak().toInt()}MB"
-                                ),
-                                if (result.inference.charsPerSecond !== null)
-                                    ResultRow(
-                                        stringResource(id = R.string.chars_per_sec),
-                                        "${result.inference.charsPerSecond} char/s"
-                                    )
-                                else
-                                    ResultRow("", "")
-                            ),
-                            expanded = expandedStates[index].value,
-                            setExpanded = {
-                                for (expanded in expandedStates) {
-                                    expanded.value = it
-                                }
-                            }
-                        ) else null,
-                        errorProps = if (result.errorMessage !== null)
-                            ErrorProps(
-                                title = stringResource(id = R.string.returned_error_label),
-                                message = result.errorMessage
-                            )
-                        else null
-                    )
-                }
-                Spacer(modifier = Modifier.height(15.dp))
-            }
-        }
-    }
+    ResultScreen(onBack = ::onBack, results = results)
 }
 
 fun getAndroidId(context: Context): String {
