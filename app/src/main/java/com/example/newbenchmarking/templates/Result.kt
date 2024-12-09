@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -27,6 +29,7 @@ import com.example.newbenchmarking.components.ErrorProps
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
+import com.example.newbenchmarking.components.OpenLinkInBrowser
 import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.interfaces.BenchmarkResult
@@ -133,7 +136,13 @@ fun ResultScreen(
                         else null
                     )
                 }
-                Spacer(modifier = Modifier.height(15.dp))
+                OpenLinkInBrowser(
+                    icon = Icons.Default.Link,
+                    modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 25.dp),
+                    text = stringResource(id = R.string.global_ranking),
+                    uri = "http://cinsoftex.drayddns.com:8082/simpleRanking"
+                )
+                //Spacer(modifier = Modifier.height(15.dp))
             }
         }
     }
