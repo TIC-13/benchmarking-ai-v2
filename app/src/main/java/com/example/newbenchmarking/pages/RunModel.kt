@@ -79,7 +79,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     var displayRamUsage by remember { mutableIntStateOf(0) }
 
     var gpuUsage by remember { mutableStateOf(GpuUsage())}
-    var displayGpuUsage by remember { mutableIntStateOf(0) }
+    var displayGpuUsage by remember { mutableStateOf<Int?>(0) }
 
     var currParams by remember { mutableStateOf(paramsList[0]) }
 
