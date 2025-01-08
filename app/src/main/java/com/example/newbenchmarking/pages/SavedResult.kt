@@ -7,15 +7,11 @@ import com.example.newbenchmarking.utils.getAllSavedResults
 
 @Composable
 fun SavedResultScreen(
-    navController: NavController
+    onBack: () -> Unit
 ) {
 
     val results = getAllSavedResults()
 
-    fun onBack() {
-        navController.popBackStack()
-    }
-
-    ResultScreen(onBack = ::onBack, results = results)
+    ResultScreen(onBack =  { onBack() }, results = results)
 
 }

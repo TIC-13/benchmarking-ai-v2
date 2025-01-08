@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -25,6 +26,10 @@ import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun App(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()){
+fun App(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
 
     val inferenceViewModel = InferenceViewModel()
     val resultViewModel = ResultViewModel()
@@ -58,57 +63,60 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
         color = Color.Black
     )
 
+
+    var lastBackPressedTime by remember { mutableStateOf(0L) }
+    val backPressInterval = 1000
+
+    fun debounceBackPress(action: () -> Unit) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastBackPressedTime > backPressInterval) {
+            lastBackPressedTime = currentTime
+            action()
+        }
+    }
+
     NavHost(navController = navController, startDestination = "home") {
-        composable(
-            "home"
-        ){
+        composable("home") {
             HomeScreen(
                 inferenceViewModel = inferenceViewModel,
-                goToRun = { navController.navigate("runModel")},
-                goToCustom = {navController.navigate("inferenceConfig")},
-                goToInfo = {navController.navigate(("info"))},
-                goToSavedResults = {navController.navigate("savedResult")},
-                onBack = {navController.popBackStack()}
+                goToRun = { navController.navigate("runModel") },
+                goToCustom = { navController.navigate("inferenceConfig") },
+                goToInfo = { navController.navigate("info") },
+                goToSavedResults = { navController.navigate("savedResult") },
+                onBack = { debounceBackPress { navController.popBackStack() } }
             )
         }
-        composable(
-            "inferenceConfig"
-        ){
+        composable("inferenceConfig") {
             InferenceConfig(
                 viewModel = inferenceViewModel,
                 startInference = { navController.navigate("runModel") },
-                onBack = {navController.popBackStack()}
+                onBack = { debounceBackPress { navController.popBackStack() } }
             )
         }
-        composable(
-            "runModel",
-        ) {
-                RunModel(viewModel = inferenceViewModel, resultViewModel = resultViewModel) {
-                    navController.navigate("result")
-                }
+        composable("runModel") {
+            RunModel(viewModel = inferenceViewModel, resultViewModel = resultViewModel) {
+                navController.navigate("result")
+            }
         }
-        composable(
-            "result",
-        ){ backStackEntry ->
+        composable("result") { backStackEntry ->
             backStackEntry.arguments?.let {
-                BenchmarkResultScreen(resultViewModel = resultViewModel){
-                    navController.popBackStack("home", false)
+                BenchmarkResultScreen(resultViewModel = resultViewModel) {
+                    debounceBackPress { navController.popBackStack("home", false) }
                 }
             }
         }
-        composable(
-            "savedResult"
-        ){
-            SavedResultScreen(navController = navController)
+        composable("savedResult") {
+            SavedResultScreen() {
+                debounceBackPress { navController.popBackStack() }
+            }
         }
-        composable(
-            "info",
-        ){
-            InfoScreen(
-                goBack = { navController.popBackStack() }
-            )
+        composable("info") {
+            InfoScreen{
+                debounceBackPress { navController.popBackStack() }
+            }
         }
     }
 }
+
 
 
