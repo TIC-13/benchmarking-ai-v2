@@ -7,17 +7,14 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -31,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.newbenchmarking.components.DropdownSelector
 import com.example.newbenchmarking.components.SliderSelector
-import com.example.newbenchmarking.components.SwitchSelector
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.mutableStateOf
@@ -40,12 +36,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.navigation.compose.rememberNavController
 import com.example.newbenchmarking.R
+import com.example.newbenchmarking.components.ActionCard
+import com.example.newbenchmarking.components.ActionCardBody
+import com.example.newbenchmarking.components.ActionCardFooter
+import com.example.newbenchmarking.components.ActionCardIcon
+import com.example.newbenchmarking.components.ActionCardTextContent
+import com.example.newbenchmarking.components.ActionCardTitle
 import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
@@ -95,7 +97,7 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
     }
 
     if(!granted){
-        return AskPermission()
+        return AskPermission(onBack)
     }
 
     CustomTest(
@@ -293,29 +295,66 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
 }
 
 @Composable
-fun AskPermission() {
-
+fun AskPermission(onBack: () -> Unit) {
     val context = LocalContext.current
 
-    BackgroundWithContent (
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(15.dp)
-    ){
-        Column(
-            verticalArrangement = Arrangement.spacedBy(50.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.error_permission),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Button(onClick = { context.requestAllFilesAccess() }) {
-                Text(text = stringResource(id = R.string.allow_permission))
+    Scaffold(topBar =
+    {
+        AppTopBar(
+            title = stringResource(id = R.string.custom_test),
+            onBack = { onBack() }
+        )
+    }) {
+        paddingValues  ->
+            BackgroundWithContent(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(15.dp)
+                    .padding(paddingValues)
+            ) {
+                ActionCard(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(25.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .fillMaxWidth(0.8f)
+                        .fillMaxHeight(0.5f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        ActionCardBody(
+                            modifier = Modifier
+                                .weight(5f)
+                                .padding(16.dp, 0.dp)
+                        ) {
+                            ActionCardTitle(
+                                text = stringResource(id = R.string.warning)
+                            )
+                            ActionCardIcon(
+                                painter = painterResource(id = R.drawable.folder_wrench_outline),
+                                description = "folder wrench icon"
+                            )
+                            ActionCardTextContent(
+                                text = stringResource(id = R.string.internal_storage_warning)
+                            )
+                        }
+                        ActionCardFooter(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.secondary)
+                                .clickable { context.requestAllFilesAccess() },
+                            text = "Allow access"
+                        )
+                    }
+                }
             }
-        }
     }
+
 }
+
 
 private fun Context.requestAllFilesAccess() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {

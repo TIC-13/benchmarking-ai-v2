@@ -79,4 +79,9 @@
 
     <string name="loading">Carregando</string>
 
+    <string name="warning">Atenção</string>
+    <string name="internal_storage_warning">Para permitir a execução de modelos TFLite no armazenamento do smartphone, nós precisamos de acesso ao armazenamento interno</string>
+
+
+
 </resources>
