@@ -3,70 +3,106 @@ tests:
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
+
+  - model_id: 1
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 300
 
   - model_id: 2
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
+
+  - model_id: 2
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 300
 
   - model_id: 3
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
+
+  - model_id: 3
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 300
 
   - model_id: 4
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 5
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 6
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 7
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 8
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
-
-  - model_id: 7
-    dataset_id: 1
-    runMode: "CPU"
-    numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 9
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
 
   - model_id: 10
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 40
+    numSamples: 200
+
+  - model_id: 10
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 300
 
   - model_id: 11
-    dataset_id: 2
+    dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 6
+    numSamples: 200
+
+  - model_id: 11
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 300
+
+  - model_id: 12
+    dataset_id: 1
+    runMode: "CPU"
+    numThreads: 1
+    numSamples: 50
+
+  - model_id: 12
+    dataset_id: 1
+    runMode: "GPU"
+    numThreads: 1
+    numSamples: 75

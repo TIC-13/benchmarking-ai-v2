@@ -1,40 +1,56 @@
 models:
-  - name: "Efficientnet"
-    tag: "EFFICIENTNET-FP32"
-    id: 1
+
+  - name: "MobileNet V3 Large"
     type: "Image Classification"
-    description: "EfficientNet is a machine learning model optimized for image classification. Its efficient and scalable architecture makes it versatile for handling various challenges in computer vision."
-    file: "efficientNetFP32.tflite"
+    id: 1
+    description: "MobileNet V3 Large with quantization FP32."
+    file: "mobilenet_v3_large_quantFP32.tflite"
     category: "CLASSIFICATION"
     quantization: "FP32"
 
-  - name: "Efficientnet"
+  - name: "MobileNet V3 Large"
     type: "Image Classification"
     id: 2
-    description: "hello."
-    file: "efficientNetINT8.tflite"
+    description: "MobileNet V3 Large with quantization FP16."
+    file: "mobilenet_v3_large_quantFP16.tflite"
+    category: "CLASSIFICATION"
+    quantization: "FP16"
+
+  - name: "MobileNet V3 Large"
+    type: "Image Classification"
+    id: 3
+    description: "MobileNet V3 Large with quantization INT8."
+    file: "mobilenet_v3_large_quantINT8.tflite"
     category: "CLASSIFICATION"
     quantization: "INT8"
 
-  - name: "DeepLab v3"
-    type: "Image Segmentation"
-    id: 3
-    description: "hello."
-    file: "deeplabv3.tflite"
-    category: "SEGMENTATION"
+  - name: "EfficientNet V2 B0"
+    type: "Image Classification"
+    id: 4
+    description: "EfficientNet V2 with quantization FP32."
+    file: "efficientnet_v2_b0_quantFP32.tflite"
+    category: "CLASSIFICATION"
     quantization: "FP32"
 
-  - name: "SSD MobileNet v1"
-    type: "Object Detection"
-    id: 4
-    description: "hello."
-    file: "ssd_mobilenet_v2.tflite"
-    category: "DETECTION"
+  - name: "EfficientNet V2 B0"
+    type: "Image Classification"
+    id: 5
+    description: "EfficientNet V2 with quantization FP16."
+    file: "efficientnet_v2_b0_quantFP16.tflite"
+    category: "CLASSIFICATION"
+    quantization: "FP16"
+
+  - name: "EfficientNet V2 B0"
+    type: "Image Classification"
+    id: 6
+    description: "EfficientNet V2 with quantization INT8."
+    file: "efficientnet_v2_b0_quantINT8.tflite"
+    category: "CLASSIFICATION"
     quantization: "INT8"
 
   - name: "Yolo v4"
     type: "Object Detection"
-    id: 5
+    id: 7
     description: "hello."
     file: "--yolov4-tiny-416-fp32.tflite"
     outputShape: [1, 416, 416, 3]
@@ -43,7 +59,7 @@ models:
 
   - name: "Yolo v4"
     type: "Object Detection"
-    id: 6
+    id: 8
     description: "hello."
     file: "--yolov4-tiny-416-fp16.tflite"
     outputShape: [1, 416, 416, 3]
@@ -52,33 +68,33 @@ models:
 
   - name: "Yolo v4"
     type: "Object Detection"
-    id: 7
+    id: 9
     description: "hello."
     file: "--yolov4-tiny-416-int8.tflite"
     outputShape: [1, 416, 416, 3]
     category: "DETECTION"
     quantization: "INT8"
 
+  - name: "SSD MobileNet V3"
+    type: "Object Detection"
+    id: 10
+    description: "SSD MobileNet V3 with quantization FP32."
+    file: "ssd_mobilenet_v3_quantFP32.tflite"
+    category: "DETECTION"
+    quantization: "FP32"
+
+  - name: "DeepLab v3"
+    type: "Image Segmentation"
+    id: 11
+    description: "hello."
+    file: "deeplabv3.tflite"
+    category: "SEGMENTATION"
+    quantization: "FP32"
+
   - name: "ESRGAN"
     type: "Image Super-Resolution"
-    id: 8
+    id: 12
     description: "hello."
     file: "esrgan.tflite"
     category: "IMAGE_SUPER_RESOLUTION"
     quantization: "FP32"
-
-  - name: "IMDN"
-    type: "Image Deblurring"
-    id: 9
-    description: "hello."
-    file: "imdn_rtc_time.tflite"
-    category: "IMAGE_DEBLURRING"
-    quantization: "FP32"
-
-  - name: "Yolox tiny"
-    type: "Object Detection"
-    id: 10
-    description: "hello."
-    file: "yolox_tiny_full_integer_quant.opt.tflite"
-    category: "DETECTION"
-    quantization: "INT8"
