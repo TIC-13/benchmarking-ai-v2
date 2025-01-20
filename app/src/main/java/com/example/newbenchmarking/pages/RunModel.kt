@@ -1,10 +1,9 @@
 package com.example.newbenchmarking.pages
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.os.BatteryManager
-import android.util.Log
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,12 +48,17 @@ import com.example.newbenchmarking.viewModel.ResultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileReader
-import java.io.IOException
 
 
+data class InferenceViewRow(
+    val id: String,
+    val label: String,
+    val value: Int?,
+    val suffix: String
+)
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
 
@@ -167,6 +170,12 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     BackHandler(enabled = true){}
 
+    val inferenceViewRows = arrayOf(
+        InferenceViewRow(id = "CPU", label = stringResource(R.string.cpu_usage), value = displayCpuUsage, suffix = "%"),
+        InferenceViewRow(id = "GPU", label = stringResource(R.string.gpu_usage), value = displayGpuUsage, suffix = "%"),
+        InferenceViewRow(id = "RAM", label = stringResource(R.string.ram_usage), value = displayRamUsage, suffix = "MB")
+    ).filter(::isNotNull)
+
     BackgroundWithContent (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
@@ -191,11 +200,10 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
             bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
             bottomSecondTitle = currParams.dataset.name,
-            rows = arrayOf(
-                ResultRow(stringResource(R.string.cpu_usage), formatInt(displayCpuUsage, "%")),
-                ResultRow(stringResource(R.string.gpu_usage), formatInt(displayGpuUsage, "%")),
-                ResultRow(stringResource(R.string.ram_usage), formatInt(displayRamUsage, "MB")),
-            )
+            rows = inferenceViewRows.map { row ->
+                ResultRow(row.label, formatInt(row.value, row.suffix))
+            },
+
         )
     }
 }
@@ -204,6 +212,11 @@ fun formatInt(value: Int?, suffix: String): String {
     if(value == null) return "-"
     return "${value}${suffix}"
 }
+
+fun isNotNull(row: InferenceViewRow): Boolean {
+    return row.value !== null
+}
+
 
 
 

@@ -6,10 +6,10 @@ import java.io.InputStreamReader
 
 class CpuUsage {
 
-    private var cpuUsage: Int? = 0
+    private var cpuUsage: Int? = null
     private var totalCPUUsage = 0
     private var numberOfCPUUsageSamples = 0
-    private var peak = 0
+    private var peak: Int? = null
 
     fun calculateCPUUsage(): Int? {
 
@@ -48,7 +48,7 @@ class CpuUsage {
 
             val cpuUsagePercentage = cpuUsageParsed*100 / totalCapacity
             cpuUsage = cpuUsagePercentage
-            if(cpuUsage!! > peak) peak = cpuUsage!!
+            if(cpuUsage!! > (peak ?: 0)) peak = cpuUsage!!
             totalCPUUsage += cpuUsagePercentage
             numberOfCPUUsageSamples ++
             return cpuUsagePercentage
@@ -63,7 +63,7 @@ class CpuUsage {
         return cpuUsage
     }
 
-    fun peak(): Int {
+    fun peak(): Int? {
         return peak
     }
 

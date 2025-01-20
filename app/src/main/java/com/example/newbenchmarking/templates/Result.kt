@@ -1,19 +1,13 @@
 package com.example.newbenchmarking.templates
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +29,9 @@ import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.pages.InferenceViewRow
 import com.example.newbenchmarking.pages.formatInt
-import com.example.newbenchmarking.pages.rememberMutableBooleanArray
+import com.example.newbenchmarking.pages.isNotNull
 
 @Composable
 fun ResultScreen(
@@ -79,7 +74,7 @@ fun ResultScreen(
                         bottomFirstTitle = "${result.params.numImages} ${stringResource(if (result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if (result.params.numThreads != 1) "s" else ""}",
                         bottomSecondTitle = result.params.dataset.name,
                         chip = if (result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-                        rows = if (result.errorMessage === null) arrayOf(
+                        rows = if (result.errorMessage === null) listOf(
                             ResultRow(
                                 stringResource(id = R.string.initialization),
                                 "${result.inference.load.toString()} ms"
@@ -94,39 +89,7 @@ fun ResultScreen(
                             ),
                         ) else null,
                         accordionProps = if (result.errorMessage === null) AccordionProps(
-                            rows = arrayOf(
-                                ResultRow(
-                                    stringResource(id = R.string.cpu_usage),
-                                    formatInt(result.cpu.getAverageCPUConsumption(), "%")
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.gpu_usage),
-                                    formatInt(result.gpu.getAverage(), "%")
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.ram_usage),
-                                    "${result.ram.getAverage().toInt()}MB"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.cpu_peak),
-                                    "${result.cpu.peak()}%"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.gpu_peak),
-                                    "${result.gpu.peak()}%"
-                                ),
-                                ResultRow(
-                                    stringResource(id = R.string.ram_peak),
-                                    "${result.ram.peak().toInt()}MB"
-                                ),
-                                if (result.inference.charsPerSecond !== null)
-                                    ResultRow(
-                                        stringResource(id = R.string.chars_per_sec),
-                                        "${result.inference.charsPerSecond} char/s"
-                                    )
-                                else
-                                    ResultRow("", "")
-                            )
+                            rows = getAccordionRows(result = result)
                         ) else null,
                         errorProps = if (result.errorMessage !== null)
                             ErrorProps(
@@ -146,4 +109,73 @@ fun ResultScreen(
             }
         }
     }
+}
+
+@Composable
+fun getAccordionRows(result: BenchmarkResult): List<ResultRow> {
+    val inferenceViewRows = getAccordionInferenceViewRows(result = result).filter(::isNotNull)
+
+    return inferenceViewRows.map { (id, label, value, suffix) ->
+        ResultRow(
+            label,
+            formatInt(value, suffix)
+        )
+    }
+}
+
+@Composable
+fun getAccordionInferenceViewRows(result: BenchmarkResult): Array<InferenceViewRow> {
+    return arrayOf(
+        InferenceViewRow(
+            id = "CPU",
+            label = stringResource(id = R.string.cpu_usage),
+            value = result.cpu.getAverageCPUConsumption(),
+            suffix = "%"
+        ),
+        InferenceViewRow(
+            id = "GPU",
+            label = stringResource(id = R.string.gpu_usage),
+            value = result.gpu.getAverage(),
+            suffix = "%"
+        ),
+        InferenceViewRow(
+            id = "RAM",
+            label = stringResource(id = R.string.ram_usage),
+            value = result.ram.getAverage().toInt(),
+            suffix = "MB"
+        ),
+        InferenceViewRow(
+            id = "CPU_PEAK",
+            label = stringResource(id = R.string.cpu_peak),
+            value = result.cpu.peak(),
+            suffix = "%"
+        ),
+        InferenceViewRow(
+            id = "GPU_PEAK",
+            label = stringResource(id = R.string.gpu_peak),
+            value = result.gpu.peak(),
+            suffix = "%"
+        ),
+        InferenceViewRow(
+            id = "RAM_PEAK",
+            label = stringResource(id = R.string.ram_peak),
+            value = result.ram.peak().toInt(),
+            suffix = "MB"
+        ),
+        if (result.inference.charsPerSecond != null) {
+            InferenceViewRow(
+                id = "CHARS_PER_SEC",
+                label = stringResource(id = R.string.chars_per_sec),
+                value = result.inference.charsPerSecond,
+                suffix = " char/s"
+            )
+        } else {
+            InferenceViewRow(
+                id = "EMPTY",
+                label = "",
+                value = null,
+                suffix = ""
+            )
+        }
+    )
 }

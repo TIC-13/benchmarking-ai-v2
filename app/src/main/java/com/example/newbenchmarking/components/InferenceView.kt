@@ -12,14 +12,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,8 +35,6 @@ import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.theme.LocalAppColors
 import com.example.newbenchmarking.theme.LocalAppTypography
-import org.checkerframework.checker.units.qual.degrees
-import kotlin.math.exp
 
 
 data class ChipProps(
@@ -58,7 +53,7 @@ data class InfoContent(
 )
 
 data class AccordionProps(
-    val rows: Array<ResultRow>,
+    val rows: List<ResultRow>,
 )
 
 data class ErrorProps(
@@ -75,7 +70,7 @@ fun InferenceView(
     infoContent: InfoContent? = null,
     bottomFirstTitle: String? = null,
     bottomSecondTitle: String? = null,
-    rows: Array<ResultRow>? = null,
+    rows: List<ResultRow>? = null,
     accordionProps: AccordionProps? = null,
     errorProps: ErrorProps? = null
 ) {
