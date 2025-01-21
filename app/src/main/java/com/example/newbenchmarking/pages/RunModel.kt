@@ -2,13 +2,16 @@ package com.example.newbenchmarking.pages
 
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +32,7 @@ import com.example.newbenchmarking.R
 import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.benchmark.GpuUsage
 import com.example.newbenchmarking.benchmark.RamUsage
+import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.CPUChip
 import com.example.newbenchmarking.components.GPUChip
@@ -86,6 +90,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     var currModelIndex by remember { mutableIntStateOf(1) }
     var currParams by remember { mutableStateOf(paramsList[0]) }
+
+    val counter = useCounter()
 
     LaunchedEffect(Unit){
         for((index, inferenceParams) in paramsList.withIndex()){
@@ -151,8 +157,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 
     LaunchedEffect(Unit) {
-        while(true){
-            withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
+            while(true){
                 delay(5)
                 cpuUsage.calculateCPUUsage()
                 ramUsage.calculateUsage()
@@ -162,11 +168,13 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     }
 
     LaunchedEffect(Unit) {
-        while(true){
-            delay(500)
-            displayCpuUsage = cpuUsage.getCPUUsage()
-            displayRamUsage = ramUsage.get()
-            displayGpuUsage = gpuUsage.get()
+        withContext(Dispatchers.IO) {
+            while(true){
+                delay(500)
+                displayCpuUsage = cpuUsage.getCPUUsage()
+                displayRamUsage = ramUsage.get()
+                displayGpuUsage = gpuUsage.get()
+            }
         }
     }
 
@@ -178,36 +186,50 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         InferenceViewRow(id = "RAM", label = stringResource(R.string.ram_usage), value = displayRamUsage, suffix = "MB")
     ).filter(::isNotNull)
 
-    BackgroundWithContent (
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxHeight(0.5F),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Model $currModelIndex out of ${inferencesList!!.size}",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
-            )
-        }
-        InferenceView(
-            modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
-            topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
-            subtitle = currParams.model.description,
-            chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-            bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
-            bottomSecondTitle = currParams.dataset.name,
-            rows = inferenceViewRows.map { row ->
-                ResultRow(row.label, formatInt(row.value, row.suffix))
-            },
 
+    Scaffold(topBar =
+    {
+        AppTopBar(
+            title = "${" ".repeat(counter)}Benchmarking${".".repeat(counter)}",
         )
     }
+    ) {
+        paddingValues ->
+
+        BackgroundWithContent (
+            modifier = Modifier.padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight(0.5F),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Model $currModelIndex out of ${inferencesList!!.size}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+            }
+            InferenceView(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
+                topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
+                subtitle = currParams.model.description,
+                chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
+                bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
+                bottomSecondTitle = currParams.dataset.name,
+                rows = inferenceViewRows.map { row ->
+                    ResultRow(row.label, formatInt(row.value, row.suffix))
+                },
+
+                )
+        }
+
+    }
+
 }
 
 fun formatInt(value: Int?, suffix: String): String {
@@ -217,6 +239,24 @@ fun formatInt(value: Int?, suffix: String): String {
 
 fun isNotNull(row: InferenceViewRow): Boolean {
     return row.value !== null
+}
+
+@Composable
+fun useCounter(): Int {
+
+    var counter by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(key1 = Unit) {
+        withContext(Dispatchers.IO) {
+            while(true){
+                delay(1000)
+                Log.d("counter", "counter")
+                if(counter >= 3) counter = 0 else counter ++
+            }
+        }
+    }
+
+    return counter
 }
 
 
