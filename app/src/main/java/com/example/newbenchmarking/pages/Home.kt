@@ -1,11 +1,28 @@
 package com.example.newbenchmarking.pages
 
+import android.media.Image
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.House
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,10 +31,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
@@ -86,22 +106,26 @@ fun HomeScreen(
     }
 
     val homeScreenButtons = listOf(
-        HomeScreenButtonProps(
-            label = stringResource(id = R.string.button_start_tests),
-            onPress = { isLoading = true }
+        HomeButtonProps(
+            text = stringResource(id = R.string.button_start_tests),
+            icon = Icons.Default.BarChart,
+            onClick = { isLoading = true }
         ),
-        HomeScreenButtonProps(
-            label = stringResource(id = R.string.button_start_custom_inference),
-            onPress = { goToCustom() }
+        HomeButtonProps(
+            text = stringResource(id = R.string.button_start_custom_inference),
+            icon = Icons.Default.PhoneAndroid,
+            onClick = { goToCustom() }
         ),
-        HomeScreenButtonProps(
-            label = stringResource(id = R.string.results),
-            onPress = { goToSavedResults() }
+        HomeButtonProps(
+            text = stringResource(id = R.string.results),
+            icon = Icons.Default.Timeline,
+            onClick = { goToSavedResults() }
         ),
-        HomeScreenButtonProps(
-            label = stringResource(id = R.string.about),
-            onPress = { goToInfo() }
-        )
+        HomeButtonProps(
+            text = stringResource(id = R.string.about),
+            icon = Icons.Default.Info,
+            onClick = { goToInfo() }
+        ),
     )
 
     if(error !== null)
@@ -117,11 +141,15 @@ fun HomeScreen(
         modifier = Modifier.padding(30.dp, 0.dp)
     ){
         Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            TitleView(Modifier.padding(0.dp, 120.dp))
+            TitleView(Modifier.padding(0.dp, 60.dp))
             Column(
-                verticalArrangement = Arrangement.spacedBy(28.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 HomeScreenButtons(buttons = homeScreenButtons)
             }
@@ -130,7 +158,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeScreenButtons(buttons: List<HomeScreenButtonProps>) {
+fun HomeScreenButtons(buttons: List<HomeButtonProps>) {
 
     val isExecuting = remember { mutableStateOf(false) }
 
@@ -149,36 +177,61 @@ fun HomeScreenButtons(buttons: List<HomeScreenButtonProps>) {
     }
 
     for (props in buttons) {
-        val (label, onPress) = props
-        HomeScreenButton(
-            props = HomeScreenButtonProps(
-                label = label,
-                onPress = composeOnPress(onPress)
-            )
+        HomeButton(
+            props = props.copy(onClick = composeOnPress { props.onClick() })
         )
     }
 
 }
 
+data class HomeButtonProps(
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+    val modifier: Modifier = Modifier,
+    val enabled: Boolean = true,
+    val text: String = "Hello"
+)
 
 @Composable
-fun HomeScreenButton(props: HomeScreenButtonProps) {
-    val (label, onPress) = props
-
-    Text(
-        modifier = Modifier
-            .clickable { onPress() },
-        text = label,
-        color = Color.White,
-        style = MaterialTheme.typography.bodyLarge
-    )
+fun HomeButton(
+    props: HomeButtonProps
+) {
+    Button(
+        onClick = props.onClick,
+        modifier = props.modifier,
+        shape = RoundedCornerShape(16.dp),
+        enabled = props.enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp)
+                    .weight(2f),
+                imageVector = props.icon,
+                contentDescription = null,
+            )
+            Text(
+                modifier = Modifier
+                    .weight(3f),
+                text = props.text,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Normal,
+            )
+        }
+    }
 }
-
-
-data class HomeScreenButtonProps(
-    val label: String,
-    val onPress: () -> Unit = {}
-)
 
 
 
