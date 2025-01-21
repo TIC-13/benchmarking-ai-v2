@@ -196,7 +196,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
         listOf(
             Pair("CPU", RunMode.CPU),
             Pair("GPU", RunMode.GPU),
-            Pair("NNAPI", RunMode.NNAPI)
+            //Pair("NNAPI", RunMode.NNAPI)
         ).map { (label, mode) ->
             RadioButtonGroupOption(
                 label = label,
