@@ -84,10 +84,11 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     var gpuUsage by remember { mutableStateOf(GpuUsage())}
     var displayGpuUsage by remember { mutableStateOf<Int?>(0) }
 
+    var currModelIndex by remember { mutableIntStateOf(1) }
     var currParams by remember { mutableStateOf(paramsList[0]) }
 
     LaunchedEffect(Unit){
-        for(inferenceParams in paramsList){
+        for((index, inferenceParams) in paramsList.withIndex()){
 
             var result = Inference()
             var errorMessage: String? = null
@@ -96,6 +97,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             withContext(Dispatchers.IO){
 
                 currParams = inferenceParams
+                currModelIndex = index + 1
 
                 try {
                     result = if(inferenceParams.model.category === Category.BERT) {
@@ -187,7 +189,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "${stringResource(R.string.loading)}...",
+                text = "Model $currModelIndex out of ${inferencesList!!.size}",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White
             )
