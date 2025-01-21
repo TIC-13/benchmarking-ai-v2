@@ -208,7 +208,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Model $currModelIndex out of ${inferencesList!!.size}",
+                    text = "${stringResource(R.string.model)} $currModelIndex ${stringResource(R.string.out_of)} ${inferencesList!!.size}",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White
                 )

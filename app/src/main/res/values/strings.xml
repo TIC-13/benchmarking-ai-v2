@@ -82,5 +82,7 @@
     <string name="warning">Warning</string>
     <string name="internal_storage_warning">To allow the execution of TFLite models in the phone storage, we need access to the phone’s internal storage.</string>
 
+    <string name="model">Model</string>
+    <string name="out_of">out of</string>
 
 </resources>
