@@ -1,7 +1,9 @@
 package com.example.newbenchmarking.templates
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,6 +65,13 @@ fun ResultScreen(
                     AlertCard(text = stringResource(id = R.string.no_result_saved))
                 }
 
+                OpenLinkInBrowser(
+                    icon = Icons.Default.Link,
+                    modifier = Modifier.padding(0.dp, if(results.isEmpty()) 0.dp else 25.dp, 0.dp, 0.dp),
+                    text = stringResource(id = R.string.global_ranking),
+                    uri = "http://cinsoftex.drayddns.com:8082/simpleRanking"
+                )
+
                 for((index, result) in results.withIndex()) {
                     InferenceView(
                         modifier = Modifier
@@ -99,13 +108,7 @@ fun ResultScreen(
                         else null
                     )
                 }
-                OpenLinkInBrowser(
-                    icon = Icons.Default.Link,
-                    modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 25.dp),
-                    text = stringResource(id = R.string.global_ranking),
-                    uri = "http://cinsoftex.drayddns.com:8082/simpleRanking"
-                )
-                //Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(15.dp))
             }
         }
     }
