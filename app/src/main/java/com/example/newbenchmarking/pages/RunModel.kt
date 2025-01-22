@@ -53,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.reflect.KSuspendFunction0
 
 
 data class InferenceViewRow(
@@ -95,8 +96,12 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     val counter = useCounter()
 
+    val (delayActive, activateDelay) = useDelay()
+
     LaunchedEffect(Unit){
         for((index, inferenceParams) in paramsList.withIndex()){
+
+            activateDelay()
 
             var result = Inference()
             var errorMessage: String? = null
@@ -104,6 +109,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
             withContext(Dispatchers.IO){
 
+                currImageIndex = 0
                 currParams = inferenceParams
                 currModelIndex = index + 1
 
@@ -120,7 +126,6 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                             currImageIndex = it
                         }
                     }
-
                 }catch (e: Exception){
                         errorMessage = e.toString()
                 }
@@ -154,7 +159,6 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                         image.recycle()
                 }
             }
-
         }
         afterRun?.let { it() }
         goToResults()
@@ -164,9 +168,11 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
         withContext(Dispatchers.IO) {
             while(true){
                 delay(5)
-                cpuUsage.calculateCPUUsage()
-                ramUsage.calculateUsage()
-                gpuUsage.calculateUsage()
+                if(!delayActive){
+                    cpuUsage.calculateCPUUsage()
+                    ramUsage.calculateUsage()
+                    gpuUsage.calculateUsage()
+                }
             }
         }
     }
@@ -231,9 +237,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
                 )
         }
-
     }
-
 }
 
 fun formatInt(value: Int?, suffix: String): String {
@@ -263,6 +267,26 @@ fun useCounter(): Int {
     return counter
 }
 
+data class DelayProps(
+    val delayActive: Boolean,
+    val activateDelay: KSuspendFunction0<Unit>
+)
+
+@Composable
+fun useDelay(delayTime: Long = 2000): DelayProps {
+
+    var delayActive by remember {
+        mutableStateOf(false)
+    }
+
+    suspend fun activateDelay() {
+        delayActive = true
+        delay(delayTime)
+        delayActive = false
+    }
+
+    return DelayProps(delayActive, activateDelay = ::activateDelay)
+}
 
 
 

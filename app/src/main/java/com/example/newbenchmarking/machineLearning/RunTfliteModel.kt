@@ -65,9 +65,11 @@ fun runTfLiteModel(
         .add(ResizeOp(inputShape[2], inputShape[1], ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
     imageProcessorBuilder.add(CastOp(inputType))
 
+    setImagesIndex(0)
+
     images.forEachIndexed{ index, bitmap ->
 
-        setImagesIndex(index)
+        setImagesIndex(index + 1)
 
         val tensorImage = TensorImage(inputType)
         tensorImage.load(bitmap)
@@ -86,8 +88,6 @@ fun runTfLiteModel(
             firstInferenceTime = inferenceTime
         }
     }
-
-    setImagesIndex(0)
 
     interpreter.close()
     gpuDelegate.close()
