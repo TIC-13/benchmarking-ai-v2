@@ -31,6 +31,7 @@ import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.pages.InferenceViewRow
 import com.example.newbenchmarking.pages.formatInt
 import com.example.newbenchmarking.pages.isNotNull
@@ -80,7 +81,7 @@ fun ResultScreen(
                             .clip(RoundedCornerShape(50.dp)),
                         topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
                         subtitle = result.params.model.description,
-                        bottomFirstTitle = "${result.params.numImages} ${stringResource(if (result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${result.params.numThreads} thread${if (result.params.numThreads != 1) "s" else ""}",
+                        bottomFirstTitle = getBottomFirstTitle(result = result),
                         bottomSecondTitle = result.params.dataset.name,
                         chip = if (result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),
                         rows = if (result.errorMessage === null) listOf(
@@ -181,4 +182,14 @@ fun getAccordionInferenceViewRows(result: BenchmarkResult): Array<InferenceViewR
             )
         }
     )
+}
+
+@Composable
+fun getBottomFirstTitle(result: BenchmarkResult): String {
+    val numImages = "${result.params.numImages} ${stringResource(if (result.params.model.category !== Category.BERT) R.string.images else R.string.inferences)}"
+    val numThreads =
+        if(result.params.type === Type.Custom)
+            " - ${result.params.numThreads} thread${if (result.params.numThreads != 1) "s" else ""}"
+        else ""
+    return numImages + numThreads
 }

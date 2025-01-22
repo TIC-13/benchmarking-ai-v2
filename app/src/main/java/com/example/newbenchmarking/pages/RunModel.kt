@@ -42,9 +42,12 @@ import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.interfaces.BenchmarkResult
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Inference
+import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
+import com.example.newbenchmarking.templates.getBottomFirstTitle
 import com.example.newbenchmarking.utils.getBitmapsFromFolder
 import com.example.newbenchmarking.utils.parseLanguageDataset
 import com.example.newbenchmarking.viewModel.InferenceViewModel
@@ -229,7 +232,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
                 subtitle = currParams.model.description,
                 chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-                bottomFirstTitle = "$currImageIndex/${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}${" ".repeat(currImageIndex.toString().length - 1)}",
+                bottomFirstTitle = getBottomFirstTitle(currParams, currImageIndex),
                 bottomSecondTitle = currParams.dataset.name,
                 rows = inferenceViewRows.map { row ->
                     ResultRow(row.label, formatInt(row.value, row.suffix))
@@ -286,6 +289,21 @@ fun useDelay(delayTime: Long = 2000): DelayProps {
     }
 
     return DelayProps(delayActive, activateDelay = ::activateDelay)
+}
+
+@Composable
+fun getBottomFirstTitle(currParams: InferenceParams, currImageIndex: Int): String {
+    val imageCount =
+        "$currImageIndex/${currParams.numImages} ${stringResource(if (currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)}"
+    val numThreads = if (currParams.type == Type.Custom)
+        " - ${currParams.numThreads} thread${if (currParams.numThreads != 1) "s" else ""}${
+            " ".repeat(
+                currImageIndex.toString().length - 1
+            )
+        }"
+    else ""
+
+    return imageCount + numThreads
 }
 
 
