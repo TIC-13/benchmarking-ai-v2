@@ -57,19 +57,19 @@ tests:
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 200
+    numSamples: 100
 
   - model_id: 8
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 200
+    numSamples: 100
 
   - model_id: 9
     dataset_id: 1
     runMode: "CPU"
     numThreads: 1
-    numSamples: 200
+    numSamples: 100
 
   - model_id: 10
     dataset_id: 1
