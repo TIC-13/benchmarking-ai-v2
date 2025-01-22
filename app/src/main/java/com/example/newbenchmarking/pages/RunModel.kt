@@ -91,6 +91,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     var currModelIndex by remember { mutableIntStateOf(1) }
     var currParams by remember { mutableStateOf(paramsList[0]) }
 
+    var currImageIndex by remember { mutableIntStateOf(0) }
+
     val counter = useCounter()
 
     LaunchedEffect(Unit){
@@ -114,7 +116,9 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                             File(folder, inferenceParams.dataset.path),
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!, File(folder, inferenceParams.model.filename))
+                        runTfLiteModel(context, inferenceParams, images!!, File(folder, inferenceParams.model.filename)) {
+                            currImageIndex = it
+                        }
                     }
 
                 }catch (e: Exception){
@@ -219,7 +223,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                 topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
                 subtitle = currParams.model.description,
                 chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
-                bottomFirstTitle = "${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}",
+                bottomFirstTitle = "$currImageIndex/${currParams.numImages} ${stringResource(if(currParams.model.category !== Category.BERT) R.string.images else R.string.inferences)} - ${currParams.numThreads} thread${if(currParams.numThreads != 1) "s" else ""}${" ".repeat(currImageIndex.toString().length - 1)}",
                 bottomSecondTitle = currParams.dataset.name,
                 rows = inferenceViewRows.map { row ->
                     ResultRow(row.label, formatInt(row.value, row.suffix))

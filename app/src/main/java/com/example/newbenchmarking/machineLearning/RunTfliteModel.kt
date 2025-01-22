@@ -23,7 +23,13 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
-fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitmap>, file: File): Inference {
+fun runTfLiteModel(
+    context: Context,
+    params: InferenceParams,
+    images: List<Bitmap>,
+    file: File,
+    setImagesIndex: (newIndex: Int) -> Unit
+): Inference {
 
     val model = loadModelFile(context, file)
     val gpuDelegate = GpuDelegate()
@@ -61,6 +67,8 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
 
     images.forEachIndexed{ index, bitmap ->
 
+        setImagesIndex(index)
+
         val tensorImage = TensorImage(inputType)
         tensorImage.load(bitmap)
 
@@ -78,6 +86,8 @@ fun runTfLiteModel(context: Context, params: InferenceParams, images: List<Bitma
             firstInferenceTime = inferenceTime
         }
     }
+
+    setImagesIndex(0)
 
     interpreter.close()
     gpuDelegate.close()
