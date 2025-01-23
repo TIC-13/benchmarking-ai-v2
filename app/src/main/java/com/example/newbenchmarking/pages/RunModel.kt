@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.BuildConfig
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.benchmark.CpuUsage
 import com.example.newbenchmarking.benchmark.GpuUsage
@@ -45,17 +46,13 @@ import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.interfaces.Type
-import com.example.newbenchmarking.machineLearning.runBert
 import com.example.newbenchmarking.machineLearning.runTfLiteModel
-import com.example.newbenchmarking.templates.getBottomFirstTitle
-import com.example.newbenchmarking.utils.getBitmapsFromFolder
-import com.example.newbenchmarking.utils.parseLanguageDataset
+import com.example.newbenchmarking.utils.getBitmapsFromAssetsFolder
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import com.example.newbenchmarking.viewModel.ResultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.io.File
 import kotlin.reflect.KSuspendFunction0
 
 
@@ -68,7 +65,11 @@ data class InferenceViewRow(
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resultViewModel: ResultViewModel, goToResults: () -> Unit) {
+fun RunModel(
+    viewModel: InferenceViewModel,
+    resultViewModel: ResultViewModel,
+    goToResults: () -> Unit
+) {
 
     val context = LocalContext.current
     val inferencesList by viewModel.inferenceParamsList.observeAsState()
@@ -116,15 +117,17 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
                     result = if(inferenceParams.model.category === Category.BERT) {
                         throw Exception("Categoria BERT descontinuada")
                     }else{
-                        images = getBitmapsFromFolder(
-                            folder = inferenceParams.dataset.folder,
+                        images = getBitmapsFromAssetsFolder(
+                            context = context,
+                            folderName = inferenceParams.dataset.folderName,
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!, file=inferenceParams.model.file) {
+                        runTfLiteModel(context, inferenceParams, images!!) {
                             currImageIndex = it
                         }
                     }
                 }catch (e: Exception){
+                        Log.d("Error", e.toString())
                         errorMessage = e.toString()
                 }
             }
@@ -189,11 +192,27 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
     BackHandler(enabled = true){}
 
     val inferenceViewRows = arrayOf(
-        InferenceViewRow(id = "CPU", label = stringResource(R.string.cpu_usage), value = displayCpuUsage, suffix = "%"),
-        InferenceViewRow(id = "GPU", label = stringResource(R.string.gpu_usage), value = displayGpuUsage, suffix = "%"),
-        InferenceViewRow(id = "RAM", label = stringResource(R.string.ram_usage), value = displayRamUsage, suffix = "MB")
-    ).filter(::isNotNull)
-
+        if (BuildConfig.DEBUG) {
+            InferenceViewRow(
+                id = "CPU",
+                label = stringResource(R.string.cpu_usage),
+                value = displayCpuUsage ?: 0,
+                suffix = "%"
+            )
+        } else null,
+        InferenceViewRow(
+            id = "GPU",
+            label = stringResource(R.string.gpu_usage),
+            value = displayGpuUsage ?: 0,
+            suffix = "%"
+        ),
+        InferenceViewRow(
+            id = "RAM",
+            label = stringResource(R.string.ram_usage),
+            value = displayRamUsage,
+            suffix = "MB"
+        )
+    ).filterNotNull()
 
     Scaffold(topBar =
     {
@@ -224,7 +243,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             InferenceView(
                 modifier = Modifier
                     .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
-                topTitle = currParams.model.label + if(currParams.model.quantization !== null) "- ${currParams.model.quantization}" else "",
+                topTitle = currParams.model.label + if(currParams.model.quantization !== null) " - ${currParams.model.quantization}" else "",
                 subtitle = currParams.model.description ?: "",
                 chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
                 bottomFirstTitle = getBottomFirstTitle(currParams, currImageIndex),

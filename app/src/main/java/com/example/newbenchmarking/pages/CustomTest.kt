@@ -55,8 +55,7 @@ import com.example.newbenchmarking.components.RadioButtonGroup
 import com.example.newbenchmarking.components.RadioButtonGroupOption
 import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.data.getModelFromFile
-import com.example.newbenchmarking.data.getModelsFromYaml
-import com.example.newbenchmarking.data.loadDatasets
+import com.example.newbenchmarking.data.loadDatasetsFromAssets
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.RunMode
@@ -98,7 +97,7 @@ fun CustomTest(
     val canReadExternalStorage = Environment.isExternalStorageManager()
 
     var models by remember { mutableStateOf(viewModel.inferenceParamsList.value?.map { it.model } ?: emptyList()) }
-    val datasets = remember { loadDatasets(File(context.filesDir, "datasets.yaml")) }
+    val datasets = remember { loadDatasetsFromAssets(context) }
 
     fun getParams(models: List<Model>): InferenceParams {
         return InferenceParams(

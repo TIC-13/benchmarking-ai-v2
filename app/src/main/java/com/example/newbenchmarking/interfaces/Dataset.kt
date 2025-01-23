@@ -5,7 +5,7 @@ import java.io.File
 data class Dataset(
     val id: Int,
     val name: String,
-    val folder: File,
+    val folderName: String,
     val size: Int
 )
 

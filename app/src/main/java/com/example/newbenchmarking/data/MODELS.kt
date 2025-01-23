@@ -1,5 +1,6 @@
 package com.example.newbenchmarking.data
 
+import android.content.Context
 import android.util.Log
 import com.example.newbenchmarking.interfaces.Category
 import com.example.newbenchmarking.interfaces.Model
@@ -10,22 +11,19 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
+fun getModelsFromAssets(context: Context, onError: ((e: Exception, elementId: Int?) -> Unit)? = null): List<Model> {
 
-fun getModelsFromYaml(folder: File, onError: ((e: Exception, elementId: Int?) -> Unit)? = null): List<Model> {
-
-    if(!folder.exists())
-        throw Exception("Pasta fornecida não existe")
-
-    val yamlFile = File(folder, "models.yaml")
-
+    val yamlFileName = "models.yaml"
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        inputStream = FileInputStream(yamlFile)
+        // Open the YAML file from the assets folder
+        inputStream = context.assets.open(yamlFileName)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
         val modelsList = arrayListOf<Model>()
-        for(element in yamlList) {
+
+        for (element in yamlList) {
             try {
 
                 val inputShape = element["inputShape"] as ArrayList<Int>?
@@ -34,9 +32,10 @@ fun getModelsFromYaml(folder: File, onError: ((e: Exception, elementId: Int?) ->
                 val filename = element["file"] as? String
                     ?: throw Exception("Nome do arquivo não definido em models.yaml")
 
-                val modelFile = File(folder, filename)
-                if(!modelFile.exists())
-                    throw Exception("Arquivo de modelo definido em models.yaml não existe: $filename")
+                // Check if the file exists in the assets folder
+                context.assets.open(filename).use {
+                    // File exists in assets, no exception means success
+                }
 
                 val model = Model(
                     id = element["id"] as? Int
@@ -47,21 +46,20 @@ fun getModelsFromYaml(folder: File, onError: ((e: Exception, elementId: Int?) ->
                         ?: throw Exception("type não definido"),
                     longDescription = element["description"] as? String
                         ?: throw Exception("longDescription não definida"),
-                    file = modelFile,
+                    filename = filename, // Store only the file name since it's in assets
                     quantization = Quantization.valueOf(element["quantization"] as? String
                         ?: throw Exception("quantization não definida")),
-                    inputShape = if(inputShape !== null) inputShape.toIntArray() else null,
-                    outputShape = if(outputShape !== null) outputShape.toIntArray() else null,
+                    inputShape = inputShape?.toIntArray(),
+                    outputShape = outputShape?.toIntArray(),
                     category = Category.valueOf(element["category"] as? String
                         ?: throw Exception("category não definida"))
                 )
                 modelsList.add(model)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 val id = element["id"] as? Int
                 Log.e("model_error", "Erro ao adicionar modelo de ID $id: ${e.message}")
-                if(onError !== null) onError(e, id)
+                onError?.invoke(e, id)
             }
-
         }
         modelsList
     } catch (e: Exception) {

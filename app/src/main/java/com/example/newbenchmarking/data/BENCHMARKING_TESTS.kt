@@ -13,16 +13,21 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-
-fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: File, onError: ((e: Exception, elementId: Int?) -> Unit)? = null): List<InferenceParams> {
+fun getBenchmarkingTestsFromAssets(
+    context: Context,
+    models: List<Model>,
+    datasets: List<Dataset>,
+    assetFilename: String = "tests.yaml",
+    onError: ((e: Exception, elementId: Int?) -> Unit)? = null
+): List<InferenceParams> {
     val yaml = Yaml()
     var inputStream: InputStream? = null
     return try {
-        inputStream = FileInputStream(file)
+        inputStream = context.assets.open(assetFilename)
         val data: Map<String, Any> = yaml.load(inputStream)
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
         val testsList = arrayListOf<InferenceParams>()
-        for(element in yamlList) {
+        for (element in yamlList) {
             try {
                 val modelId = element["model_id"] as Int
                 val datasetId = element["dataset_id"] as Int
@@ -39,12 +44,12 @@ fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: Fil
                 val test = InferenceParams(
                     model = selectedModel,
                     runMode =
-                        if(runMode == "NNAPI")
-                            RunMode.NNAPI
-                        else if(runMode == "GPU")
-                            RunMode.GPU
-                        else
-                            RunMode.CPU,
+                    if (runMode == "NNAPI")
+                        RunMode.NNAPI
+                    else if (runMode == "GPU")
+                        RunMode.GPU
+                    else
+                        RunMode.CPU,
                     numThreads = element["numThreads"] as? Int
                         ?: throw Exception("numThreads não definido"),
                     numImages = element["numSamples"] as? Int
@@ -52,10 +57,10 @@ fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: Fil
                     dataset = selectedDataset
                 )
                 testsList.add(test)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 val id = element["model_id"] as? Int
                 Log.e("test_error", "Erro ao carregar teste de id ${id}: ${e.message}")
-                if(onError !== null) onError(e, id)
+                if (onError !== null) onError(e, id)
             }
         }
         testsList
@@ -66,4 +71,5 @@ fun getBenchmarkingTests(models: List<Model>, datasets: List<Dataset>, file: Fil
         inputStream?.close()
     }
 }
+
 

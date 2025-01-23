@@ -25,10 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,24 +37,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
-import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.TitleView
-import com.example.newbenchmarking.data.getBenchmarkingTests
-import com.example.newbenchmarking.data.getModelsFromYaml
-import com.example.newbenchmarking.data.loadDatasets
+import com.example.newbenchmarking.data.getBenchmarkingTestsFromAssets
+import com.example.newbenchmarking.data.getModelsFromAssets
+import com.example.newbenchmarking.data.loadDatasetsFromAssets
 import com.example.newbenchmarking.interfaces.InferenceParams
-import com.example.newbenchmarking.utils.pasteAssets
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.io.File
-import kotlin.reflect.KSuspendFunction1
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
@@ -70,11 +59,10 @@ fun HomeScreen(
 ) {
 
     val context = LocalContext.current
-    val mainScope = CoroutineScope(Dispatchers.Main)
 
-    val (isLoading, loadTests) = useLoadTests()
+    val (_, loadTests) = useLoadTests()
 
-    suspend fun runLoadTests(context: Context, then: () -> Unit) {
+    fun runLoadTests(context: Context, then: () -> Unit) {
         loadTests(context){ inferenceParamsList ->
             if (inferenceParamsList != null) {
                 inferenceViewModel.updateInferenceParamsList(inferenceParamsList)
@@ -84,23 +72,16 @@ fun HomeScreen(
     }
 
     fun startBenchmarking() {
-        mainScope.launch {
-            runLoadTests(context) {
-                goToRun()
-            }
+        runLoadTests(context) {
+            goToRun()
         }
     }
 
     fun startCustom() {
-        mainScope.launch {
-            runLoadTests(context) {
-                goToCustom()
-            }
+        runLoadTests(context) {
+            goToCustom()
         }
     }
-
-    if(isLoading)
-        return LoadingScreen()
 
     val homeScreenButtons = listOf(
         HomeButtonProps(
@@ -223,7 +204,7 @@ fun HomeButton(
 
 data class LoadTestState(
     val isLoading: Boolean,
-    val loadTests: suspend (Context, ((List<InferenceParams>?) -> Unit)?) -> Unit,
+    val loadTests: (Context, ((List<InferenceParams>?) -> Unit)?) -> Unit,
     val inferenceParams: List<InferenceParams>?
 )
 
@@ -233,25 +214,21 @@ fun useLoadTests(): LoadTestState {
     var isLoading by remember { mutableStateOf(false) }
     var inferenceParams by remember { mutableStateOf<List<InferenceParams>?>(null) }
 
-    suspend fun loadTests(
+    fun loadTests(
         context: Context,
         afterLoad: ((params: List<InferenceParams>?) -> Unit)? = null
     ) {
         isLoading = true
 
-        pasteAssets(context, destinationPath = context.filesDir.absolutePath)
+        //pasteAssets(context, destinationPath = context.filesDir.absolutePath)
 
-        val models = getModelsFromYaml(
-            folder = context.filesDir
-        )
-        val datasets = loadDatasets(
-            file = File(context.filesDir, "datasets.yaml")
-        )
+        val models = getModelsFromAssets(context)
+        val datasets = loadDatasetsFromAssets(context)
 
-        inferenceParams = getBenchmarkingTests(
+        inferenceParams = getBenchmarkingTestsFromAssets(
+            context = context,
             models = models,
-            datasets = datasets,
-            file = File(context.filesDir, "tests.yaml"),
+            datasets = datasets
         )
 
         afterLoad?.invoke(inferenceParams)
