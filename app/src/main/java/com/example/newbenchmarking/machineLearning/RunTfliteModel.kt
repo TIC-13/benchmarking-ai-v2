@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.newbenchmarking.interfaces.Inference
 import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.interfaces.RunMode
+import com.example.newbenchmarking.interfaces.gson
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.ops.CastOp
@@ -74,12 +75,14 @@ fun runTfLiteModel(
         val tensorImage = TensorImage(inputType)
         tensorImage.load(bitmap)
 
-        val input = imageProcessorBuilder.build().process(tensorImage).buffer
-        val output = TensorBuffer.createFixedSize(outputShape, outputType).buffer
+        val input = imageProcessorBuilder.build().process(tensorImage)
+        val output = TensorBuffer.createFixedSize(outputShape, outputType)
 
         val inferenceTime = measureTimeMillis {
-            interpreter.run(input, output)
+            interpreter.run(input.buffer, output.buffer)
         }
+
+        //Log.d("model_output", gson.toJson(output.floatArray).toString())
 
         if(index != 0){
             totalInferenceTime += inferenceTime

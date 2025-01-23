@@ -17,14 +17,24 @@ fun loadDatasets(file: File, onError: ((e: Exception, elementId: Int?) -> Unit)?
         val yamlList = data.values.elementAt(0) as List<Map<String, Any>>
         val datasetsList = arrayListOf<Dataset>()
         for(element in yamlList) {
+
+            val path = element["path"] as? String
+                ?: throw Exception("path não definido")
+
+            val datasetFolder = File(file.parentFile, path)
+
+            if(!datasetFolder.exists())
+                throw Exception("Folder do dataset não encontrado")
+            if(!datasetFolder.isDirectory)
+                throw Exception("Arquivo indicado como folder do dataset não é folder")
+
             try {
                 val test = Dataset(
                     id = element["id"] as? Int
                         ?: throw Exception("id não definido"),
                     name = element["name"] as? String
                         ?: throw Exception("name não definido"),
-                    path = element["path"] as? String
-                        ?: throw Exception("path não definido"),
+                    folder = datasetFolder,
                     size = element["size"] as? Int
                         ?: throw Exception("size não definido")
                 )

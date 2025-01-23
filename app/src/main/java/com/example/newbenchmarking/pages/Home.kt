@@ -1,9 +1,8 @@
 package com.example.newbenchmarking.pages
 
-import android.media.Image
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Button
@@ -28,12 +25,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -41,20 +39,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.BackgroundWithContent
-import com.example.newbenchmarking.components.ErrorBoundary
 import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.TitleView
 import com.example.newbenchmarking.data.getBenchmarkingTests
-import com.example.newbenchmarking.data.getModels
+import com.example.newbenchmarking.data.getModelsFromYaml
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.InferenceParams
-import com.example.newbenchmarking.utils.clearFolderContents
 import com.example.newbenchmarking.utils.pasteAssets
 import com.example.newbenchmarking.viewModel.InferenceViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.reflect.KSuspendFunction1
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
@@ -68,53 +70,48 @@ fun HomeScreen(
 ) {
 
     val context = LocalContext.current
-    var isLoading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    val mainScope = CoroutineScope(Dispatchers.Main)
 
-    suspend fun loadTestsInInternalStorage(): List<InferenceParams> {
-        pasteAssets(context, destinationPath = context.filesDir.absolutePath)
-        val models = getModels(
-            file = File(context.filesDir, "models.yaml")
-        )
-        val datasets = loadDatasets(
-            file = File(context.filesDir, "datasets.yaml")
-        )
-        return getBenchmarkingTests(
-            models = models,
-            datasets = datasets,
-            file = File(context.filesDir, "tests.yaml"),
-        )
-    }
+    val (isLoading, loadTests) = useLoadTests()
 
-    LaunchedEffect(key1 = isLoading) {
-        if(isLoading){
-            try {
-                var tests: List<InferenceParams>? = null
-                withContext(Dispatchers.IO){
-                    tests = loadTestsInInternalStorage()
-                }
-                if(tests == null) return@LaunchedEffect
-                inferenceViewModel.updateInferenceParamsList(tests!!)
-                inferenceViewModel.updateFolder(context.filesDir)
-                inferenceViewModel.updateAfterRun { clearFolderContents(context.filesDir) }
-                goToRun()
-            }catch(e: Exception) {
-                error = e.message
+    suspend fun runLoadTests(context: Context, then: () -> Unit) {
+        loadTests(context){ inferenceParamsList ->
+            if (inferenceParamsList != null) {
+                inferenceViewModel.updateInferenceParamsList(inferenceParamsList)
             }
-            isLoading = false
+            then()
         }
     }
+
+    fun startBenchmarking() {
+        mainScope.launch {
+            runLoadTests(context) {
+                goToRun()
+            }
+        }
+    }
+
+    fun startCustom() {
+        mainScope.launch {
+            runLoadTests(context) {
+                goToCustom()
+            }
+        }
+    }
+
+    if(isLoading)
+        return LoadingScreen()
 
     val homeScreenButtons = listOf(
         HomeButtonProps(
             text = stringResource(id = R.string.button_start_tests),
             icon = Icons.Default.BarChart,
-            onClick = { isLoading = true }
+            onClick = { startBenchmarking() }
         ),
         HomeButtonProps(
             text = stringResource(id = R.string.button_start_custom_inference),
             icon = Icons.Default.PhoneAndroid,
-            onClick = { goToCustom() }
+            onClick = { startCustom() }
         ),
         HomeButtonProps(
             text = stringResource(id = R.string.results),
@@ -127,15 +124,6 @@ fun HomeScreen(
             onClick = { goToInfo() }
         ),
     )
-
-    if(error !== null)
-        return ErrorBoundary(
-            text = stringResource(id = R.string.error_model_not_loaded), 
-            onBack = onBack
-        )
-
-    if(isLoading)
-        return LoadingScreen()
 
     BackgroundWithContent(
         modifier = Modifier.padding(30.dp, 0.dp)
@@ -231,6 +219,52 @@ fun HomeButton(
             )
         }
     }
+}
+
+data class LoadTestState(
+    val isLoading: Boolean,
+    val loadTests: suspend (Context, ((List<InferenceParams>?) -> Unit)?) -> Unit,
+    val inferenceParams: List<InferenceParams>?
+)
+
+@Composable
+fun useLoadTests(): LoadTestState {
+
+    var isLoading by remember { mutableStateOf(false) }
+    var inferenceParams by remember { mutableStateOf<List<InferenceParams>?>(null) }
+
+    suspend fun loadTests(
+        context: Context,
+        afterLoad: ((params: List<InferenceParams>?) -> Unit)? = null
+    ) {
+        isLoading = true
+
+        pasteAssets(context, destinationPath = context.filesDir.absolutePath)
+
+        val models = getModelsFromYaml(
+            folder = context.filesDir
+        )
+        val datasets = loadDatasets(
+            file = File(context.filesDir, "datasets.yaml")
+        )
+
+        inferenceParams = getBenchmarkingTests(
+            models = models,
+            datasets = datasets,
+            file = File(context.filesDir, "tests.yaml"),
+        )
+
+        afterLoad?.invoke(inferenceParams)
+
+        isLoading = false
+
+    }
+
+    return LoadTestState(
+        isLoading = isLoading,
+        loadTests = ::loadTests,
+        inferenceParams = inferenceParams
+    )
 }
 
 

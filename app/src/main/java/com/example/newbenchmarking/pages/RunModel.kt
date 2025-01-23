@@ -72,11 +72,7 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
     val context = LocalContext.current
     val inferencesList by viewModel.inferenceParamsList.observeAsState()
-    val folder by viewModel.folder.observeAsState()
     val afterRun by viewModel.afterRun.observeAsState()
-
-    if(folder == null)
-        throw Error(stringResource(R.string.folder_not_found_error))
 
     val resultsList by resultViewModel.benchmarkResultList.observeAsState()
 
@@ -118,14 +114,13 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
 
                 try {
                     result = if(inferenceParams.model.category === Category.BERT) {
-                        val parsedInput = parseLanguageDataset(File(folder, inferenceParams.dataset.path))
-                        runBert(context, inferenceParams, parsedInput, File(folder, inferenceParams.model.filename))
+                        throw Exception("Categoria BERT descontinuada")
                     }else{
                         images = getBitmapsFromFolder(
-                            File(folder, inferenceParams.dataset.path),
+                            folder = inferenceParams.dataset.folder,
                             numBitmaps = inferenceParams.numImages
                         )
-                        runTfLiteModel(context, inferenceParams, images!!, File(folder, inferenceParams.model.filename)) {
+                        runTfLiteModel(context, inferenceParams, images!!, file=inferenceParams.model.file) {
                             currImageIndex = it
                         }
                     }
@@ -229,8 +224,8 @@ fun RunModel(modifier: Modifier = Modifier, viewModel: InferenceViewModel, resul
             InferenceView(
                 modifier = Modifier
                     .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)),
-                topTitle = "${currParams.model.label} - ${currParams.model.quantization}",
-                subtitle = currParams.model.description,
+                topTitle = currParams.model.label + if(currParams.model.quantization !== null) "- ${currParams.model.quantization}" else "",
+                subtitle = currParams.model.description ?: "",
                 chip = if(currParams.runMode == RunMode.NNAPI) NNAPIChip() else if (currParams.runMode == RunMode.GPU) GPUChip() else CPUChip(),
                 bottomFirstTitle = getBottomFirstTitle(currParams, currImageIndex),
                 bottomSecondTitle = currParams.dataset.name,

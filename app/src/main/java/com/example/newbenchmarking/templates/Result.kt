@@ -79,8 +79,8 @@ fun ResultScreen(
                             .padding(top = 15.dp)
                             .fillMaxWidth(0.9f)
                             .clip(RoundedCornerShape(50.dp)),
-                        topTitle = "${result.params.model.label} - ${result.params.model.quantization}",
-                        subtitle = result.params.model.description,
+                        topTitle = result.params.model.label + if(result.params.model.quantization!==null) " - ${result.params.model.quantization}" else "",
+                        subtitle = result.params.model.description ?: "",
                         bottomFirstTitle = getBottomFirstTitle(result = result),
                         bottomSecondTitle = result.params.dataset.name,
                         chip = if (result.params.runMode == RunMode.NNAPI) NNAPIChip() else if (result.params.runMode == RunMode.GPU) GPUChip() else CPUChip(),

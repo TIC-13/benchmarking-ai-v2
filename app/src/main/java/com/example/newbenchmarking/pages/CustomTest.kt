@@ -10,15 +10,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -51,50 +51,28 @@ import com.example.newbenchmarking.components.ActionCardTitle
 import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
-import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.RadioButtonGroup
 import com.example.newbenchmarking.components.RadioButtonGroupOption
 import com.example.newbenchmarking.components.ScrollableWithButton
-import com.example.newbenchmarking.data.getModels
+import com.example.newbenchmarking.data.getModelFromFile
+import com.example.newbenchmarking.data.getModelsFromYaml
 import com.example.newbenchmarking.data.loadDatasets
 import com.example.newbenchmarking.interfaces.Category
-import com.example.newbenchmarking.interfaces.Dataset
 import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.utils.createFolderIfNotExists
-import com.example.newbenchmarking.utils.fileExists
-import com.example.newbenchmarking.utils.pasteAssets
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit, onBack: () -> Unit) {
+fun InferenceConfig(
+    viewModel: InferenceViewModel,
+    startInference: () -> Unit,
+    onBack: () -> Unit
+) {
 
-    var granted by remember { mutableStateOf(Environment.isExternalStorageManager()) }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycleObserver = remember {
-        LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                granted = Environment.isExternalStorageManager()
-            }
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        granted = Environment.isExternalStorageManager()
-    }
+    val granted = useCheckExternalStorage()
 
     if(!granted){
         return AskPermission(onBack)
@@ -109,47 +87,51 @@ fun InferenceConfig(modifier: Modifier = Modifier, viewModel: InferenceViewModel
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, startInference: () -> Unit, onBack: () -> Unit) {
+fun CustomTest(
+    viewModel: InferenceViewModel,
+    startInference: () -> Unit,
+    onBack: () -> Unit
+) {
 
     val context = LocalContext.current
+
     val canReadExternalStorage = Environment.isExternalStorageManager()
-    val externalStorage = Environment.getExternalStorageDirectory()
-    val speedAIFolder = createFolderIfNotExists(externalStorage, "SpeedAI")
 
-    var loadedModels by remember { mutableStateOf<List<Model>?>(null) }
-    var loadedDatasets by remember { mutableStateOf<List<Dataset>?>(null) }
-    var loadingFails by remember { mutableStateOf(emptyList<String>()) }
+    var models by remember { mutableStateOf(viewModel.inferenceParamsList.value?.map { it.model } ?: emptyList()) }
+    val datasets = remember { loadDatasets(File(context.filesDir, "datasets.yaml")) }
 
-    var error by remember { mutableStateOf<String?>(null) }
+    fun getParams(models: List<Model>): InferenceParams {
+        return InferenceParams(
+            model = models[0],
+            numImages = 15,
+            numThreads = 1,
+            runMode = RunMode.CPU,
+            dataset = datasets[0],
+            type = Type.Custom
+        )
+    }
 
-    val labelErrorLoadingModel = stringResource(id = R.string.error_loading_model_of_id)
-    val labelErrorLoadingDataset = stringResource(id = R.string.error_loading_dataset_of_id)
+    var params by remember { mutableStateOf(getParams(models)) }
 
     LaunchedEffect(key1 = Unit) {
-        loadedModels = null
-        loadedDatasets = null
-        loadingFails = emptyList()
+
+        val externalStorage = Environment.getExternalStorageDirectory()
 
         if(!canReadExternalStorage) return@LaunchedEffect
 
-        try {
-            if(!fileExists(speedAIFolder, "models.yaml") ||
-                !fileExists(speedAIFolder, "datasets.yaml")
-            ){
-                pasteAssets(context, destinationPath = speedAIFolder.absolutePath)
-            }
-            withContext(Dispatchers.IO) {
-                loadedModels = getModels(
-                    file = File(speedAIFolder, "models.yaml"),
-                    onError = { e, id -> loadingFails = loadingFails + "$labelErrorLoadingModel $id: ${e.message}" }
-                )
-                loadedDatasets = loadDatasets(
-                    file = File(speedAIFolder, "datasets.yaml"),
-                    onError = { e, id -> loadingFails = loadingFails + "$labelErrorLoadingDataset $id: ${e.message}" }
-                )
-            }
-        }catch(e: Exception) {
-            error = e.message
+        val customModelsFolder = createFolderIfNotExists(externalStorage, "SpeedAI")
+
+        val customModels = customModelsFolder.list()?.mapNotNull { filename ->
+            val modelFile = File(customModelsFolder, filename)
+            if (!modelFile.exists() || modelFile.isDirectory)
+                null
+            else
+                getModelFromFile(modelFile)
+        }
+
+        if(customModels !== null) {
+            models = customModels + models
+            params = getParams(models)
         }
     }
 
@@ -158,18 +140,6 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             text = stringResource(id = R.string.error_permission),
             onBack = onBack
         )
-
-    if(error !== null)
-        return ErrorBoundary(
-            text = "${stringResource(id = R.string.error_loading_files)}: ${error}",
-            onBack = onBack
-        )
-
-    if(loadedModels == null || loadedDatasets == null)
-        return LoadingScreen()
-
-    val models = loadedModels!!
-    val datasets = loadedDatasets!!
 
     if(datasets.isEmpty())
         return ErrorBoundary(
@@ -183,20 +153,10 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
             onBack = onBack
         )
 
-    var params by remember { mutableStateOf(InferenceParams(
-        model = models[0],
-        numImages = 15,
-        numThreads = 1,
-        runMode = RunMode.CPU,
-        dataset = datasets[0],
-        type = Type.Custom
-    )) }
-
     val radioOptions = remember(params) {
         listOf(
             Pair("CPU", RunMode.CPU),
             Pair("GPU", RunMode.GPU),
-            //Pair("NNAPI", RunMode.NNAPI)
         ).map { (label, mode) ->
             RadioButtonGroupOption(
                 label = label,
@@ -208,7 +168,6 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
 
     fun startTest() {
         viewModel.updateInferenceParamsList(listOf(params))
-        viewModel.updateFolder(speedAIFolder)
         startInference()
     }
 
@@ -238,14 +197,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
                 buttonOnPress = ::startTest,
                 buttonLabel = stringResource(id = R.string.start)
             ){
-                Column(
-                    //modifier = Modifier.padding(15.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                ) {
-                    for(loadingFail in loadingFails){
-                        LoadingFailView(text = loadingFail)
-                    }
-                }
+                Spacer(modifier = Modifier.height(10.dp))
                 RadioButtonGroup(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
@@ -273,7 +225,7 @@ fun CustomTest(modifier: Modifier = Modifier, viewModel: InferenceViewModel, sta
                 DropdownSelector(
                     modifier = dropdownModifier,
                     label = stringResource(id = R.string.selected_model),
-                    items = models.map {x -> x.label + " - " + x.quantization},
+                    items = models.map {x -> x.label + if(x.quantization !== null) " - ${x.quantization}" else ""},
                     onItemSelected = { newIndex ->
                         params = params.copy(model = models[newIndex])
                     }
@@ -355,7 +307,6 @@ fun AskPermission(onBack: () -> Unit) {
 
 }
 
-
 private fun Context.requestAllFilesAccess() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
         val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
@@ -363,17 +314,30 @@ private fun Context.requestAllFilesAccess() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
 @Composable
-fun LoadingFailView(text: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.error,
-        shape = RoundedCornerShape(20)
-    ) {
-        Text(
-            modifier = Modifier.padding(15.dp),
-            text = text,
-            color = MaterialTheme.colorScheme.onError,
-            style = MaterialTheme.typography.bodyMedium
-        )
+fun useCheckExternalStorage(): Boolean {
+    var granted by remember { mutableStateOf(Environment.isExternalStorageManager()) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleObserver = remember {
+        LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                granted = Environment.isExternalStorageManager()
+            }
+        }
     }
+
+    DisposableEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        granted = Environment.isExternalStorageManager()
+    }
+
+    return granted
 }

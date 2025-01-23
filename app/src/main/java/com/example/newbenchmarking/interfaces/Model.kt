@@ -1,19 +1,21 @@
 package com.example.newbenchmarking.interfaces
 
 import org.tensorflow.lite.DataType
+import java.io.File
 
 data class Model(
     val label: String,
     val id: Int,
-    val description: String,
-    val longDescription: String,
-    val filename: String,
-    var quantization: Quantization,
+    val description: String? = null,
+    val longDescription: String? = null,
+    //val filename: String,
+    val file: File,
+    var quantization: Quantization? = null,
     val inputShape: IntArray? = null,
     val outputShape: IntArray? = null,
     val inputDataType: DataType? = null,
     val outputDataType: DataType? = null,
-    var category: Category
+    var category: Category? = null
 )
 
 enum class Quantization {
