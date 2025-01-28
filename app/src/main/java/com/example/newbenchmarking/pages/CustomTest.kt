@@ -17,8 +17,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +40,7 @@ import com.example.newbenchmarking.interfaces.InferenceParams
 import com.example.newbenchmarking.viewModel.InferenceViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +60,7 @@ import com.example.newbenchmarking.components.ActionCardTitle
 import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import com.example.newbenchmarking.components.ErrorBoundary
+import com.example.newbenchmarking.components.LoadingScreen
 import com.example.newbenchmarking.components.RadioButtonGroup
 import com.example.newbenchmarking.components.RadioButtonGroupOption
 import com.example.newbenchmarking.components.ScrollableWithButton
@@ -61,6 +71,10 @@ import com.example.newbenchmarking.interfaces.Model
 import com.example.newbenchmarking.interfaces.RunMode
 import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.utils.createFolderIfNotExists
+import com.example.newbenchmarking.utils.setAskStoragePermission
+import com.example.newbenchmarking.utils.useAskStoragePermission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.R)
@@ -70,17 +84,47 @@ fun InferenceConfig(
     startInference: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val storedPermission = useAskStoragePermission()
+    val storageGranted = useCheckExternalStorage()
 
-    val granted = useCheckExternalStorage()
+    var askPermission by remember {
+        mutableStateOf(!storageGranted)
+    }
 
-    if(!granted){
-        return AskPermission(onBack)
+    LaunchedEffect(key1 = storageGranted) {
+        if(storageGranted)
+            askPermission = false
+    }
+
+    LaunchedEffect(key1 = storedPermission) {
+        if(storedPermission == false)
+            askPermission = false
+    }
+
+    fun denyPermission() {
+        askPermission = false
+        scope.launch {
+            setAskStoragePermission(context, false)
+        }
+    }
+
+    if(storedPermission == null)
+        return LoadingScreen()
+
+    if(askPermission){
+        return AskPermission(
+            onBack = { onBack() },
+            onDeny = ::denyPermission
+        )
     }
 
     CustomTest(
         viewModel = viewModel,
         startInference = startInference,
-        onBack = onBack
+        openPermissionPage = { askPermission = true },
+        onBack = onBack,
     )
 }
 
@@ -89,10 +133,13 @@ fun InferenceConfig(
 fun CustomTest(
     viewModel: InferenceViewModel,
     startInference: () -> Unit,
+    openPermissionPage: () -> Unit,
     onBack: () -> Unit
 ) {
 
     val context = LocalContext.current
+
+    val storageGranted = useCheckExternalStorage()
 
     val canReadExternalStorage = Environment.isExternalStorageManager()
 
@@ -133,12 +180,6 @@ fun CustomTest(
             params = getParams(models)
         }
     }
-
-    if(!canReadExternalStorage)
-        return ErrorBoundary(
-            text = stringResource(id = R.string.error_permission),
-            onBack = onBack
-        )
 
     if(datasets.isEmpty())
         return ErrorBoundary(
@@ -197,6 +238,20 @@ fun CustomTest(
                 buttonLabel = stringResource(id = R.string.start)
             ){
                 Spacer(modifier = Modifier.height(10.dp))
+
+                if(!storageGranted) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary,
+                        ),
+                        onClick = { openPermissionPage() }
+                    ) {
+                        Icon(imageVector = Icons.Default.Storage, contentDescription = "storage")
+                        Text(modifier = Modifier.padding(start = 5.dp), text = "Allow custom models")
+                    }
+                }
+
                 RadioButtonGroup(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
@@ -240,71 +295,89 @@ fun CustomTest(
                         )
                     }
                 )
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+        }
+    }
+}
+@Composable
+fun AskPermission(
+    onBack: () -> Unit,
+    onDeny: () -> Unit,
+) {
+    val context = LocalContext.current
+
+    Scaffold(topBar = {
+        AppTopBar(
+            title = stringResource(id = R.string.custom_test),
+            onBack = { onBack() }
+        )
+    }) { paddingValues ->
+        BackgroundWithContent(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(15.dp)
+                .padding(paddingValues)
+        ) {
+            ActionCard(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.8f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    ActionCardBody(
+                        modifier = Modifier
+                            .weight(8f)
+                            .padding(16.dp, 16.dp)
+                    ) {
+                        ActionCardTitle(
+                            text = stringResource(id = R.string.action_card_title)
+                        )
+                        ActionCardIcon(
+                            painter = painterResource(id = R.drawable.folder_wrench_outline),
+                            description = stringResource(id = R.string.action_card_icon_description)
+                        )
+                        ActionCardTextContent(
+                            text = stringResource(id = R.string.action_card_text_content)
+                        )
+                    }
+                    ActionCardFooter(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .clickable { context.requestAllFilesAccess() },
+                        text = stringResource(id = R.string.action_card_footer_text)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                ),
+                onClick = { onDeny() }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = stringResource(id = R.string.action_card_icon_description)
+                )
+                Text(
+                    modifier = Modifier.padding(start = 5.dp),
+                    text = stringResource(id = R.string.continue_with_default_models)
+                )
             }
         }
     }
 }
 
-@Composable
-fun AskPermission(onBack: () -> Unit) {
-    val context = LocalContext.current
-
-    Scaffold(topBar =
-    {
-        AppTopBar(
-            title = stringResource(id = R.string.custom_test),
-            onBack = { onBack() }
-        )
-    }) {
-        paddingValues  ->
-            BackgroundWithContent(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(15.dp)
-                    .padding(paddingValues)
-            ) {
-                ActionCard(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(25.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .fillMaxWidth(0.8f)
-                        .fillMaxHeight(0.5f)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        ActionCardBody(
-                            modifier = Modifier
-                                .weight(5f)
-                                .padding(16.dp, 0.dp)
-                        ) {
-                            ActionCardTitle(
-                                text = stringResource(id = R.string.warning)
-                            )
-                            ActionCardIcon(
-                                painter = painterResource(id = R.drawable.folder_wrench_outline),
-                                description = "folder wrench icon"
-                            )
-                            ActionCardTextContent(
-                                text = stringResource(id = R.string.internal_storage_warning)
-                            )
-                        }
-                        ActionCardFooter(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.secondary)
-                                .clickable { context.requestAllFilesAccess() },
-                            text = "Allow access"
-                        )
-                    }
-                }
-            }
-    }
-
-}
 
 private fun Context.requestAllFilesAccess() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {

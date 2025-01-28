@@ -17,17 +17,17 @@ import com.example.newbenchmarking.interfaces.toJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-val Context.dataStore by preferencesDataStore("result_datastore")
+val Context.resultDataStore by preferencesDataStore("result_datastore")
 
 suspend fun saveResultLocally(context: Context, result: BenchmarkResult) {
     val key = getResultKey(result.params)
-    context.dataStore.edit { preferences ->
+    context.resultDataStore.edit { preferences ->
         preferences[key] = result.toJson()
     }
 }
 
 private fun getAllSavedResultsFlow(context: Context): Flow<List<BenchmarkResult>> {
-    return context.dataStore.data.map { preferences ->
+    return context.resultDataStore.data.map { preferences ->
         preferences.asMap().values.mapNotNull { value ->
             (value as? String)?.toBenchmarkResult()
         }

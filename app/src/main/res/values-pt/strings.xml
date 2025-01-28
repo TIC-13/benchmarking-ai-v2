@@ -85,5 +85,11 @@
     <string name="model">Modelo</string>
     <string name="out_of">de</string>
 
+    <string name="action_card_title">Como executar o benchmarking com modelos personalizados</string>
+    <string name="action_card_icon_description">ícone de chave inglesa de pasta</string>
+    <string name="action_card_text_content">Se você deseja executar o benchmarking com modelos personalizados, deve permitir que o aplicativo acesse o armazenamento interno do telefone. Em seguida, mova os modelos personalizados para a pasta "Speed.AI" no sistema de arquivos do telefone.\n\nSe você não permitir o acesso, ainda poderá continuar com os modelos padrão.</string>
+    <string name="action_card_footer_text">Permitir acesso</string>
+    <string name="continue_with_default_models">Continuar apenas com os modelos padrão</string>
+
 
 </resources>

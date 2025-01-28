@@ -85,4 +85,10 @@
     <string name="model">Model</string>
     <string name="out_of">out of</string>
 
+    <string name="action_card_title">How to run the benchmarking with custom models</string>
+    <string name="action_card_icon_description">folder wrench icon</string>
+    <string name="action_card_text_content">If you want to run the benchmarking with custom models, you should allow the app access to the phone\'s internal storage. Then, move the custom models to the Speed.AI folder in the phone\'s file system.\n\nIf you don\'t allow the access, you will still be able to continue with the default models.</string>
+    <string name="action_card_footer_text">Allow access</string>
+    <string name="continue_with_default_models">Continue with only the default models</string>
+
 </resources>
