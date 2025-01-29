@@ -275,7 +275,6 @@ fun useCounter(): Int {
         withContext(Dispatchers.IO) {
             while(true){
                 delay(1000)
-                Log.d("counter", "counter")
                 if(counter >= 3) counter = 0 else counter ++
             }
         }

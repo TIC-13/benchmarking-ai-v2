@@ -58,32 +58,44 @@ interface ApiService {
     suspend fun createPost(@Body encryptedData: Map<String, String>): Response<Any>
 }
 
-const val apiAdress = BuildConfig.API_ADRESS
+const val apiAddress = BuildConfig.API_ADDRESS
 
-val retrofit = Retrofit.Builder()
-    .baseUrl("$apiAdress/")
-    .addConverterFactory(GsonConverterFactory.create())
-    .build()
+val retrofit = if(apiAddress.startsWith("http"))
+    Retrofit.Builder()
+        .baseUrl("$apiAddress/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    else
+        null
 
-val apiService = retrofit.create(ApiService::class.java)
+val apiService = retrofit?.create(ApiService::class.java)
 
 const val secretKeyString = BuildConfig.API_KEY
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun encryptAndPostResult(postData: PostData) {
-    // Convert PostResult object to JSON using Gson
-    val gson = Gson()
-    val postDataJson = gson.toJson(postData)
 
-    // Encrypt the JSON string
-    val encryptedData = encryptData(postDataJson, secretKeyString)
+    var encryptedDataMap: Map<String, String>? = null
 
-    // Prepare the encrypted data to send in a JSON format
-    val encryptedDataMap = mapOf("encryptedData" to encryptedData)
+    try {
+        val gson = Gson()
+        val postDataJson = gson.toJson(postData)
+
+        val encryptedData = encryptData(postDataJson, secretKeyString)
+
+        encryptedDataMap = mapOf("encryptedData" to encryptedData)
+    }catch(e: Exception) {
+        Log.e("post", "Error encrypting: $e")
+    }
+
+    if(encryptedDataMap == null) return
 
     // Send the encrypted data to the server
     GlobalScope.launch(Dispatchers.IO) {
         try {
+            if(apiService == null)
+                return@launch
+
             val response: Response<Any> = apiService.createPost(encryptedDataMap)
             if (response.isSuccessful) {
                 Log.d("post", "Sent encrypted result over network")

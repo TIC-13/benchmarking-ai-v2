@@ -10,11 +10,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.newbenchmarking.BuildConfig
 import com.example.newbenchmarking.R
 import com.example.newbenchmarking.components.AccordionProps
 import com.example.newbenchmarking.components.AlertCard
@@ -42,6 +44,13 @@ fun ResultScreen(
     results: List<BenchmarkResult>,
 ) {
 
+    val rankingAddress = remember {
+        BuildConfig.RANKING_ADDRESS
+    }
+    val rankingIsValid = remember {
+        rankingAddress.startsWith("http")
+    }
+
     Scaffold(topBar =
     {
         AppTopBar(
@@ -66,12 +75,14 @@ fun ResultScreen(
                     AlertCard(text = stringResource(id = R.string.no_result_saved))
                 }
 
-                OpenLinkInBrowser(
-                    icon = Icons.Default.Link,
-                    modifier = Modifier.padding(0.dp, if(results.isEmpty()) 0.dp else 25.dp, 0.dp, 0.dp),
-                    text = stringResource(id = R.string.global_ranking),
-                    uri = "http://cinsoftex.drayddns.com:8082/simpleRanking"
-                )
+                if(rankingIsValid) {
+                    OpenLinkInBrowser(
+                        icon = Icons.Default.Link,
+                        modifier = Modifier.padding(0.dp, if(results.isEmpty()) 0.dp else 25.dp, 0.dp, 0.dp),
+                        text = stringResource(id = R.string.global_ranking),
+                        uri = rankingAddress
+                    )
+                }
 
                 for((index, result) in results.withIndex()) {
                     InferenceView(
