@@ -45,7 +45,26 @@ Speed.AI measures several performance metrics, including:
   - GPU
   - RAM
 
-## How to Add New Models
+## How to Add New Models Without Changing the Source Code
+
+To add new models in Speed.AI, follow these steps:
+
+1. **Go to `Start Custom Test`**:  
+   - From the main screen, press the `Start Custom Test` button.
+
+2. **Allow the app access to the phone's storage**:  
+   - Click the `Allow Access` button and select the Speed.AI app.
+
+3. **Add the `.tflite` model to the Speed.AI folder**:  
+   - The app will create a Speed.AI folder in the root of the phone's file system.  
+   - Move the `.tflite` file to this folder.  
+   - Once the file is in place, you can use the model in the Custom Test section (accessible after pressing the `Start Custom Test` button on the main screen).
+
+**Warning**: For the model to run properly, it must have correct metadata, especially the input size.
+
+<br/>
+
+## How to add new models to the benchmarking by changing the source code
 
 To add new models in Speed.AI, follow these steps:
 
@@ -59,7 +78,8 @@ To add new models in Speed.AI, follow these steps:
 <br/>
   
    ```yaml
-  - name: "Efficientnet"
+  - id: 1
+    name: "Efficientnet"
     type: "Classificação de imagem"
     description: "O EfficientNet é um modelo de machine learning otimizado para classificação de imagens. Sua arquitetura eficiente e escalável o torna versátil para lidar com uma variedade de desafios em visão computacional."
     file: "efficientNetFP32.tflite"
@@ -75,7 +95,8 @@ To add new models in Speed.AI, follow these steps:
   <br/>
   
    ```yaml
-  - name: "Yolo v4"
+  - id: 3
+    name: "Yolo v4"
     type: "Detecção de objeto"
     description: "hello."
     file: "--yolov4-tiny-416-fp32.tflite"
@@ -84,6 +105,27 @@ To add new models in Speed.AI, follow these steps:
     category: "DETECTION"
     quantization: "FP32"
 ```
+
+4. **Add to the benchmarking**
+   - If you want to add or remove model executions to the benchmarking, change the file `tests.yaml`. See bellow the example of a declaration of a benchmarking in the file:
+
+  ```yaml
+  - model_id: 1
+  dataset_id: 1
+  runMode: "CPU"
+  numThreads: 1
+  numSamples: 200
+  ```
+
+4. **Add datasets**
+   - If you want to add a dataset to the app, add a folder with the images to the `assets` folder, and add a declaration like the one bellow in the `datasets.yaml` file:
+
+  ```yaml
+  - id: 1
+    name: "Imagenet"
+    path: "images_dataset" (path to the dataset folder from assets)
+    size: 400
+  ```   
      
 ## Environment 
 
