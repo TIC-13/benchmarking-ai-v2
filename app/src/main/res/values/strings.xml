@@ -91,4 +91,9 @@
     <string name="action_card_footer_text">Allow access</string>
     <string name="continue_with_default_models">Continue with only the default models</string>
 
+    <string name="go_to_licenses_title">See licenses</string>
+    <string name="go_to_licenses_link">Licenses</string>
+
+    <string name="licenses_title">Licenses</string>
+
 </resources>

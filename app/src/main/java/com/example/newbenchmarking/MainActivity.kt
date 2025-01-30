@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.newbenchmarking.pages.LicensesScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -111,7 +112,13 @@ fun App(modifier: Modifier = Modifier, navController: NavHostController = rememb
             }
         }
         composable("info") {
-            InfoScreen{
+            InfoScreen(
+                goBack = { debounceBackPress { navController.popBackStack() }},
+                goToLicenses = { navController.navigate("licenses") }
+            )
+        }
+        composable("licenses") {
+            LicensesScreen {
                 debounceBackPress { navController.popBackStack() }
             }
         }

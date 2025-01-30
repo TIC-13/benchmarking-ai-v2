@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,10 +26,22 @@ import com.example.newbenchmarking.components.AccordionText
 import com.example.newbenchmarking.components.AppTopBar
 import com.example.newbenchmarking.components.BackgroundWithContent
 import androidx.compose.material.icons.filled.Camera
-import com.example.newbenchmarking.components.OpenLinkInBrowser
+import androidx.compose.material.icons.filled.FileCopy
+import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.ui.platform.LocalContext
+import com.example.newbenchmarking.components.PressableLink
+import com.example.newbenchmarking.utils.navigateToUrl
+
+val textSectionModifier: Modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp)
+val linkModifier: Modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp)
 
 @Composable
-fun InfoScreen(goBack: () -> Unit) {
+fun InfoScreen(
+    goBack: () -> Unit,
+    goToLicenses: () -> Unit
+) {
+
+    val context = LocalContext.current
 
     Scaffold(topBar =
     {
@@ -53,7 +64,7 @@ fun InfoScreen(goBack: () -> Unit) {
             ) {
 
                 TextSection(
-                    modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp),
+                    modifier = textSectionModifier,
                     title = stringResource(R.string.about_app_title),
                     content = stringResource(R.string.about_app_content)
                 )
@@ -71,24 +82,36 @@ fun InfoScreen(goBack: () -> Unit) {
                 }
 
                 TextSection(
-                    modifier = Modifier.padding(15.dp, 30.dp, 15.dp, 15.dp),
+                    modifier = textSectionModifier,
                     title = stringResource(id = R.string.about_luxai_title),
                     content = stringResource(id = R.string.about_luxai),
                     titleIcon = Icons.Default.Camera,
                     componentAfterTitle = {
-                        OpenLinkInBrowser(
-                            modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
+                        PressableLink(
+                            modifier = linkModifier,
                             text = stringResource(id = R.string.website_label),
-                            uri = "https://luxai.cin.ufpe.br"
+                            onPress = { navigateToUrl(context, "https://luxai.cin.ufpe.br") }
                         )
                     }
                 )
 
+                TextSection(
+                    modifier = textSectionModifier,
+                    title = stringResource(id = R.string.go_to_licenses_title),
+                    titleIcon = Icons.Default.LibraryBooks,
+                    content = "",
+                    componentAfterTitle = {
+                        PressableLink(
+                            modifier = linkModifier,
+                            text = stringResource(id = R.string.go_to_licenses_link),
+                            onPress = { goToLicenses() }
+                        )
+                    }
+                )
+                
             }
         }
     }
-
-
 }
 
 

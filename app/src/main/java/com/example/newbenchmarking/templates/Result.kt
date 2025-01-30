@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.newbenchmarking.BuildConfig
@@ -27,7 +28,7 @@ import com.example.newbenchmarking.components.ErrorProps
 import com.example.newbenchmarking.components.GPUChip
 import com.example.newbenchmarking.components.InferenceView
 import com.example.newbenchmarking.components.NNAPIChip
-import com.example.newbenchmarking.components.OpenLinkInBrowser
+import com.example.newbenchmarking.components.PressableLink
 import com.example.newbenchmarking.components.ResultRow
 import com.example.newbenchmarking.components.ScrollableWithButton
 import com.example.newbenchmarking.interfaces.BenchmarkResult
@@ -37,12 +38,15 @@ import com.example.newbenchmarking.interfaces.Type
 import com.example.newbenchmarking.pages.InferenceViewRow
 import com.example.newbenchmarking.pages.formatInt
 import com.example.newbenchmarking.pages.isNotNull
+import com.example.newbenchmarking.utils.navigateToUrl
 
 @Composable
 fun ResultScreen(
     onBack: () -> Unit,
     results: List<BenchmarkResult>,
 ) {
+
+    val context = LocalContext.current
 
     val rankingAddress = remember {
         BuildConfig.RANKING_ADDRESS
@@ -76,11 +80,11 @@ fun ResultScreen(
                 }
 
                 if(rankingIsValid) {
-                    OpenLinkInBrowser(
+                    PressableLink(
                         icon = Icons.Default.Link,
                         modifier = Modifier.padding(0.dp, if(results.isEmpty()) 0.dp else 25.dp, 0.dp, 0.dp),
                         text = stringResource(id = R.string.global_ranking),
-                        uri = rankingAddress
+                        onPress = { navigateToUrl(context, rankingAddress) }
                     )
                 }
 
