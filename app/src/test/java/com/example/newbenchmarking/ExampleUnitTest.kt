@@ -1,4 +1,4 @@
-package com.example.newbenchmarking
+package ai.luxai.speedai
 
 import org.junit.Test
 

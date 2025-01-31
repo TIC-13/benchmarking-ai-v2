@@ -24,11 +24,11 @@ android {
         buildConfig = true
     }
 
-    namespace = "com.example.newbenchmarking"
+    namespace = "ai.luxai.speedai"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.newbenchmarking"
+        applicationId = "ai.luxai.speedai"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
