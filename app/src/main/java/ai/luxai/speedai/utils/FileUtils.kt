@@ -3,12 +3,7 @@ package ai.luxai.speedai.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import ai.luxai.speedai.machineLearning.LanguageModelInput
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
 
 fun createFolderIfNotExists(fileParent: File, folderName: String): File {
     val folder = File(fileParent, folderName)
@@ -18,6 +13,20 @@ fun createFolderIfNotExists(fileParent: File, folderName: String): File {
     return folder
 }
 
+fun <T> Array<T>.takeWithRepeat(n: Int): List<T> {
+    if (n <= size) return take(n)
+
+    val result = mutableListOf<T>()
+    var index = 0
+
+    repeat(n) {
+        result.add(this[index])
+        index = (index + 1) % size  // Loop back to the start when reaching the end
+    }
+
+    return result
+}
+
 fun getBitmapsFromAssetsFolder(
     context: Context,
     folderName: String,
@@ -25,7 +34,7 @@ fun getBitmapsFromAssetsFolder(
 ): List<Bitmap> {
     return try {
         val assetManager = context.assets
-        val filenames = assetManager.list(folderName)?.take(numBitmaps) ?: emptyList()
+        val filenames = assetManager.list(folderName)?.takeWithRepeat(numBitmaps) ?: emptyList()
         filenames.mapNotNull { filename ->
             val assetPath = "$folderName/$filename"
             loadBitmapFromAsset(context, assetPath)
@@ -47,4 +56,5 @@ fun loadBitmapFromAsset(context: Context, assetPath: String): Bitmap? {
         null
     }
 }
+
 
