@@ -2,14 +2,6 @@ models:
 
   - name: "MobileNet V3 Large"
     type: "Image Classification"
-    id: 1
-    description: "MobileNet V3 Large with quantization FP32."
-    file: "mobilenet_v3_large_quantFP32.tflite"
-    category: "CLASSIFICATION"
-    quantization: "FP32"
-
-  - name: "MobileNet V3 Large"
-    type: "Image Classification"
     id: 2
     description: "MobileNet V3 Large with quantization FP16."
     file: "mobilenet_v3_large_quantFP16.tflite"
@@ -26,14 +18,6 @@ models:
 
   - name: "EfficientNet V2 B0"
     type: "Image Classification"
-    id: 4
-    description: "EfficientNet V2 with quantization FP32."
-    file: "efficientnet_v2_b0_quantFP32.tflite"
-    category: "CLASSIFICATION"
-    quantization: "FP32"
-
-  - name: "EfficientNet V2 B0"
-    type: "Image Classification"
     id: 5
     description: "EfficientNet V2 with quantization FP16."
     file: "efficientnet_v2_b0_quantFP16.tflite"
@@ -47,15 +31,6 @@ models:
     file: "efficientnet_v2_b0_quantINT8.tflite"
     category: "CLASSIFICATION"
     quantization: "INT8"
-
-  - name: "Yolo v4"
-    type: "Object Detection"
-    id: 7
-    description: "hello."
-    file: "--yolov4-tiny-416-fp32.tflite"
-    outputShape: [1, 416, 416, 3]
-    category: "DETECTION"
-    quantization: "FP32"
 
   - name: "Yolo v4"
     type: "Object Detection"

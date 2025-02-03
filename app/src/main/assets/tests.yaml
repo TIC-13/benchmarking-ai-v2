@@ -1,15 +1,4 @@
 tests:
-  - model_id: 1
-    dataset_id: 1
-    runMode: "CPU"
-    numThreads: 1
-    numSamples: 200
-
-  - model_id: 1
-    dataset_id: 1
-    runMode: "GPU"
-    numThreads: 1
-    numSamples: 300
 
   - model_id: 2
     dataset_id: 1
@@ -34,12 +23,6 @@ tests:
     runMode: "GPU"
     numThreads: 1
     numSamples: 300
-
-  - model_id: 4
-    dataset_id: 1
-    runMode: "CPU"
-    numThreads: 1
-    numSamples: 200
 
   - model_id: 5
     dataset_id: 1
@@ -52,12 +35,6 @@ tests:
     runMode: "CPU"
     numThreads: 1
     numSamples: 200
-
-  - model_id: 7
-    dataset_id: 1
-    runMode: "CPU"
-    numThreads: 1
-    numSamples: 100
 
   - model_id: 8
     dataset_id: 1
