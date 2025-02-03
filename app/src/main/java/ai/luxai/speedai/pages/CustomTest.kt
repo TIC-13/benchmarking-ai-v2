@@ -143,7 +143,7 @@ fun CustomTest(
 
     val canReadExternalStorage = Environment.isExternalStorageManager()
 
-    var models by remember { mutableStateOf(viewModel.inferenceParamsList.value?.map { it.model } ?: emptyList()) }
+    var models by remember { mutableStateOf(viewModel.inferenceParamsList.value?.map { it.model }?.distinct() ?: emptyList()) }
     val datasets = remember { loadDatasetsFromAssets(context) }
 
     fun getParams(models: List<Model>): InferenceParams {
