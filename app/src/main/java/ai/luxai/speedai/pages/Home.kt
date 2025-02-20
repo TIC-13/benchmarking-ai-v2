@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,11 +40,13 @@ import ai.luxai.speedai.components.TitleView
 import ai.luxai.speedai.data.getBenchmarkingTestsFromAssets
 import ai.luxai.speedai.data.getModelsFromAssets
 import ai.luxai.speedai.data.loadDatasetsFromAssets
+import ai.luxai.speedai.hooks.useNoActionOnDelay
+import ai.luxai.speedai.hooks.useRankingAddress
 import ai.luxai.speedai.interfaces.InferenceParams
+import ai.luxai.speedai.utils.navigateToUrl
 import ai.luxai.speedai.viewModel.InferenceViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 
 @RequiresApi(Build.VERSION_CODES.R)
 @Composable
@@ -60,7 +61,11 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
+    val run = useNoActionOnDelay()
+
     val (_, loadTests) = useLoadTests()
+
+    val rankingAddress = useRankingAddress()
 
     fun runLoadTests(context: Context, then: () -> Unit) {
         loadTests(context){ inferenceParamsList ->
@@ -83,78 +88,66 @@ fun HomeScreen(
         }
     }
 
-    val homeScreenButtons = listOf(
+    val homeScreenButtons = listOfNotNull(
         HomeButtonProps(
             text = stringResource(id = R.string.button_start_tests),
-            icon = Icons.Default.BarChart,
+            icon = VectorIcon(Icons.Default.BarChart),
             onClick = { startBenchmarking() }
         ),
         HomeButtonProps(
             text = stringResource(id = R.string.button_start_custom_inference),
-            icon = Icons.Default.PhoneAndroid,
+            icon = VectorIcon(Icons.Default.PhoneAndroid),
             onClick = { startCustom() }
         ),
         HomeButtonProps(
             text = stringResource(id = R.string.results),
-            icon = Icons.Default.Timeline,
+            icon = VectorIcon(Icons.Default.Timeline),
             onClick = { goToSavedResults() }
         ),
+        if (rankingAddress.isValid)
+            HomeButtonProps(
+                text = stringResource(id = R.string.global_ranking),
+                icon = PainterIcon(painterResource(id = R.drawable.web)),
+                onClick = { navigateToUrl(context, rankingAddress.address) }
+            )
+        else null,
         HomeButtonProps(
             text = stringResource(id = R.string.about),
-            icon = Icons.Default.Info,
+            icon = VectorIcon(Icons.Default.Info),
             onClick = { goToInfo() }
-        ),
+        )
     )
 
     BackgroundWithContent(
-        modifier = Modifier.padding(30.dp, 0.dp)
+        modifier = Modifier.padding(15.dp, 0.dp)
     ){
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            TitleView(Modifier.padding(0.dp, 60.dp))
+            TitleView(Modifier.padding(0.dp, 30.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                HomeScreenButtons(buttons = homeScreenButtons)
+                for (props in homeScreenButtons) {
+                    HomeButton(
+                        props = props.copy(onClick = { run { props.onClick() } } )
+                    )
+                }
             }
         }
     }
 }
 
-@Composable
-fun HomeScreenButtons(buttons: List<HomeButtonProps>) {
-
-    val isExecuting = remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = isExecuting) {
-        delay(1000)
-        isExecuting.value = false
-    }
-
-    fun composeOnPress(onPress: () -> Unit): () -> Unit {
-        return fun() {
-            if (!isExecuting.value) {
-                isExecuting.value = true
-                onPress()
-            }
-        }
-    }
-
-    for (props in buttons) {
-        HomeButton(
-            props = props.copy(onClick = composeOnPress { props.onClick() })
-        )
-    }
-
-}
+sealed class HomeButtonIcon
+data class VectorIcon(val icon: ImageVector): HomeButtonIcon()
+data class PainterIcon(val icon: Painter): HomeButtonIcon()
 
 data class HomeButtonProps(
-    val icon: ImageVector,
+    val icon: HomeButtonIcon,
     val onClick: () -> Unit,
     val modifier: Modifier = Modifier,
     val enabled: Boolean = true,
@@ -165,8 +158,11 @@ data class HomeButtonProps(
 fun HomeButton(
     props: HomeButtonProps
 ) {
+    val iconModifier = Modifier.size(24.dp)
+    val iconContentDescription = null
+
     Button(
-        onClick = props.onClick,
+        onClick = {props.onClick()},
         modifier = props.modifier,
         shape = RoundedCornerShape(16.dp),
         enabled = props.enabled,
@@ -180,17 +176,24 @@ fun HomeButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp, 20.dp),
+                .padding(0.dp, 15.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Icon(
-                modifier = Modifier
-                    .size(24.dp)
-                    .weight(2f),
-                imageVector = props.icon,
-                contentDescription = null,
-            )
+            when(props.icon) {
+                is VectorIcon ->
+                    Icon(
+                        modifier = iconModifier.weight(2f),
+                        imageVector = props.icon.icon,
+                        contentDescription = iconContentDescription,
+                    )
+                is PainterIcon ->
+                    Icon(
+                        modifier = iconModifier.weight(2f),
+                        painter = props.icon.icon,
+                        contentDescription = iconContentDescription,
+                    )
+            }
             Text(
                 modifier = Modifier
                     .weight(3f),

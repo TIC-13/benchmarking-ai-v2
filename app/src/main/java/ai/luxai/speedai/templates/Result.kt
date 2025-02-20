@@ -31,6 +31,7 @@ import ai.luxai.speedai.components.NNAPIChip
 import ai.luxai.speedai.components.PressableLink
 import ai.luxai.speedai.components.ResultRow
 import ai.luxai.speedai.components.ScrollableWithButton
+import ai.luxai.speedai.hooks.useRankingAddress
 import ai.luxai.speedai.interfaces.BenchmarkResult
 import ai.luxai.speedai.interfaces.Category
 import ai.luxai.speedai.interfaces.RunMode
@@ -39,6 +40,11 @@ import ai.luxai.speedai.pages.InferenceViewRow
 import ai.luxai.speedai.pages.formatInt
 import ai.luxai.speedai.pages.isNotNull
 import ai.luxai.speedai.utils.navigateToUrl
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun ResultScreen(
@@ -48,12 +54,7 @@ fun ResultScreen(
 
     val context = LocalContext.current
 
-    val rankingAddress = remember {
-        BuildConfig.RANKING_ADDRESS
-    }
-    val rankingIsValid = remember {
-        rankingAddress.startsWith("http")
-    }
+    val rankingAddress = useRankingAddress()
 
     Scaffold(topBar =
     {
@@ -79,13 +80,20 @@ fun ResultScreen(
                     AlertCard(text = stringResource(id = R.string.no_result_saved))
                 }
 
-                if(rankingIsValid) {
-                    PressableLink(
-                        icon = Icons.Default.Link,
-                        modifier = Modifier.padding(0.dp, if(results.isEmpty()) 0.dp else 25.dp, 0.dp, 0.dp),
-                        text = stringResource(id = R.string.global_ranking),
-                        onPress = { navigateToUrl(context, rankingAddress) }
-                    )
+                if(rankingAddress.isValid) {
+                    Button(
+                        modifier = Modifier.padding(top = 30.dp),
+                        onClick = { navigateToUrl(context, rankingAddress.address) }
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(end = 10.dp),
+                            painter = painterResource(R.drawable.web),
+                            contentDescription = "Ranking icon"
+                        )
+                        Text(
+                            text = stringResource(id = R.string.see_global_ranking)
+                        )
+                    }
                 }
 
                 for((index, result) in results.withIndex()) {
