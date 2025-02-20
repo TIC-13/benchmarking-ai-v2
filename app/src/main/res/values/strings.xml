@@ -42,6 +42,7 @@
     <string name="no_result_saved">No benchmark result saved</string>
 
     <string name="global_ranking">Global ranking</string>
+    <string name="see_global_ranking">See global ranking</string>
 
     <string name="permission_warning">To use this function, the app needs permission to read the files</string>
     <string name="allow_permission">Grant permission</string>
